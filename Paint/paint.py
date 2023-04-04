@@ -1,3 +1,4 @@
+#Original program for PicoBoy by HalloSpaceBoy
 from PicoGameBoy import PicoGameBoy
 from os import rename, remove, listdir
 rename("./main.py", "./paint.py")
