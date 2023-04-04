@@ -1,0 +1,77 @@
+# Original home screen for PicoBoy by HalloSpaceBoy
+from micropython import const
+from PicoGameBoy import PicoGameBoy
+import time
+from random import randint
+import os
+import machine
+BLACK = PicoGameBoy.color(0,0,0)
+WHITE = PicoGameBoy.color(255,255,255)
+pgb = PicoGameBoy()
+
+
+games=os.listdir("/games")
+loop=0
+gamenum=len(games)-1
+title=0
+print(gamenum)
+
+
+    
+while True:
+    if gamenum==-1:
+        pgb.fill(PicoGameBoy.color(0,0,0))
+        pgb.create_text("NO GAMES DETECTED",-1,50,PicoGameBoy.color(255,255,255))
+        pgb.create_text("Plug your PicoBoy",-1, 100,PicoGameBoy.color(255,255,255))
+        pgb.create_text("into your computer",-1,112,PicoGameBoy.color(255,255,255))
+        pgb.create_text("and run the PicoBoy",-1,124,PicoGameBoy.color(255,255,255))
+        pgb.create_text("Communication Software",-1,136,PicoGameBoy.color(255,255,255))
+        pgb.create_text("to upload games",-1,148,PicoGameBoy.color(255,255,255))
+        pgb.show()
+        break
+    if pgb.button_left():
+        title-=1
+        time.sleep(0.1)
+    if pgb.button_right():
+        title+=1
+        time.sleep(0.1)
+    if title>gamenum:
+        title=gamenum
+    elif title<0:
+        title=0
+    if pgb.button_select() and pgb.button_B() and pgb.button_down():
+        pgb.fill(PicoGameBoy.color(0,0,0))
+        pgb.create_text("DATA UPLOAD MODE",-1,50,PicoGameBoy.color(255,255,255))
+        pgb.create_text("Plug your PicoBoy",-1, 100,PicoGameBoy.color(255,255,255))
+        pgb.create_text("into your computer",-1,112,PicoGameBoy.color(255,255,255))
+        pgb.create_text("and run the PicoBoy",-1,124,PicoGameBoy.color(255,255,255))
+        pgb.create_text("Communication Software.",-1,136,PicoGameBoy.color(255,255,255))
+        pgb.create_text("To exit data",-1,180,PicoGameBoy.color(255,255,255))
+        pgb.create_text("upload mode reset",-1,192,PicoGameBoy.color(255,255,255))
+        pgb.create_text("your PicoBoy.",-1,204,PicoGameBoy.color(255,255,255))
+        pgb.show()
+        break
+    pgb.fill(PicoGameBoy.color(0,0,0))
+    try:
+        pgb.load_image(games[title]+"img.bin")
+    except:
+        pgb.create_text(games[title], -1, -1, PicoGameBoy.color(255,255,255))
+    pos=[]
+    for i in range(title):
+        pos.append(".")
+    pos.append("0")
+    for i in range((gamenum+1)-(title+1)):
+        pos.append(".")
+    pgb.create_text("".join(pos), x=-1, y=228)
+    pgb.show()
+    if pgb.button_A() or pgb.button_start():
+        os.rename("./main.py", "./title.py")
+        os.rename("./"+games[title]+".py", "./main.py")
+        pgb.fill(PicoGameBoy.color(0,0,0))
+        pgb.show()
+        machine.reset()
+        break
+
+        
+        
+        
