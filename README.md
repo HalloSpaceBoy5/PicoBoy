@@ -14,11 +14,11 @@ https://github.com/HalloSpaceBoy5/PicoBoy/releases
 
 # Credits
 ## Vincent Mistler
-Source for PicoGameBoy.py (Modified)
-Source for ST7789.py (Modified)
+Source for PicoGameBoy.py (Modified)\n
+Source for ST7789.py (Modified)\n
 Source for tetris.py (Modified), tetris_title.bin
 ## Matthieu Mistler
-Source for gameoflife.py (Modified)
+Source for gameoflife.py (Modified)\n
 Source for original concept of flappybird.py (Rewritten)
 ## MikeDEV
 Source for rpmidi.py (Modified)
