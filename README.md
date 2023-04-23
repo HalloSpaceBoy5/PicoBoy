@@ -7,7 +7,7 @@ The PicoBoy is a videogame console based off of the Raspberry Pi Pico that you c
 ## Discord
 https://discord.gg/xTaUqVxDRY
 ## Tindie Shop 
-No link yet!
+https://www.tindie.com/products/hallospaceboy/picoboy/
 ## Casing Files
 https://www.printables.com/model/452771-picoboy
 ## Software
