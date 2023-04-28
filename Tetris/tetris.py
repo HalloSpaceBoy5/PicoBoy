@@ -142,6 +142,40 @@ def no_music():
     midi.stop_all_music()
     midi.stop_all()
 
+def append_to_board(score):
+    with open("highscorestetris.sc", "r") as s:
+        scores=s.read().split("\n")
+        for r in range(len(scores)):
+            scores[r]=int(scores[r])
+    newscores=scores
+    newscores.append(int(score))
+    newscores.sort(reverse=True)
+    for i in range(len(newscores)): newscores[i]=str(newscores[i])
+    with open("highscorestetris.sc", "w+") as w:
+        w.write("\n".join(newscores[:10]))
+
+def view_scores():
+    x=open("highscorestetris.sc", "r")
+    scores=x.read()
+    x.close()
+    del x
+    scores=scores.split("\n")
+    while True:
+        if pgb.button_B():
+            time.sleep(0.1)
+            return
+        if pgb.button_Home():
+            pgb.fill(PicoGameBoy.color(0,0,0))
+            pgb.show()
+            machine.reset()
+            break
+        pgb.fill(PicoGameBoy.color(0,0,0))
+        pgb.create_text("High Scores:", -1, 15, PicoGameBoy.color(255,255,255))
+        for i in range(len(scores)):
+            pgb.create_text("Score "+str(i+1)+": "+str(scores[i]), -1, 50+i*15, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Press B to exit", -1, 220, PicoGameBoy.color(255,255,255))
+        pgb.show()
+
 def pause_screen():
     global currentmusic
     no_music()
@@ -176,7 +210,7 @@ def collision(x,y):
 def title_screen():
     # title screen
     now = time.ticks_ms()
-    while pgb.any_button()==False:
+    while True:
         if pgb.button_Home():
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
@@ -192,6 +226,10 @@ def title_screen():
             while time.ticks_diff(time.ticks_ms(), now) < 200:
                 time.sleep(0.020)
             now = time.ticks_ms()
+        if pgb.button_select() or pgb.button_start():
+            view_scores()
+        elif pgb.button_A():
+            break
             
 def game_over_screen():
     global midi
@@ -203,24 +241,37 @@ def game_over_screen():
     global currentmusic
     no_music()
     currentmusic=[0xF0]
-    pgb.fill_rect(10,90,220,100,BLACK)
-    pgb.center_text("GAME OVER",WHITE)
-    pgb.text("Press A to play again.", 35, 125, WHITE)
-    pgb.text("Press home to quit.", 40, 140, WHITE)
-    pgb.create_text("Score: "+str(score), -1, 155, WHITE)
+    pgb.fill(BLACK)
+    pgb.create_text("GAME OVER",-1,85,WHITE)
+    pgb.text("Press A to play again.", 35, 105, WHITE)
+    pgb.text("Press home to quit.", 40, 120, WHITE)
+    pgb.create_text("Press select/start", -1, 135, PicoGameBoy.color(255,255,255))
+    pgb.create_text("to view scores.", -1, 150, PicoGameBoy.color(255,255,255))
+    pgb.create_text("Score: "+str(score), -1, 165, WHITE)
     pgb.show()
-    lines=0
-    level=0
-    score=0
+    append_to_board(score)
     while True:
+        pgb.fill(BLACK)
+        pgb.create_text("GAME OVER",-1,85,WHITE)
+        pgb.text("Press A to play again.", 35, 105, WHITE)
+        pgb.text("Press home to quit.", 40, 120, WHITE)
+        pgb.create_text("Press select/start", -1, 135, PicoGameBoy.color(255,255,255))
+        pgb.create_text("to view scores.", -1, 150, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Score: "+str(score), -1, 165, WHITE)
+        pgb.show()
         if pgb.button_Home():
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
             break
+        if pgb.button_select() or pgb.button_start():
+            view_scores()
         elif pgb.button_A():
+            lines=0
+            level=0
+            score=0
             clear_lines()
-            return
+            break
 def draw_background():
     pgb.fill(BACKGROUND_COLOR)
     

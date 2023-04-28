@@ -231,6 +231,39 @@ class enemy:
                     bullets.append( newB )
             self.counter=self.counter+1
   
+def append_to_board(score):
+    with open("highscoresstarship.sc", "r") as s:
+        scores=s.read().split("\n")
+        for r in range(len(scores)):
+            scores[r]=int(scores[r])
+    newscores=scores
+    newscores.append(int(score))
+    newscores.sort(reverse=True)
+    for i in range(len(newscores)): newscores[i]=str(newscores[i])
+    with open("highscoresstarship.sc", "w+") as w:
+        w.write("\n".join(newscores[:10]))
+
+def view_scores():
+    x=open("highscoresstarship.sc", "r")
+    scores=x.read()
+    x.close()
+    del x
+    scores=scores.split("\n")
+    while True:
+        if pgb.button_B():
+            sleep(0.1)
+            return
+        if pgb.button_Home():
+            pgb.fill(PicoGameBoy.color(0,0,0))
+            pgb.show()
+            machine.reset()
+            break
+        pgb.fill(PicoGameBoy.color(0,0,0))
+        pgb.create_text("High Scores:", -1, 15, PicoGameBoy.color(255,255,255))
+        for i in range(len(scores)):
+            pgb.create_text("Score "+str(i+1)+": Level "+str(scores[i]), -1, 50+i*15, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Press B to exit", -1, 220, PicoGameBoy.color(255,255,255))
+        pgb.show()
 
     
 def rem_all_active():
@@ -256,6 +289,7 @@ def game_over_screen():
     currentmusic=game_over
     rem_all_active()
     lives=3
+    append_to_board(level)
     pgb.sound(0)
     pgb.fill(PicoGameBoy.color(0,0,0))
     pgb.rect(70,20,100,80,PicoGameBoy.color(255,255,255))
@@ -268,16 +302,31 @@ def game_over_screen():
     pgb.create_text("Press home to quit.", -1, 160, PicoGameBoy.color(255,255,255))
     pgb.create_text("Level: "+str(level), -1, 180, PicoGameBoy.color(255,255,255))
     pgb.show()
-    level=0
     while True:
+        pgb.fill(PicoGameBoy.color(0,0,0))
+        pgb.rect(70,20,100,80,PicoGameBoy.color(255,255,255))
+        pgb.fill_rect(90, 30,10,10,PicoGameBoy.color(255,255,255))
+        pgb.fill_rect(140, 30,10,10,PicoGameBoy.color(255,255,255))
+        pgb.rect(90,60,60,20,PicoGameBoy.color(255,255,255))
+        pgb.line(90,79,150,79,PicoGameBoy.color(0,0,0))
+        pgb.create_text("Game Over",-1,125,PicoGameBoy.color(255,255,255))
+        pgb.create_text("Press A to play again.", -1, 145, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Press home to quit.", -1, 160, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Press select/start", -1, 175, PicoGameBoy.color(255,255,255))
+        pgb.create_text("to view scores.", -1, 190, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Level: "+str(level), -1, 205, PicoGameBoy.color(255,255,255))
+        pgb.show()
         if pgb.button_Home():
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
             break
+        if pgb.button_select() or pgb.button_start():
+            view_scores()
         elif pgb.button_A():
+            level=0
             no_music()
-            return
+            break
 
 def play_music():
     global midi
@@ -409,7 +458,7 @@ def title_screen():
     rept=True
     currentmusic=title_theme
     now = ticks_ms()
-    while pgb.any_button()==False:
+    while True:
         if pgb.button_Home():
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
@@ -417,7 +466,6 @@ def title_screen():
             break
         pgb.load_image("starship_title.bin")
         pgb.show()
-        
         if ticks_diff(ticks_ms(), now) > 200:
             now = ticks_ms()
             pgb.create_text("PRESS ANY BUTTON",-1,160,PicoGameBoy.color(255,255,255))
@@ -425,6 +473,10 @@ def title_screen():
             while ticks_diff(ticks_ms(), now) < 200:
                 sleep(0.020)
             now = ticks_ms()
+        if pgb.button_select() or pgb.button_start():
+            view_scores()
+        elif pgb.button_A():
+            break
     sleep(0.25)
 
 def new_level():

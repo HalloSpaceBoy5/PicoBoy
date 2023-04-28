@@ -53,10 +53,44 @@ def sund():
             playjump=False
             sleep(0.01)
 
+def append_to_board(score):
+    with open("highscoresflappy.sc", "r") as s:
+        scores=s.read().split("\n")
+        for r in range(len(scores)):
+            scores[r]=int(scores[r])
+    newscores=scores
+    newscores.append(int(score))
+    newscores.sort(reverse=True)
+    for i in range(len(newscores)): newscores[i]=str(newscores[i])
+    with open("highscoresflappy.sc", "w+") as w:
+        w.write("\n".join(newscores[:10]))
+
+def view_scores():
+    x=open("highscoresflappy.sc", "r")
+    scores=x.read()
+    x.close()
+    del x
+    scores=scores.split("\n")
+    while True:
+        if pgb.button_B():
+            sleep(0.1)
+            return
+        if pgb.button_Home():
+            pgb.fill(PicoGameBoy.color(0,0,0))
+            pgb.show()
+            machine.reset()
+            break
+        pgb.fill(PicoGameBoy.color(0,0,0))
+        pgb.create_text("High Scores:", -1, 15, PicoGameBoy.color(255,255,255))
+        for i in range(len(scores)):
+            pgb.create_text("Score "+str(i+1)+": "+str(scores[i])+" Pipes", -1, 50+i*15, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Press B to exit", -1, 220, PicoGameBoy.color(255,255,255))
+        pgb.show()
+
 def title_screen():
     now = ticks_ms()
     pgb.free_mem()
-    while pgb.any_button()==False:
+    while True:
         if pgb.button_Home():
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
@@ -64,6 +98,10 @@ def title_screen():
             break
         pgb.load_image("flappybird_title.bin")
         pgb.show()
+        if pgb.button_select() or pgb.button_start():
+            view_scores()
+        elif pgb.any_button():
+            break
         if ticks_diff(ticks_ms(), now) > 200:
             now = ticks_ms()
             pgb.create_text("PRESS ANY BUTTON",20, 120,PicoGameBoy.color(0,0,0))
@@ -105,11 +143,13 @@ def check_collision(speed,detectionradius, posx, posy, width, height, posx2, pos
 
 def game_over():
     global score
-    pgb.fill_rect(10,90,220,100,PicoGameBoy.color(0,0,0))
-    pgb.center_text("GAME OVER",PicoGameBoy.color(255,255,255))
-    pgb.text("Press A to play again.", 35, 125, PicoGameBoy.color(255,255,255))
-    pgb.text("Press home to quit.", 40, 140, PicoGameBoy.color(255,255,255))
-    pgb.create_text("Score: "+str(int(score/7)), -1, 155, PicoGameBoy.color(255,255,255))
+    pgb.fill(PicoGameBoy.color(0,0,0))
+    pgb.create_text("GAME OVER",-1, 85,PicoGameBoy.color(255,255,255))
+    pgb.text("Press A to play again.", 35, 105, PicoGameBoy.color(255,255,255))
+    pgb.text("Press home to quit.", 40, 120, PicoGameBoy.color(255,255,255))
+    pgb.create_text("Press select/start", -1, 135, PicoGameBoy.color(255,255,255))
+    pgb.create_text("to view scores.", -1, 150, PicoGameBoy.color(255,255,255))
+    pgb.create_text("Score: "+str(int(score/7)), -1, 165, PicoGameBoy.color(255,255,255))
     pgb.show()
     pgb.sound(110)
     sleep(0.05)
@@ -119,11 +159,25 @@ def game_over():
     sleep(0.05)
     pgb.sound(0)
     sleep(0.5)
-    while not pgb.any_button():
+    append_to_board(score/7)
+    while True:
         if pgb.button_Home():
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
+            break
+        pgb.fill(PicoGameBoy.color(0,0,0))
+        pgb.create_text("GAME OVER",-1, 85,PicoGameBoy.color(255,255,255))
+        pgb.text("Press A to play again.", 35, 105, PicoGameBoy.color(255,255,255))
+        pgb.text("Press home to quit.", 40, 120, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Press select/start", -1, 135, PicoGameBoy.color(255,255,255))
+        pgb.create_text("to view scores.", -1, 150, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Score: "+str(int(score/7)), -1, 165, PicoGameBoy.color(255,255,255))
+        pgb.show()
+        if pgb.button_select() or pgb.button_start():
+            view_scores()
+        elif pgb.button_A():
+            score=0
             break
     sleep(0.5)
     main_game()

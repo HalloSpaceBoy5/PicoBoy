@@ -44,15 +44,53 @@ def pause_screen():
         elif pgb.button_select() or pgb.button_start():
             sleep(0.5)
             return
+        
+def append_to_board(score):
+    with open("highscoresbreakout.sc", "r") as s:
+        scores=s.read().split("\n")
+        for r in range(len(scores)):
+            scores[r]=int(scores[r])
+    newscores=scores
+    newscores.append(int(score))
+    newscores.sort(reverse=True)
+    for i in range(len(newscores)): newscores[i]=str(newscores[i])
+    with open("highscoresbreakout.sc", "w+") as w:
+        w.write("\n".join(newscores[:10]))
 
-def title_screen():
-    # title screen
-    now = ticks_ms()
-    while pgb.any_button()==False:
+def view_scores():
+    x=open("highscoresbreakout.sc", "r")
+    scores=x.read()
+    x.close()
+    del x
+    scores=scores.split("\n")
+    while True:
+        if pgb.button_B():
+            sleep(0.1)
+            return
         if pgb.button_Home():
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
+            break
+        pgb.fill(PicoGameBoy.color(0,0,0))
+        pgb.create_text("High Scores:", -1, 15, PicoGameBoy.color(255,255,255))
+        for i in range(len(scores)):
+            pgb.create_text("Score "+str(i+1)+": "+str(scores[i]), -1, 50+i*15, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Press B to exit", -1, 220, PicoGameBoy.color(255,255,255))
+        pgb.show()
+
+def title_screen():
+    # title screen
+    now = ticks_ms()
+    while True:
+        if pgb.button_Home():
+            pgb.fill(PicoGameBoy.color(0,0,0))
+            pgb.show()
+            machine.reset()
+            break
+        if pgb.button_select() or pgb.button_start():
+            view_scores()
+        elif pgb.any_button():
             break
         pgb.load_image("breakout_title.bin")
         pgb.show()
@@ -64,31 +102,36 @@ def title_screen():
             while ticks_diff(ticks_ms(), now) < 200:
                 sleep(0.020)
             now = ticks_ms()
+        
     sleep(0.25)
 
 def game_over_screen():
     global score
     global lives
     global playerx
+    append_to_board(score)
     playerx=100
     lives=3
     pgb.sound(0)
-    pgb.fill(PicoGameBoy.color(0,0,0))
-    pgb.center_text("GAME OVER",PicoGameBoy.color(255,255,255))
-    pgb.text("Press A to play again.", 35, 125, PicoGameBoy.color(255,255,255))
-    pgb.text("Press home to quit.", 40, 140, PicoGameBoy.color(255,255,255))
-    pgb.create_text("Score: "+str(score),-1,80,PicoGameBoy.color(255,255,255))
-    pgb.show()
-    score=0
     while True:
+        pgb.fill(PicoGameBoy.color(0,0,0))
+        pgb.center_text("GAME OVER",PicoGameBoy.color(255,255,255))
+        pgb.text("Press A to play again.", 35, 125, PicoGameBoy.color(255,255,255))
+        pgb.text("Press home to quit.", 40, 140, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Press select/start", -1, 175, PicoGameBoy.color(255,255,255))
+        pgb.create_text("to view scores.", -1, 190, PicoGameBoy.color(255,255,255))
+        pgb.create_text("Score: "+str(score),-1,80,PicoGameBoy.color(255,255,255))
+        pgb.show()
         if pgb.button_Home():
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
             break
+        if pgb.button_select() or pgb.button_start():
+            view_scores()
         elif pgb.button_A():
-            
-            return
+            score=0
+            break
 
 def win_screen():
     global score
