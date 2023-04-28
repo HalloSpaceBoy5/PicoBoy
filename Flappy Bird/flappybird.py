@@ -180,7 +180,6 @@ def game_over():
             score=0
             break
     sleep(0.5)
-    main_game()
     
 
 
@@ -247,10 +246,10 @@ def main_game():
         pgb.fill_rect(0, 230, 240, 10, PicoGameBoy.color(0,154,23))
         
         if playery>230:
-            game_over()
+            return
 
         if check_collision(1, 75, playerx, playery, 34, 24, pipepos1, 0, 52, abs((pipey11+12+52))) or check_collision(17, 75, playerx, playery, 34, 24, pipepos1, pipey11+12+pipespace, 52, abs((pipey11+12+pipespace)-240)) or check_collision(1, 75, playerx, playery, 34, 24, pipepos2, 0, 52, abs((pipey21+12+52))) or check_collision(17, 75, playerx, playery, 34, 24, pipepos2, pipey21+12+pipespace, 52, abs((pipey21+12+pipespace)-240)):
-            game_over()
+            return
         
         if check_collision(1, 75, playerx, playery, 34, 24, pipepos1+51, pipey11+12, 1, pipespace) or check_collision(1, 75, playerx, playery, 34, 24, pipepos2+51, pipey21+12, 1, pipespace):
             score+=1
@@ -263,4 +262,7 @@ def main_game():
         
 title_screen()
 x=start_new_thread(sund, ())
-main_game()
+while True:
+    main_game()
+    game_over()
+        
