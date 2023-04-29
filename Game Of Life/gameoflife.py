@@ -20,6 +20,8 @@ def title_screen():
     now = time.ticks_ms()
     while pgb.any_button()==False:
         if pgb.button_Home():
+            x=open("/noboot", "w")
+            x.close()
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
@@ -42,6 +44,8 @@ def game_over_screen():
     pgb.show()
     while True:
         if pgb.button_Home():
+            x=open("/noboot", "w")
+            x.close()
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
@@ -87,6 +91,8 @@ def main_game():
     time.sleep(0.5)
     while editing:
         if pgb.button_Home():
+            x=open("/noboot", "w")
+            x.close()
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
@@ -124,6 +130,8 @@ def main_game():
     while True:
         lboard=[]
         if pgb.button_Home():
+                x=open("/noboot", "w")
+                x.close()
                 pgb.fill(PicoGameBoy.color(0,0,0))
                 pgb.show()
                 machine.reset()

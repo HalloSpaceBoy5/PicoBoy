@@ -37,6 +37,8 @@ def pause_screen():
     sleep(0.5)
     while True:
         if pgb.button_Home():
+            homebootstop=open("/noboot", "w")
+            homebootstop.close()
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
@@ -68,6 +70,8 @@ def view_scores():
             sleep(0.1)
             return
         if pgb.button_Home():
+            homebootstop=open("/noboot", "w")
+            homebootstop.close()
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
@@ -84,6 +88,8 @@ def title_screen():
     now = ticks_ms()
     while True:
         if pgb.button_Home():
+            homebootstop=open("/noboot", "w")
+            homebootstop.close()
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
@@ -123,6 +129,8 @@ def game_over_screen():
         pgb.create_text("Score: "+str(score),-1,80,PicoGameBoy.color(255,255,255))
         pgb.show()
         if pgb.button_Home():
+            homebootstop=open("/noboot", "w")
+            homebootstop.close()
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
@@ -162,6 +170,8 @@ def win_screen():
     pgb.show()
     while True:
         if pgb.button_Home():
+            homebootstop=open("/noboot", "w")
+            homebootstop.close()
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
@@ -315,6 +325,8 @@ def main_game():
         going=True
         while going:
             if pgb.button_Home():
+                homebootstop=open("/noboot", "w")
+                homebootstop.close()
                 pgb.fill(PicoGameBoy.color(0,0,0))
                 pgb.show()
                 machine.reset()

@@ -43,6 +43,8 @@ def menu():
     while True:
         collect()
         if pgb.button_Home():
+            
+            
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
@@ -80,6 +82,8 @@ def menu():
                 go=True
                 while go:
                     if pgb.button_Home():
+                        
+                        
                         pgb.fill(PicoGameBoy.color(0,0,0))
                         pgb.show()
                         machine.reset()
@@ -158,6 +162,8 @@ def menu():
                         option=0
                         break
                     if pgb.button_Home():
+                        
+                        
                         pgb.fill(PicoGameBoy.color(0,0,0))
                         pgb.show()
                         machine.reset()
@@ -215,6 +221,8 @@ def menu():
                         option=0
                         break
                     if pgb.button_Home():
+                        
+                        
                         pgb.fill(PicoGameBoy.color(0,0,0))
                         pgb.show()
                         machine.reset()
@@ -313,6 +321,8 @@ def tools():
     while True:
         collect()
         if pgb.button_Home():
+            
+            
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
@@ -337,6 +347,8 @@ def tools():
                 sleep(0.25)    
                 while True:
                         if pgb.button_Home():
+                            
+                            
                             pgb.fill(PicoGameBoy.color(0,0,0))
                             pgb.show()
                             machine.reset()
@@ -371,6 +383,8 @@ def tools():
                 sleep(0.25)
                 while True:
                     if pgb.button_Home():
+                        
+                        
                         pgb.fill(PicoGameBoy.color(0,0,0))
                         pgb.show()
                         machine.reset()
@@ -435,6 +449,8 @@ def tools():
                 sleep(0.25)    
                 while True:
                         if pgb.button_Home():
+                            
+                            
                             pgb.fill(PicoGameBoy.color(0,0,0))
                             pgb.show()
                             machine.reset()
@@ -493,6 +509,8 @@ def tools():
                 sleep(0.5)
                 while True:
                     if pgb.button_Home():
+                        
+                        
                         pgb.fill(PicoGameBoy.color(0,0,0))
                         pgb.show()
                         machine.reset()
@@ -519,6 +537,8 @@ def tools():
                 sleep(0.5)
                 while True:
                     if pgb.button_Home():
+                        
+                        
                         pgb.fill(PicoGameBoy.color(0,0,0))
                         pgb.show()
                         machine.reset()
@@ -554,6 +574,8 @@ def cfp(c):
     while True:
         collect()
         if pgb.button_Home():
+            
+            
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.show()
             machine.reset()
@@ -597,6 +619,8 @@ for i in range(int(240/pixelsize)):
 while True:
     collect()
     if pgb.button_Home():
+        
+        
         pgb.fill(PicoGameBoy.color(0,0,0))
         pgb.show()
         machine.reset()
