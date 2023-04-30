@@ -11,7 +11,7 @@ https://www.printables.com/model/452771-picoboy
 ## Software
 https://github.com/HalloSpaceBoy5/PicoBoy/releases
 ## Guides
-Guides not finished yet!
+https://drive.google.com/drive/folders/1ct06tBoHRGDrRfdelbuz0otuuk5fHYcp?usp=sharing
 
 # Bulding the Console
 Building the console requires that you have at least a little bit of soldering expierence. This is because there are a few tricky parts where you may be challenged. As long as you follow the build guide, you should have no problems and a completed PicoBoy!
