@@ -1,6 +1,6 @@
 ### Note: The PicoBoy kit is not for sale yet on tindie. The store will be stocked up soon and kits will be availible for purchase!
 # PicoBoy
-The PicoBoy is a videogame console based off of the Raspberry Pi Pico that you can build yourself. The building process is relativley easy and is a fun way to spend an afternoon. You can buy the electronic components off of the Tindie store and the get the software from this repository for free. You can get the files for the printed case from this link: https://www.printables.com/model/452771-picoboy
+The PicoBoy is a videogame console based off of the Raspberry Pi Pico that you can build yourself. The building process is relativley easy and is a fun way to spend an afternoon. You can buy the electronic components off of the Tindie store and the get the software from this repository for free. You can get the files for the printed case from this link: https://www.printables.com/model/469537-picoboy
 
 # Important Links:
 ## Discord
@@ -8,7 +8,7 @@ https://discord.gg/xTaUqVxDRY
 ## Tindie Shop 
 https://www.tindie.com/products/hallospaceboy/picoboy/
 ## Casing Files
-https://www.printables.com/model/452771-picoboy
+https://www.printables.com/model/469537-picoboy
 ## Software
 https://github.com/HalloSpaceBoy5/PicoBoy/releases
 ## Guides
