@@ -127,31 +127,44 @@ currentmusic=[0xF0]
 def play_music():
     global midi
     global currentmusic
+    global theme
     while True:
-        #if not currentmusic==[0xF0]:
-            #while not currentmusic==[0xF0]:
-     midi.play_song(currentmusic)
+        del midi
+        midi=RPMidi()
+        try:
+            midi.play_song(currentmusic)
+        except:
+            currentmusic=theme
             
 
 def no_music():
     global currentmusic
     global rept
-    rept=False
-    currentmusic=[0xF0]
-    midi.stop_all_music()
-    midi.stop_all()
+    try:
+        currentmusic=[0xF0]
+        midi.stop_all_music()
+        #midi.stop_all()
+    except:
+        "foo"
 
 def append_to_board(score):
-    with open("highscorestetris.sc", "r") as s:
-        scores=s.read().split("\n")
+    try:
+        with open("highscorestetris.sc", "r") as s:
+            scores=s.read()
+        scores=scores.split("\n")
         for r in range(len(scores)):
-            scores[r]=int(scores[r])
-    newscores=scores
-    newscores.append(int(score))
-    newscores.sort(reverse=True)
-    for i in range(len(newscores)): newscores[i]=str(newscores[i])
-    with open("highscorestetris.sc", "w+") as w:
-        w.write("\n".join(newscores[:10]))
+            try:
+                scores[r]=int(scores[r])
+            except:
+                "foo"
+        newscores=scores
+        newscores.append(int(score))
+        newscores.sort(reverse=True)
+        for i in range(len(newscores)): newscores[i]=str(newscores[i])
+        with open("highscorestetris.sc", "w+") as w:
+            w.write("\n".join(newscores[:10]))
+    except:
+        return
 
 def view_scores():
     x=open("highscorestetris.sc", "r")
@@ -180,7 +193,6 @@ def view_scores():
 def pause_screen():
     global currentmusic
     no_music()
-    currentmusic=[0xF0]
     pgb.fill_rect(10,90,220,80,PicoGameBoy.color(0,0,0))
     pgb.center_text("Game Paused",PicoGameBoy.color(255,255,255))
     pgb.create_text("Press Start or Select", -1, 135, PicoGameBoy.color(255,255,255))
@@ -245,7 +257,6 @@ def game_over_screen():
     global level
     global currentmusic
     no_music()
-    currentmusic=[0xF0]
     pgb.fill(BLACK)
     pgb.create_text("GAME OVER",-1,85,WHITE)
     pgb.text("Press A to play again.", 35, 105, WHITE)
@@ -277,6 +288,7 @@ def game_over_screen():
             lines=0
             level=0
             score=0
+            print("A")
             clear_lines()
             break
 def draw_background():
@@ -390,11 +402,11 @@ def main_game():
     global currentmusic
     global theme
     no_music()
-    currentmusic=theme
     draw_background()
     pgb.show()
     # game loop
     while True:
+        currentmusic=theme
         if pgb.button_Home():
             homebootstop=open("/noboot", "w")
             homebootstop.close()
