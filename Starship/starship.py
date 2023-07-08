@@ -24,9 +24,22 @@ title_theme=[0x90,48, 0x91,72, 1,244, 0x90,48, 0x91,74, 0,250, 0x90,51, 0,250, 0
 0x80, 1,244, 0x90,51, 0x91,72, 1,244, 0x90,51, 0x91,74, 0,250, 0x92,48, 0x80, 0,250, 0x90,73, 0x81, 0,250, 0x91,72, 
 0x80, 0x82, 0,250, 0x90,71, 0x81, 0,250, 0x91,70, 0x80, 0,250, 0x81, 0xF0]
 
-game_theme=[0x90,48, 0x91,72, 1,244, 0x92,47, 0x80, 0x81, 1,244, 0x90,46, 0x91,75, 0x82, 1,244, 0x92,45, 0x80, 0x81, 0,250, 0x90,47, 
-0x82, 0,250, 0x90,48, 0x91,72, 1,244, 0x92,47, 0x80, 0x81, 1,244, 0x90,46, 0x91,70, 0x82, 1,244, 0x92,45, 0x90,70, 
-0x81, 0,250, 0x91,47, 0x90,71, 0x82, 0,250, 0x80, 0x81, 0xF0]
+game_theme=[0x90,48, 0x91,72, 1,228, 0x81, 0,5, 0x80, 0,10, 0x90,47, 1,234, 0x80, 0,10, 0x90,46, 0x91,75, 1,234, 0x80, 
+0x81, 0,16, 0x90,45, 0,234, 0x80, 0,10, 0x90,47, 0,235, 0x80, 0,15, 0x90,48, 0x91,72, 1,234, 0x80, 0x81, 0,10, 
+0x90,47, 1,229, 0x80, 0,15, 0x90,46, 0x91,70, 1,234, 0x80, 0x81, 0,16, 0x90,45, 0x91,70, 0,229, 0x80, 0,5, 
+0x81, 0,10, 0x90,47, 0x91,71, 0,250, 0x80, 0x81, 0xF0]
+
+game_theme2=[0x90,72, 0x91,48, 1,238, 0x80, 0x81, 0,5, 0x90,49, 0x91,73, 1,234, 0x80, 0x81, 0,10, 0x90,47, 0x91,76, 0,245, 
+0x81, 0,5, 0x91,75, 0,245, 0x80, 0x81, 0,5, 0x90,46, 1,234, 0x80, 0,10, 0x90,48, 0x91,72, 1,234, 0x81, 0,5, 
+0x80, 0,5, 0x90,49, 0x91,73, 1,234, 0x80, 0x81, 0,10, 0x90,47, 0x91,76, 0,245, 0x81, 0,11, 0x91,75, 0,234, 
+0x80, 0,5, 0x81, 0,5, 0x90,46, 0,6, 0x91,74, 0,239, 0x81, 0,5, 0x91,73, 0,250, 0x80, 0x81, 0xF0]
+
+game_theme3=[0x90,60, 0x91,72, 0,114, 0x81, 0,135, 0x91,72, 0,115, 0x81, 0,10, 0x91,72, 0,115, 0x80, 0x81, 0,10, 0x90,65, 
+0x91,77, 1,234, 0x80, 0x81, 0,10, 0x90,60, 0,250, 0x91,72, 0,115, 0x81, 0,10, 0x91,72, 0,115, 0x80, 0x81, 0,10, 
+0x90,63, 0x91,77, 1,234, 0x80, 0x81, 0,10, 0x90,60, 0x91,72, 0,115, 0x81, 0,135, 0x91,72, 0,115, 0x81, 0,10, 
+0x91,72, 0,115, 0x80, 0x81, 0,10, 0x90,65, 0x91,77, 1,234, 0x80, 0x81, 0,10, 0x90,65, 1,5, 0x91,77, 0,229, 
+0x80, 0x81, 0,16, 0x90,72, 0,5, 0x91,67, 0,104, 0x80, 0,10, 0x90,72, 0,115, 0x80, 0,10, 0x90,79, 0,250, 
+0x80, 0x81, 0xF0]
 
 game_over=[0x90,45, 0x91,48, 1,119, 0x80, 0x81, 0,250, 0x90,44, 0x91,47, 1,119, 0x80, 0x81, 0,250, 0x90,43, 0x91,46, 1,119, 
 0x80, 0x81, 1,119, 0x90,41, 0x91,44, 0,62, 0x90,41, 0x91,44, 0,63, 0x90,41, 0x91,44, 0,62, 0x90,41, 0x91,44, 
@@ -155,14 +168,8 @@ class new_bullet:
             lives=lives-1
             lfreq=-100
             for i in range(2500):
-                going=True
-                while going:
-                    freq=randint(50,3000)
-                    if freq<lfreq-1000 or freq>lfreq+1000:
-                        going=False
-                        lfreq=freq
-                pgb.sound(freq)
-                pgb.sound(0)
+                pgb.sound(500)
+                pgb.sound(1500)
             pgb.sound(0)
             for i in bullets:
                 del i
@@ -251,7 +258,6 @@ def view_scores():
     scores=scores.split("\n")
     while True:
         if pgb.button_B():
-            sleep(0.1)
             return
         if pgb.button_Home():
             homebootstop=open("/noboot", "w")
@@ -372,6 +378,7 @@ def gen_enemies():
     global static
     global followers
     global level
+    rem_all_active()
     lastaxs=-1
     axis=-2
     if level<=10:
@@ -450,6 +457,7 @@ def win_screen():
     pgb.show()
     while True:
         if pgb.button_Home():
+            append_to_board(level)
             homebootstop=open("/noboot", "w")
             homebootstop.close()
             pgb.fill(PicoGameBoy.color(0,0,0))
@@ -498,13 +506,24 @@ def new_level():
     global musicthread
     global currentmusic
     global rept
+    global ls
     no_music()
     level=level+1
     gen_enemies()
     timeer=timer(tick)
     while True:
+        musicchoice=randint(0,2)
+        if not musicchoice==ls:
+            ls=musicchoice
+            break
+    while True:
         rept=True
-        currentmusic=game_theme
+        if musicchoice==0:
+            currentmusic=game_theme
+        elif musicchoice==1:
+            currentmusic=game_theme2
+        else:
+            currentmusic=game_theme3
         if lives==0:
             return False
         if pgb.button_Home():
@@ -543,7 +562,8 @@ def new_level():
         
         
 def main_game():
-    #put title here
+    global ls
+    ls=4
     while True:
         if new_level():
             win_screen()

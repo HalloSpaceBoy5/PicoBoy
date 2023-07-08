@@ -11,8 +11,8 @@ import gc
 
 from rpmidi import RPMidi
 
-os.rename("./main.py", "./tetris.py")
-os.rename("./title.py", "./main.py")
+#os.rename("./main.py", "./tetris.py")
+#os.rename("./title.py", "./main.py")
 
 BLOCK_SIZE = 12 # Size of a single tetromino block in pixels
 GRID_OFFSET = 2

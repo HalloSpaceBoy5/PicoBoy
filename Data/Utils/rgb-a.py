@@ -1,6 +1,6 @@
 from PIL import Image
 
-name="paintimg.png"
+name="ball.png"
 
 png = Image.open(name)
 png.load() # required for png.split()
