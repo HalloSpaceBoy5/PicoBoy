@@ -1,9 +1,12 @@
-# st7789.py by Vincent Mistler for YouMakeTech
+# Original source files for st7789.py by Vincent Mistler for YouMakeTech
+# Modified for PicoBoy by HalloSpaceBoy
 # MicroPython ST7789 OLED driver, SPI interfaces for the PicoGameBoy/PicoBoy
 from micropython import const
 from machine import Pin, PWM, SPI
 import framebuf
+from utime import sleep_ms
 from time import sleep
+
 
 
 
@@ -46,7 +49,11 @@ class ST7789(framebuf.FrameBuffer):
         self.dc = Pin(dc, Pin.OUT)
         self.rst = Pin(rst, Pin.OUT)
         self.cs = Pin(cs, Pin.OUT)
-        self.bl = Pin(bl, Pin.OUT)
+        self.bl = PWM(Pin(bl, Pin.OUT))
+        self.PWM_FREQUENCY = 1000  
+        self.DUTY_CYCLE_MIN = 10000 #Minimum Brightness
+        self.DUTY_CYCLE=45000 #Brightness
+        self.DUTY_CYCLE_MAX = 65000 #Maximum Brightness
 
         self.buffer = memoryview(bytearray(self.height * self.width * 2))
         super().__init__(self.buffer, self.width, self.height, framebuf.RGB565)
@@ -73,7 +80,7 @@ class ST7789(framebuf.FrameBuffer):
         self.rst.value(1)
         sleep(0.150)
         
-        self.bl.value(0) # Turn backlight off initially to avoid nasty surprises
+        self.bl.duty_u16(0)#self.bl.value(0) # Turn backlight off initially to avoid nasty surprises
 
         self.write_cmd(SWRESET)
         sleep(0.150)
@@ -102,10 +109,29 @@ class ST7789(framebuf.FrameBuffer):
         self.write_cmd(MADCTL, b'\x04')
         
         self.fill(0)
-        self.show()
+        self.show_screen()
         sleep(0.050)
-        self.bl.value(1)
+        try:
+            with open("brghtness.conf", "r") as r:
+                self.DUTY_CYCLE=int(r.read())
+        except:
+            "no brightness config file"
+        self.bl.duty_u16(self.DUTY_CYCLE)
+    
+    def decrease_brightness(self):
+        if self.DUTY_CYCLE > self.DUTY_CYCLE_MIN:
+            self.DUTY_CYCLE -= 5000
+        self.bl.duty_u16(self.DUTY_CYCLE)
+        with open("brghtness.conf", "w") as w:
+            w.write(str(self.DUTY_CYCLE))
 
+    def increase_brightness(self):
+        if self.DUTY_CYCLE < self.DUTY_CYCLE_MAX:
+            self.DUTY_CYCLE += 5000
+        self.bl.duty_u16(self.DUTY_CYCLE)
+        with open("brghtness.conf", "w") as w:
+            w.write(str(self.DUTY_CYCLE))
+    
     def power_off(self):
         pass
 
@@ -121,7 +147,7 @@ class ST7789(framebuf.FrameBuffer):
     def rotate(self, rotate):
         pass
 
-    def show(self):
+    def show_screen(self):
         self.write_cmd(RAMWR, self.buffer)
     
     def color(r, g, b):

@@ -5,6 +5,7 @@ from framebuf import FrameBuffer, RGB565
 from st7789 import ST7789
 from time import sleep
 from random import randint
+import struct
 
 
 class PicoGameBoy(ST7789):
@@ -19,6 +20,9 @@ class PicoGameBoy(ST7789):
         self.__button_select = Pin(9, Pin.IN, Pin.PULL_UP)
         self.__button_start = Pin(10, Pin.IN, Pin.PULL_UP)
         self.__buzzer = PWM(Pin(12))
+        self.__buzzer2 = PWM(Pin(13))
+        self.__buzzer3 = PWM(Pin(14))
+        self.__buzzer4 = PWM(Pin(15))
         super().__init__(width=240, height=240, id_=0, sck=18, mosi=19,
                          dc=20, rst=21, cs=17, bl=22, baudrate=62500000)
         
@@ -33,6 +37,14 @@ class PicoGameBoy(ST7789):
         for key in sys.modules:
             del sys.modules[key]
         gc.collect()
+    
+    def show(self):
+        self.show_screen()
+        if self.button_up() and self.button_select():
+            self.increase_brightness()
+        if self.button_down() and self.button_select():
+            self.decrease_brightness()
+    
     def center_text(self, s, color = 1):
         x = int(self.width/2)- int(len(s)/2 * 8)
         y = int(self.height/2) - 8
@@ -52,40 +64,49 @@ class PicoGameBoy(ST7789):
         y = 0
         self.text(s, x, y, color)
         
-    def load_comp_image(self, filename):
-        i=0
-        import gc, sys
-        gc.enable()
-        for key in sys.modules:
-            del sys.modules[key]
-        gc.collect()
-        notdone=True
-        while notdone:
-            notcompleted=True
-            while notcompleted:
-                try:
-                    print(i)
-                    compressed_data = open(filename, 'rb').read(2048)
-                    if not compressed_data:
-                        notcompleted=False
-                        notdone=False
-                    open('tempimg.bin', 'wb').write(decompress(compressed_data))
-                    i=i+1
-                    notcompleted=False
-                except:
-                    foo="bar"
-        del compressed_data
-        super.load_image("tempimg.bin")
-        remove("tempimg.bin")
         
     # add_sprite(buffer,w,h) creates a new sprite from framebuffer
     # with a width of w and a height of h
     # The first sprite is #0 and can be displayed by sprite(0,x,y)
-    def add_sprite(self, buffer, w, h):
-        fb = FrameBuffer(buffer, w, h, RGB565)
-        self.__fb.append(fb)
+    def add_sprite(self, buffer, w, h, r=1):
+        if r==1:
+            rotated_fb = FrameBuffer(buffer, w, h, RGB565)
+        elif r==2:
+            fb = FrameBuffer(buffer, w, h, RGB565)
+            rotated_fb = FrameBuffer(bytearray(w*h*2), w, h, RGB565)
+            for x in range(w):
+                for y in range(h):
+                    p=fb.pixel(x,y)
+                    rotated_fb.pixel(-y+h,-x+w,p)
+        elif r==3:
+            fb = FrameBuffer(buffer, w, h, RGB565)
+            rotated_fb = FrameBuffer(bytearray(w*h*2), w, h, RGB565)
+            for x in range(w):
+                for y in range(h):
+                    p=fb.pixel(x,y)
+                    rotated_fb.pixel(-x+w,-y+h,p)
+        else:
+            fb = FrameBuffer(buffer, w, h, RGB565)
+            rotated_fb = FrameBuffer(bytearray(w*h*2), w, h, RGB565)
+            for x in range(w):
+                for y in range(h):
+                    p=fb.pixel(x,y)
+                    rotated_fb.pixel(y,x,p)
+        self.__fb.append(rotated_fb)
         self.__w.append(w)
         self.__h.append(h)
+        
+        
+    def replace_sprite_colors(self,sprite,color1,color2):
+        width=self.__w[sprite]
+        height=self.__h[sprite]
+        for x in range(width):
+            for y in range(height):
+                if self.__fb[sprite].pixel(x,y)==color1:
+                    self.__fb[sprite].pixel(x,y,color2)
+                else:
+                    self.__fb[sprite].pixel(x,y,self.__fb[sprite].pixel(x,y))
+                
         
     # add_rect_sprite(color,w,h) creates a new rectangular sprite
     # with the specified color, width and height
@@ -174,12 +195,31 @@ class PicoGameBoy(ST7789):
     
     # sound(freq) makes a sound at the selected frequency in Hz
     # call sound(0) to stop playing the sound
-    def sound(self, freq, duty_u16 = 2000):
-        if freq>0:
-            self.__buzzer.freq(freq)
-            self.__buzzer.duty_u16(duty_u16)
-        else:
-            self.__buzzer.duty_u16(0)
+    def sound(self, freq, channel=1, duty_u16 = 2000):
+        if channel==1:
+            if freq>0:
+                self.__buzzer.freq(freq)
+                self.__buzzer.duty_u16(duty_u16)
+            else:
+                self.__buzzer.duty_u16(0)
+        if channel==2:
+            if freq>0:
+                self.__buzzer2.freq(freq)
+                self.__buzzer2.duty_u16(duty_u16)
+            else:
+                self.__buzzer2.duty_u16(0)
+        if channel==3:
+            if freq>0:
+                self.__buzzer3.freq(freq)
+                self.__buzzer3.duty_u16(duty_u16)
+            else:
+                self.__buzzer3.duty_u16(0)
+        if channel==4:
+            if freq>0:
+                self.__buzzer4.freq(freq)
+                self.__buzzer4.duty_u16(duty_u16)
+            else:
+                self.__buzzer4.duty_u16(0)
             
 if __name__ == "__main__":
     pgb=PicoGameBoy()
