@@ -32,7 +32,7 @@ The PicoBoy Communication Software is a handy peice of software that makes it ea
 # Credits
 ## Vincent Mistler
 Source for PicoGameBoy.py (Modified)\
-Source for ST7789.py\
+Source for ST7789.py (Modified)\
 Source for tetris.py (Modified), tetris_title.bin
 ## Matthieu Mistler
 Source for gameoflife.py (Modified)\
