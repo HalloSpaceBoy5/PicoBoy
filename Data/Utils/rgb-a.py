@@ -1,6 +1,6 @@
 from PIL import Image
 
-name="pacman_title.png"
+name="binimg_pacfooter.png"
 
 png = Image.open(name)
 png.load() # required for png.split()
