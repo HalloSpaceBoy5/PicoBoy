@@ -1,0 +1,31 @@
+What are the controls?
+A - Draw
+B - Erase
+D-Pad - Move cursor
+Select - Open menu
+Start - Quick color select
+
+How do I navigate the menu?
+Tools - Tools menu
+Save - Allows you to save the current drawing to 1 of 10 save slots
+Load - Allows you to load your saved drawing
+Delete Save - Allows you to delete your drawings
+
+What does each tool do?
+Pick Color - Allows you to select a color from the drawing and sets it to the current color
+Customise Color - Allows you to change the individual red, green, and blue values of the current color
+Replace Color - Allows you to select a color on the canvas to replace with your current color
+Fill Screen - Fills the screen with the current color
+Clear Screen - Clears the screen
+Turn Grid ON/OFF - Allows you to toggle the drawing grid guide on and off
+Show Drawing - Shows the drawing without the grid and cursor, you can exit with B
+
+How do I save my drawings to my computer?
+You can use the PicoBoy Drawing Exporter. Instructions for how to use the exporter follow:
+1. Connect your PicoBoy to your computer
+2. Open the PicoBoy Drawing Exporter (Your computer will flag it as malware, I promise it is not)
+3. From the "Select Port" dropdown, select your PicoBoy (On windows, it will be called "USB Serial Device". On Mac, it will be called "Board in FS mode")
+4. Click connect. If you get an error, consult the user manual on connecting. PicoBoy Communication Software uses the same protocol as PicoBoy Drawing Exporter
+5. From the "Choose Drawing" dropdown, select the drawing you want to download
+6. Click "Download Drawing". If you get an error, make sure that the drawing isn'c corrupted and your PicoBoy has a good connection to your computer.
+7. After a second, you should recieve a notification about a successful download. The notification will contain the path the drawing is downloaded to.

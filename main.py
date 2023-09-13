@@ -9,12 +9,22 @@ BLACK = PicoGameBoy.color(0,0,0)
 WHITE = PicoGameBoy.color(255,255,255)
 pgb = PicoGameBoy()
 
+games=os.listdir("/games")
+loop=0
+gamenum=len(games)-1
+title=0
+
 bootlogo=True
 try:
     x=open("/noboot", "r")
     x.close()
     os.remove("/noboot")
     bootlogo=False
+    try:
+        with open("gameselection.conf", "r") as r:
+            title=int(r.read())
+    except:
+        "config nonexistent"
 except:
     bootlogo=True
 if bootlogo:
@@ -39,14 +49,7 @@ if bootlogo:
     pgb.sound(0)
     time.sleep(0.9)
 
-games=os.listdir("/games")
-loop=0
-gamenum=len(games)-1
-title=0
-print(gamenum)
 
-
-    
 while True:
     if gamenum==-1:
         pgb.fill(PicoGameBoy.color(0,0,0))
@@ -84,7 +87,14 @@ while True:
     try:
         pgb.load_image(games[title]+"img.bin")
     except:
-        pgb.create_text(games[title], -1, -1, PicoGameBoy.color(255,255,255))
+        for game in games:
+            try:
+                pgb.load_image(game+"img.bin")
+                pgb.fill_rect(13,37,216,120,PicoGameBoy.color(255,255,255))
+                pgb.create_text(games[title], -1, 100, PicoGameBoy.color(0,0,0))
+                break
+            except:
+                pgb.create_text(games[title], -1, -1, PicoGameBoy.color(255,255,255))
     pos=[]
     for i in range(title):
         pos.append(".")
@@ -94,6 +104,8 @@ while True:
     pgb.create_text("".join(pos), x=-1, y=228)
     pgb.show()
     if pgb.button_A() or pgb.button_start():
+        with open("gameselection.conf", "w") as w:
+            w.write(str(title))
         os.rename("./main.py", "./title.py")
         os.rename("./"+games[title]+".py", "./main.py")
         pgb.fill(PicoGameBoy.color(0,0,0))

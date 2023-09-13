@@ -128,6 +128,10 @@ class PicoGameBoy(ST7789):
     def sprite(self, n, x, y):
         self.blit(self.__fb[n], x, y)
         
+    def load_binary_image(self, path, x, y,w,h):
+        with open(path,"rb") as r:
+            self.blit(FrameBuffer(bytearray(r.read()), w, h, RGB565), x, y)
+        
     # sprite_width(n) returns the width of the nth sprite in pixels
     def sprite_width(self,n):
         return self.__w[n]
