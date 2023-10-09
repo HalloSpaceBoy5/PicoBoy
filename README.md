@@ -24,7 +24,7 @@ Building the console requires that you have at least a little bit of soldering e
 Using the console is dead simple. You have a main menu where you can pick the game you wish to play. Anything that you need can be accomodated by the user guide. Have fun with your PicoBoy!
 
 # Devoloping for the console
-I have yet to begin work on a Software Devolopment Kit (SDK). This is because I do not want to invest time into making it if no one wants to use it. If I see people asking for an SDK on the discord, I will make one.
+The PicoBoy SDK is in development! It is currently in beta and still has some stuff to work out, features to add, and documentation. So far, there is one game utilizing the SDK.
 
 # Using the PicoBoy Communication Software
 The PicoBoy Communication Software is a handy peice of software that makes it easy to modifiy your PicoBoy. It can add games, delete games, and format the console. Upon opening, Windows may warn you saying that it is suspicious software. I promise it isin't, I wrote it myself. To use the software, follow the instructions for each function in the user guide.
