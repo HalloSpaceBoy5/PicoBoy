@@ -1,8 +1,8 @@
 #Original game for the PicoBoy by HalloSpaceBoy
 from PicoGameBoy import PicoGameBoy
 from os import rename
-rename("./main.py", "./Pac Man.py")
-rename("./title.py", "./main.py")
+rename("/main.py", "/Pac Man/Pac Man.py")
+rename("/title.py", "/main.py")
 del rename
 pgb=PicoGameBoy()
 WHITE=PicoGameBoy.color(255,255,255)
@@ -21,27 +21,24 @@ except:
         check_home()
         pgb.fill(BLACK)
         pgb.create_text("Update your OS!",-1,25,WHITE)
-        pgb.create_text("This game requires PBOS",-1,100,WHITE)
-        pgb.create_text("version 1.1",-1,110,WHITE)
         pgb.create_text("Update your PicoBoy",-1,140,WHITE)
         pgb.create_text("to play this game.",-1,150,WHITE)
-        pgb.create_text("Press Home to quit.",-1,220,WHITE)
         pgb.show()
 reset=False
 score=0
 lscore=0
 lives=3
-with open("sprite_pellet.bin","rb") as sprt:
+with open("/Pac Man/sprite_pellet.bin","rb") as sprt:
     pgb.add_sprite(bytearray(sprt.read()), 5,5)
-with open("sprite_blinky.bin","rb") as sprt:
+with open("/Pac Man/sprite_blinky.bin","rb") as sprt:
     pgb.add_sprite(bytearray(sprt.read()),16,16)
-with open("sprite_clyde.bin","rb") as sprt:
+with open("/Pac Man/sprite_clyde.bin","rb") as sprt:
     pgb.add_sprite(bytearray(sprt.read()),16,16)
-with open("sprite_inky.bin","rb") as sprt:
+with open("/Pac Man/sprite_inky.bin","rb") as sprt:
     pgb.add_sprite(bytearray(sprt.read()),16,16)
-with open("sprite_pinky.bin","rb") as sprt:
+with open("/Pac Man/sprite_pinky.bin","rb") as sprt:
     pgb.add_sprite(bytearray(sprt.read()),16,16)
-with open("sprite_panicked.bin","rb") as sprt:
+with open("/Pac Man/sprite_panicked.bin","rb") as sprt:
     pgb.add_sprite(bytearray(sprt.read()),16,16)
 from math import sqrt
 from time import sleep,ticks_ms,ticks_diff
@@ -449,7 +446,7 @@ def new_level():
                     dt=0
                     soundalt=True
                     playerspeed=4
-            pgb.load_image("/pacmanbg.bin")
+            pgb.load_image("/Pac Man/pacmanbg.bin")
             pgb.create_text("Score: "+str(score)+"  Lives: "+str(lives), -1, 223, WHITE)
             if pgb.button_up() or pgb.button_down() or pgb.button_left() or pgb.button_right():
                 if d:
@@ -569,7 +566,7 @@ def new_level():
             alive=True
 
 def view_scores():
-    x=open("highscoresPac Man.sc", "r")
+    x=open("/Pac Man/highscoresPac Man.sc", "r")
     scores=x.read()
     x.close()
     del x
@@ -600,7 +597,7 @@ while True:
         pgb.show()
         machine.reset()
         break
-    pgb.load_image("pacman_title.bin")
+    pgb.load_image("/Pac Man/pacman_title.bin")
     pgb.show()
     
     if ticks_diff(ticks_ms(), now) > 200:
@@ -630,7 +627,7 @@ while True:
                 sleep(0.5)
                 break
     else:
-        with open("highscoresPac Man.sc", "r") as s:
+        with open("/Pac Man/highscoresPac Man.sc", "r") as s:
             scores=s.read().split("\n")
             for r in range(len(scores)):
                 scores[r]=int(scores[r])
@@ -638,7 +635,7 @@ while True:
         newscores.append(int(score))
         newscores.sort(reverse=True)
         for i in range(len(newscores)): newscores[i]=str(newscores[i])
-        with open("highscoresPac Man.sc", "w+") as w:
+        with open("/Pac Man/highscoresPac Man.sc", "w+") as w:
             w.write("\n".join(newscores[:10]))
         while True:
             pgb.fill(BLACK)

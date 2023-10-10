@@ -6,8 +6,8 @@ import os
 import time
 pgb = PicoGameBoy()
 pgb.free_mem()
-os.rename("./main.py", "./Game Of Life.py")
-os.rename("./title.py", "./main.py")
+os.rename("/main.py", "/Game Of Life/Game Of Life.py")
+os.rename("/title.py", "/main.py")
 # Predefined colors
 BLACK = PicoGameBoy.color(0,0,0)
 WHITE = PicoGameBoy.color(255,255,255)
@@ -26,7 +26,7 @@ def title_screen():
             pgb.show()
             machine.reset()
             break
-        pgb.load_image("gameoflife_title.bin")
+        pgb.load_image("/Game Of Life/gameoflife_title.bin")
         pgb.show()
         
         if time.ticks_diff(time.ticks_ms(), now) > 200:

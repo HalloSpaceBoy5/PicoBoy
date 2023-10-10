@@ -10,8 +10,8 @@ import _thread
 import gc
 from rpmidi import RPMidi
 
-os.rename("./main.py", "./Tetris.py")
-os.rename("./title.py", "./main.py")
+os.rename("/main.py", "/Tetris/Tetris.py")
+os.rename("/title.py", "/main.py")
 pgb = PicoGameBoy()
 try:
     pgb.sound(0,1,2000)
@@ -172,7 +172,7 @@ def no_music():
 
 def append_to_board(score):
     try:
-        with open("highscoresTetris.sc", "r") as s:
+        with open("/Tetris/highscoresTetris.sc", "r") as s:
             scores=s.read()
         scores=scores.split("\n")
         for r in range(len(scores)):
@@ -184,13 +184,13 @@ def append_to_board(score):
         newscores.append(int(score))
         newscores.sort(reverse=True)
         for i in range(len(newscores)): newscores[i]=str(newscores[i])
-        with open("highscoresTetris.sc", "w+") as w:
+        with open("/Tetris/highscoresTetris.sc", "w+") as w:
             w.write("\n".join(newscores[:10]))
     except:
         return
 
 def view_scores():
-    x=open("highscoresTetris.sc", "r")
+    x=open("/Tetris/highscoresTetris.sc", "r")
     scores=x.read()
     x.close()
     del x
@@ -270,7 +270,7 @@ def title_screen():
             pgb.show()
             machine.reset()
             break
-        pgb.load_image("tetris_title.bin")
+        pgb.load_image("/Tetris/tetris_title.bin")
         pgb.show()
         
         if time.ticks_diff(time.ticks_ms(), now) > 200:

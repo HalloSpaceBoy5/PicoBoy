@@ -1,6 +1,6 @@
 #Written by HalloSpaceBoy
 from os import rename
-rename("main.py", "Demo Program.py")
+rename("main.py", "/Demo Program/Demo Program.py")
 rename("title.py", "main.py")
 from time import sleep
 import random

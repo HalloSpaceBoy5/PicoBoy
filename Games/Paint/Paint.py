@@ -1,8 +1,8 @@
 #Original program for PicoBoy by HalloSpaceBoy
 from PicoGameBoy import PicoGameBoy
 from os import rename, remove, listdir
-rename("./main.py", "./Paint.py")
-rename("./title.py", "./main.py")
+rename("/main.py", "/Paint/Paint.py")
+rename("/title.py", "/main.py")
 del rename
 from time import sleep
 from gc import collect
@@ -77,7 +77,7 @@ def menu():
             opt=options[option]
             if opt=="Save":
                 sleep(0.25)
-                po=listdir("/")
+                po=listdir("/Paint/")
                 files=[]
                 for i in po:
                     r=i.split('.')
@@ -131,12 +131,12 @@ def menu():
                         pgb.show()
                         del options
                         collect()
-                        with open("/games/paint", "a") as w:
+                        with open("/games/Paint", "a") as w:
                             w.write("---PICOBOYFILELIST---"+file.replace(" (Used)","")+".pbd")
                         del w
-                        with open(file.replace(" (Used)","")+".pbd", "w") as e:
+                        with open("/Paint/"+file.replace(" (Used)","")+".pbd", "w") as e:
                             e.write("")
-                        with open(file.replace(" (Used)","")+".pbd", "a") as f:
+                        with open("/Paint/"+file.replace(" (Used)","")+".pbd", "a") as f:
                             for row in drawing:
                                 for g,x in enumerate(row):
                                     if not g == len(row)-1:
@@ -149,7 +149,7 @@ def menu():
                         del f
                         del files
                         del po
-                        po=listdir("/")
+                        po=listdir("/Paint/")
                         files=[]
                         for i in po:
                             r=i.split('.')
@@ -170,7 +170,7 @@ def menu():
                     pgb.show()
             if opt=="Load":
                 sleep(0.25)
-                po=listdir("/")
+                po=listdir("/Paint/")
                 files=[]
                 for i in po:
                     r=i.split('.')
@@ -216,7 +216,7 @@ def menu():
                             rept=-1
                             del drawing
                             drawing=[]
-                            with open(file+".pbd") as f:
+                            with open("/Paint/"+file+".pbd") as f:
                                 for i in range(30):
                                     comp=[]
                                     for x in f.readline().split(":"):
@@ -232,7 +232,7 @@ def menu():
                     pgb.show()
             if opt=="Delete Save":
                 sleep(0.25)
-                po=listdir("/")
+                po=listdir("/Paint/")
                 files=[]
                 for i in po:
                     r=i.split('.')
@@ -292,19 +292,19 @@ def menu():
                             pgb.create_text("Do not turn off console.", -1, 147, COLORWHITE)
                             pgb.show()
                             sleep(0.5)
-                            with open("/games/paint", "r") as f:
+                            with open("/games/Paint", "r") as f:
                                 lines = f.readlines()
                             del f
-                            with open("/games/paint", "w") as f:
+                            with open("/games/Paint", "w") as f:
                                 for line in lines:
                                     new_line = line.replace("---PICOBOYFILELIST---"+file+".pbd", "")
                                     f.write(new_line)
                             
-                            remove("/"+file+".pbd")
+                            remove("/Paint/"+file+".pbd")
                             del file
                         del files
                         del options
-                        po=listdir("/")
+                        po=listdir("/Paint/")
                         files=[]
                         for i in po:
                             r=i.split('.')

@@ -1,7 +1,7 @@
 # Original game designed for the PicoBoy by HalloSpaceBoy
 from os import rename
 from PicoGameBoy import PicoGameBoy
-rename("main.py","Starship.py")
+rename("main.py","/Starship/Starship.py")
 rename("title.py","main.py")
 del rename
 pgb=PicoGameBoy()
@@ -20,11 +20,8 @@ except:
             break
         pgb.fill(PicoGameBoy.color(0,0,0))
         pgb.create_text("Update your OS!",-1,25,PicoGameBoy.color(255,255,255))
-        pgb.create_text("This game requires PBOS",-1,100,PicoGameBoy.color(255,255,255))
-        pgb.create_text("version 1.1",-1,110,PicoGameBoy.color(255,255,255))
         pgb.create_text("Update your PicoBoy",-1,140,PicoGameBoy.color(255,255,255))
         pgb.create_text("to play this game.",-1,150,PicoGameBoy.color(255,255,255))
-        pgb.create_text("Press Home to quit.",-1,220,PicoGameBoy.color(255,255,255))
         pgb.show()
 pgb.add_sprite(starship,25,25,3)
 pgb.add_sprite(starship,25,25,4)
@@ -398,7 +395,7 @@ while True:
         pgb.show()
         machine.reset()
         break
-    pgb.load_image("starship_title.bin")
+    pgb.load_image("/Starship/starship_title.bin")
     pgb.show()
     if ticks_diff(ticks_ms(), now) > 200:
         now = ticks_ms()
@@ -408,7 +405,7 @@ while True:
             sleep(0.020)
         now = ticks_ms()
     if pgb.button_start():
-            x=open("highscoresStarship.sc", "r")
+            x=open("Starship/highscoresStarship.sc", "r")
             scores=x.read()
             x.close()
             del x
@@ -471,7 +468,7 @@ while True:
             pgb.show()
             while True:
                 if pgb.button_Home():
-                    with open("highscoresStarship.sc", "r") as s:
+                    with open("Starship/highscoresStarship.sc", "r") as s:
                         scores=s.read().split("\n")
                         for r in range(len(scores)):
                             scores[r]=int(scores[r])
@@ -479,7 +476,7 @@ while True:
                     newscores.append(int(level))
                     newscores.sort(reverse=True)
                     for i in range(len(newscores)): newscores[i]=str(newscores[i])
-                    with open("highscoresStarship.sc", "w+") as w:
+                    with open("Starship/highscoresStarship.sc", "w+") as w:
                         w.write("\n".join(newscores[:10]))
                     del newscores
                     del scores
@@ -515,7 +512,7 @@ while True:
         static=[]
         bullets=[]
         lives=3
-        with open("highscoresStarship.sc", "r") as s:
+        with open("Starship/highscoresStarship.sc", "r") as s:
             scores=s.read().split("\n")
             for r in range(len(scores)):
                 scores[r]=int(scores[r])
@@ -523,7 +520,7 @@ while True:
         newscores.append(int(level))
         newscores.sort(reverse=True)
         for i in range(len(newscores)): newscores[i]=str(newscores[i])
-        with open("highscoresStarship.sc", "w+") as w:
+        with open("Starship/highscoresStarship.sc", "w+") as w:
             w.write("\n".join(newscores[:10]))
         del newscores
         del scores
@@ -561,7 +558,7 @@ while True:
                 machine.reset()
                 break
             if pgb.button_start():
-                    x=open("highscoresStarship.sc", "r")
+                    x=open("Starship/highscoresStarship.sc", "r")
                     scores=x.read()
                     x.close()
                     del x

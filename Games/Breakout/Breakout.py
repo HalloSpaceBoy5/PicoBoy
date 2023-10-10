@@ -5,8 +5,8 @@ from random import randint
 from math import sqrt
 import os
 
-os.rename("./main.py", "./Breakout.py")
-os.rename("./title.py", "./main.py")
+os.rename("/main.py", "/Breakout/Breakout.py")
+os.rename("/title.py", "/main.py")
 
 pgb=PicoGameBoy()
 pgb.free_mem()
@@ -51,7 +51,7 @@ def pause_screen():
             return
         
 def append_to_board(score):
-    with open("highscoresBreakout.sc", "r") as s:
+    with open("/Breakout/highscoresBreakout.sc", "r") as s:
         scores=s.read().split("\n")
         for r in range(len(scores)):
             scores[r]=int(scores[r])
@@ -59,11 +59,11 @@ def append_to_board(score):
     newscores.append(int(score))
     newscores.sort(reverse=True)
     for i in range(len(newscores)): newscores[i]=str(newscores[i])
-    with open("highscoresBreakout.sc", "w+") as w:
+    with open("/Breakout/highscoresBreakout.sc", "w+") as w:
         w.write("\n".join(newscores[:10]))
 
 def view_scores():
-    x=open("highscoresBreakout.sc", "r")
+    x=open("/Breakout/highscoresBreakout.sc", "r")
     scores=x.read()
     x.close()
     del x
@@ -101,7 +101,7 @@ def title_screen():
             view_scores()
         elif pgb.any_button():
             break
-        pgb.load_image("breakout_title.bin")
+        pgb.load_image("/Breakout/breakout_title.bin")
         pgb.show()
         
         if ticks_diff(ticks_ms(), now) > 200:
