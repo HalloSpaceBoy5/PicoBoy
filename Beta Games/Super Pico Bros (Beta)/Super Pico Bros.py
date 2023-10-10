@@ -3,8 +3,8 @@ from time import sleep
 from random import randint
 from math import sqrt
 from os import rename
-rename("./main.py", "./Super Pico Bros.py")
-rename("./title.py", "./main.py")
+rename("/main.py", "/Super Pico Bros/Super Pico Bros.py")
+rename("/title.py", "/main.py")
 pgb=PicoGameBoy()
 
 def bounding_box_collision(x, y, width, height,box_x,box_y,box_width,box_height,direction):
@@ -58,7 +58,7 @@ def drawmap(frame, scene):
             if frame[line][pos]==4 and pos*16-scene > -15 and pos*16-scene<300:
                 pgb.fill_rect(pos*16-scene,line*16,16,16,PicoGameBoy.color(255,0,0))
 
-lev=loadlevel("demolevel.lv")
+lev=loadlevel("/Super Pico Bros/demolevel.lv")
 playerx=0
 playery=0
 velocity=0

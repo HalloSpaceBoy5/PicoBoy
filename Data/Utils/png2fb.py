@@ -41,8 +41,8 @@ if __name__ == "__main__":
         inputFilename=sys.argv[1]
         outputFilename=''
     else:
-        inputFilename='binimg_pacfooter.png'
-        outputFilename="binimg_pacfooter.bin"
+        inputFilename='SDK Demoimg.png'
+        outputFilename="SDK Demoimg.bin"
         print("png2fb.py inputfile [outputfile]")
         print('Converts an RGB image to a framebuffer for the ST7789 display.')
         print('')

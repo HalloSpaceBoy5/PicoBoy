@@ -1,6 +1,6 @@
 from PIL import Image
 
-name="binimg_pacfooter.png"
+name="SDK Demoimg.png"
 
 png = Image.open(name)
 png.load() # required for png.split()
