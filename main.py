@@ -85,11 +85,11 @@ while True:
         break
     pgb.fill(PicoGameBoy.color(0,0,0))
     try:
-        pgb.load_image(games[title]+"img.bin")
+        pgb.load_image(games[title]+"/"+games[title]+"img.bin")
     except:
         for game in games:
             try:
-                pgb.load_image(game+"img.bin")
+                pgb.load_image(game+"/"+game+"img.bin")
                 pgb.fill_rect(13,37,216,120,PicoGameBoy.color(255,255,255))
                 pgb.create_text(games[title], -1, 100, PicoGameBoy.color(0,0,0))
                 break
@@ -107,7 +107,7 @@ while True:
         with open("gameselection.conf", "w") as w:
             w.write(str(title))
         os.rename("./main.py", "./title.py")
-        os.rename("./"+games[title]+".py", "./main.py")
+        os.rename("./"+games[title]+"/"+games[title]+".py", "./main.py")
         pgb.fill(PicoGameBoy.color(0,0,0))
         pgb.show()
         machine.reset()
