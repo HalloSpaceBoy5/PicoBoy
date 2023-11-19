@@ -85,11 +85,11 @@ while True:
         break
     pgb.fill(PicoGameBoy.color(0,0,0))
     try:
-        pgb.load_image(games[title]+"/"+games[title]+"img.bin")
+        pgb.load_image(games[title]+"/"+games[title]+" (Title Image).pbimg")
     except:
         for game in games:
             try:
-                pgb.load_image(game+"/"+game+"img.bin")
+                pgb.load_image(game+"/"+game+" (Title Image).pbimg")
                 pgb.fill_rect(13,37,216,120,PicoGameBoy.color(255,255,255))
                 pgb.create_text(games[title], -1, 100, PicoGameBoy.color(0,0,0))
                 break

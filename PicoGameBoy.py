@@ -129,8 +129,16 @@ class PicoGameBoy(ST7789):
         self.blit(self.__fb[n], x, y)
         
     def load_binary_image(self, path, x, y,w,h):
-        with open(path,"rb") as r:
-            self.blit(FrameBuffer(bytearray(r.read()), w, h, RGB565), x, y)
+        chunk_size = 16384
+        start_index=20
+        with open(path, 'rb') as file:
+            while True:
+                chunk = file.read(chunk_size)
+                if not chunk:
+                    break  
+                for i, byte in enumerate(chunk):
+                    self.buffer[start_index + i] = byte
+
         
     # sprite_width(n) returns the width of the nth sprite in pixels
     def sprite_width(self,n):

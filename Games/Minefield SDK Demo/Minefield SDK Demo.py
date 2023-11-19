@@ -4,12 +4,15 @@
 from PicoBoySDK import PicoBoySDK, PlayerObject #This brings code for functions used in this program from the PicoBoy SDK
 from random import randint #This brings the random function used for generating random numbers
 from time import sleep #This brings in a function that is used for making the program wait
+from gc import mem_free
 
-PicoBoy=PicoBoySDK(namespace="Minefield SDK Demo") #This is the "PicoBoySDK" object. This is an object that represents the PicoBoy that allows you to control the PicoBoy's hardware
-Player=PlayerObject(PicoBoy, initx=112, inity=0, width=16, height=16, sprite=PicoBoy.Load_Sprite("sprite.sprt",16,16), speed=4) #This creates the "PlayerObject" Object. This is an object you can create to have a moveable player without any code
+PicoBoy=PicoBoySDK(namespace="Minefield SDK Demo", tick_time=0) #This is the "PicoBoySDK" object. This is an object that represents the PicoBoy that allows you to control the PicoBoy's hardware
+Player=PlayerObject(PicoBoy, initx=112, inity=0, width=16, height=16, sprite=PicoBoy.Load_Sprite("detector.sprt",16,16), speed=16) #This creates the "PlayerObject" Object. This is an object you can create to have a moveable player without any code
 
 
 #Declared Variables:
+minesprite=PicoBoy.Load_Sprite("mine.sprt",16,16) #Set the variable minesprite to the sprite in the file "mine.sprt"
+flagsprite=PicoBoy.Load_Sprite("flag.sprt",16,16) #Set the variable flagsprite to the sprite in the file "flag.sprt"
 score=0 #This is the current score
 enemylocations=[] #This is the list of locations of all of the mines
 winlocation=() #This is the location of the win spot
@@ -44,42 +47,47 @@ new_locations() #Generates the initial locations
 while True:
     PicoBoy.Fill_Screen(color=(0,0,0)) #Fills the PicoBoy's Screen with the color Black
     for location in enemylocations: #Iterates through the enemy list
-        PicoBoy.Fill_Rect(x=location[0], y=location[1], width=16, height=16, color=(240,0,0)) #Draws the enemy
+        PicoBoy.Render_Sprite(minesprite,location[0],location[1]) #Draws the mine sprite
         if PicoBoy.Check_Collision(x=Player.x, y=Player.y, width=Player.width, height=Player.height, x2=location[0], y2=location[1], width2=16, height2=16, speed=4, mode=1): #Checks if there is a collision between the player and the enemy
             #Player collided with enemy "Game Over"
             PicoBoy.Play_Sound(100) #Play game over sound
             sleep(0.1)
-            PicoBoy.Play_Sound(0)
+            PicoBoy.Stop_Sound()
             sleep(0.05)
             PicoBoy.Play_Sound(100)
             sleep(0.1)
-            PicoBoy.Play_Sound(0)
+            PicoBoy.Stop_Sound()
             new_locations() #Generate new locations
+            PicoBoy.Save_Score(score) #Save the score to the high score leaderboard
             sleep(0.5) #Wait half a second
             while True: #Start infinite loop
                 #Game Over Screen
                 PicoBoy.Fill_Screen((255,0,0)) #Fill the screen with red
                 PicoBoy.Create_Text("Game Over!", -1, -1, (0,0,0)) #Draws the text "Game Over"
                 PicoBoy.Create_Text("Your score is "+str(score), -1, 130, (0,0,0)) #Draws the score on screen
-                PicoBoy.Create_Text("Press any button", -1, 150, (0,0,0)) #Draws the text "Press any button to play again."
+                PicoBoy.Create_Text("Press the A button", -1, 150, (0,0,0)) #Draws the text "Press the A button to play again."
                 PicoBoy.Create_Text("to play again.", -1, 160, (0,0,0)) #The text was split in two to fit the screen
+                PicoBoy.Create_Text("Press start to", -1, 180, (0,0,0)) #Draws the text "Press start to view top scores."
+                PicoBoy.Create_Text("view top scores.", -1, 190, (0,0,0)) #The text was split in two to fit the screen
+                if PicoBoy.Button("Start"): #Check for the start button
+                    PicoBoy.Show_Scores() #Display saved scores
                 PicoBoy.Update() #Updates the PicoBoy. Displays the screen, checks system controls, etc.
-                if PicoBoy.Button("Any"): #Checks for any button press on the PicoBoy
+                if PicoBoy.Button("A"): #Checks for the A button press on the PicoBoy
                     #Button was pressed
                     score=0 #Reset the score
                     break #Exit the infinite loop
             break
-    PicoBoy.Fill_Rect(x=winlocation[0], y=winlocation[1], width=16, height=16, color=(0,240,0)) #Draws the win location
+    PicoBoy.Render_Sprite(flagsprite,winlocation[0],winlocation[1]) #Draws the win flag
     if PicoBoy.Check_Collision(x=Player.x, y=Player.y, width=Player.width, height=Player.height, x2=winlocation[0], y2=winlocation[1], width2=16, height2=16, speed=4, mode=1): #Checks if there is a collision between the player and the win spot
         score+=1 #Add one to the score
         new_locations() #Generate new locations
         PicoBoy.Play_Sound(200) #Play victory sound
         sleep(0.1)
-        PicoBoy.Play_Sound(0)
+        PicoBoy.Stop_Sound()
         sleep(0.05)
         PicoBoy.Play_Sound(200)
         sleep(0.1)
-        PicoBoy.Play_Sound(0)
+        PicoBoy.Stop_Sound()
         sleep(0.5) #Wait half a second
         while True: #Start infinite loop
             #Win Screen
@@ -94,4 +102,8 @@ while True:
                 break #Exit the infinite loop
     PicoBoy.Create_Text("Score: "+str(score), -1, 5, (255,255,255)) #Displays the score onscreen
     Player.Update() #Updates the player. Checks for movement, renders the player, etc.
+    if PicoBoy.Button("Start"): #Check for the start button
+        PicoBoy.Pause_Screen() #Enter a pause screen
+    if PicoBoy.Button("Any"): #If any button is pressed
+        sleep(0.1) #Wait 0.1 seconds
     PicoBoy.Update() #Updates the PicoBoy. Displays the screen, checks system controls, etc.

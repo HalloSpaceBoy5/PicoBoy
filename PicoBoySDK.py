@@ -8,8 +8,9 @@ from utime import sleep_ms
 import sys
 from os import rename, chdir, listdir
 from _thread import start_new_thread
+from gc import collect
 
-collided=False
+
 
 SWRESET   = b'\x01'
 TEOFF     = b'\x34'
@@ -182,7 +183,7 @@ class PicoBoySDK(ST7789):
             try:
                 chdir("/"+namespace)
             except:
-                error="PicoBoySDK Error: Namespace invalid"
+                error="PicoBoySDK Error: Namespace invalid or Game not Installed"
             if not error=="":
                 raise
             if not "title.py" in listdir("/"):
@@ -200,6 +201,7 @@ class PicoBoySDK(ST7789):
         
         self.namespace=namespace
         self.tick=tick_time
+        self.cycle=1
         self.up = Pin(2, Pin.IN, Pin.PULL_UP)
         self.down = Pin(3, Pin.IN, Pin.PULL_UP)
         self.left = Pin(4, Pin.IN, Pin.PULL_UP)
@@ -225,7 +227,7 @@ class PicoBoySDK(ST7789):
     def Render_Sprite(self, sprite, x, y):
         self.blit(sprite, x, y)
     
-    def Update(self):
+    def Update(self, noclear=False):
         if self.home.value()==0:
             homebootstop=open("/noboot", "w")
             homebootstop.close()
@@ -237,7 +239,13 @@ class PicoBoySDK(ST7789):
             self.increase_brightness()
         if self.Button("Down") and self.Button("Select"):
             self.decrease_brightness()
+        if self.cycle%50==0:
+            self.cycle=0
+            collect()
+        self.cycle+=1
         sleep(self.tick)
+        if not noclear:
+            self.Fill_Screen((0,0,0))
             
     def Button(self, button):
         if button=="Any":
@@ -320,12 +328,26 @@ class PicoBoySDK(ST7789):
             else:
                 self.spk_channel4.duty_u16(0)
 
-    def Create_Text(self, s,x=-1,y=-1, c = (255,255,255)):
+    def Stop_Sound(self, channel=1):
+        if channel==1:
+                self.spk_channel1.duty_u16(0)
+        if channel==2:
+                self.spk_channel2.duty_u16(0)
+        if channel==3:
+                self.spk_channel3.duty_u16(0)
+        if channel==4:
+                self.spk_channel4.duty_u16(0)
+
+    def Create_Text(self, s,x,y, c = (255,255,255)):
         if x==-1:
             x = int(self.width/2)- int(len(s)/2 * 8)
         if y==-1:
             y = int(self.height/2) - 8
         self.text(s, x, y, self.color(*c))
+        del x
+        del y
+        del c
+        del s
         
     def Check_Collision(self,x,y,width,height,x2,y2,width2,height2,speed,mode):
         if x < x2 + width2 and x + width > x2 and y < y2 + height and y + height > y2:
@@ -376,13 +398,69 @@ class PicoBoySDK(ST7789):
         elif mode==2:
             return x,y
 
+    def Pause_Screen(self):
+        self.fill_rect(10,90,220,80,self.color(50,50,50))
+        self.Create_Text("Game Paused", -1,-1,(255,255,255))
+        self.Create_Text("Press start to resume.", -1, 135, (255,255,255))
+        self.Update(True)
+        sleep(0.25)
+        while True:
+            self.Update(True)
+            if self.Button("Start"):
+                sleep(0.25)
+                return
+            
+    def Save_Score(self, score):
+        if not type(score) == int:
+            print("PicoBoySDK Error: given score must be an integer.")
+        directory=listdir()
+        if not "highscores"+self.namespace+".sc" in directory:
+            with open("highscores"+self.namespace+".sc", "w") as w:
+                w.write("0\n0\n0\n0\n0\n0\n0\n0\n0\n0")
+                with open("/games/"+self.namespace, "a") as a:
+                    a.write("---PICOBOYFILELIST---"+"highscores"+self.namespace+".sc")
+        with open("highscores"+self.namespace+".sc", "r") as s:
+            scores=s.read().split("\n")
+            for r in range(len(scores)):
+                scores[r]=int(scores[r])
+        newscores=scores
+        newscores.append(int(score))
+        newscores.sort(reverse=True)
+        for i in range(len(newscores)): newscores[i]=str(newscores[i])
+        with open("highscores"+self.namespace+".sc", "w+") as w:
+            w.write("\n".join(newscores[:10]))
+            
+    def Show_Scores(self):
+        directory=listdir()
+        if not "highscores"+self.namespace+".sc" in directory:
+            with open("highscores"+self.namespace+".sc", "w") as w:
+                w.write("0\n0\n0\n0\n0\n0\n0\n0\n0\n0")
+                with open("/games/"+self.namespace, "a") as a:
+                    a.write("---PICOBOYFILELIST---"+"highscores"+self.namespace+".sc")
+        x=open("highscores"+self.namespace+".sc", "r")
+        scores=x.read()
+        x.close()
+        del x
+        scores=scores.split("\n")
+        while True:
+            if self.Button("B"):
+                sleep(0.1)
+                return
+            self.fill(self.color(0,0,0))
+            self.Create_Text("High Scores:", -1, 15, (255,255,255))
+            for i in range(len(scores)):
+                self.Create_Text("Score "+str(i+1)+": "+str(scores[i]), -1, 50+i*15, (255,255,255))
+            self.Create_Text("Press B to exit", -1, 220, (255,255,255))
+            self.Update()
+        
+        
 class PlayerObject:
     def __init__(self,parent,initx,inity,width,height,sprite,speed):
         if not "PicoBoySDK" in str(type(parent)):
             print("PicoBoySDK Error: The PicoBoySDK object is missing or invalid in "+str(self))
             sys.exit()
-        self.initx=initx
-        self.inity=inity
+        self.Initx=initx
+        self.Inity=inity
         self.x=initx
         self.y=inity
         self.width=width
@@ -403,11 +481,19 @@ class PlayerObject:
             self.x+=self.speed
         self.parent.Render_Sprite(self.sprite,self.x,self.y)
         
-        
-    def MoveTo(self, x, y):
+    def Goto(self, x, y):
         self.x=x
         self.y=y
-        
+    
+    def Change_Axis(self, x, y):
+        self.direction="XY"
+        if x and y:
+            return
+        if x:
+            self.direction="X"
+        if y:
+            self.direction="Y"
+
 class MusicBoxObject:
     def __init__(self,parent,mode):
         if not "PicoBoySDK" in str(type(parent)):
@@ -426,8 +512,6 @@ class MusicBoxObject:
         self.isReading=False
         self.savedsong=[]
         self.index=0
-        
-    def Initialize(self):
         self.thread=start_new_thread(self.Play,())
             
     def _pitch(self, freq):
@@ -461,15 +545,24 @@ class MusicBoxObject:
             self.ch_b_1.duty_u16(0)
 
     def Play_Song(self, song):
-        if not type(song)==list:
-            print("PicoBoySDK Error: The song provided is improperly formatted")
-            sys.exit()
+        with open(song, "r") as r:
+            song=r.read()
+        song=song.split(", ")
+        nsong=[]
+        for item in song:
+            if "x" in item:
+                nsong.append(item)
+            else:
+                nsong.append(int(item))
         self.tmp=[]
         self.isReading=False
         self.opcode=0x00
         self.index=0
-        self.song=song
+        self.song=nsong
         
+    def Change_Mode(self, mode):
+        self.mode=mode
+    
     def Stop_Song(self):
         self.song=[]
         self.tmp=[]
@@ -491,7 +584,7 @@ class MusicBoxObject:
                 else:
                     sleep(0.01)
             try:
-                if self.song[self.index] in (0x90, 0x91, 0x92, 0x93, 0x80, 0x81, 0x82, 0x83, 0xf0, 0xe0):
+                if self.song[self.index] in ("0x90", "0x91", "0x92", "0x93", "0x80", "0x81", "0x82", "0x83", "0xf0", "0xe0"):
                     self.opcode = self.song[self.index]
                     self.isReading = True
                     self.tmp = []
@@ -500,34 +593,34 @@ class MusicBoxObject:
                         if (self.index + self.tmp_index) >= len(self.song):
                             break
                         else:
-                            if not self.song[self.index + self.tmp_index] in (0x90, 0x91, 0x92, 0x93, 0x80, 0x81, 0x82, 0x83, 0xf0, 0xe0):
+                            if not self.song[self.index + self.tmp_index] in ("0x90", "0x91", "0x92", "0x93", "0x80", "0x81", "0x82", "0x83", "0xf0", "0xe0"):
                                 self.tmp.append(self.song[self.index + self.tmp_index])
                                 self.tmp_index += 1
                             else:
                                 self.isReading = False
-                    if self.opcode in (0x90, 0x91, 0x92, 0x93):
+                    if self.opcode in ("0x90", "0x91", "0x92", "0x93"):
                         if len(self.tmp) > 0:
-                            if self.opcode == 0x90:
+                            if self.opcode == "0x90":
                                 self.play_note(self.tmp[0], "a0", 50)
-                            elif self.opcode == 0x91:
+                            elif self.opcode == "0x91":
                                 self.play_note(self.tmp[0], "b0", 50)
-                            elif self.opcode == 0x92:
+                            elif self.opcode == "0x92":
                                 self.play_note(self.tmp[0], "a1", 50)
-                            elif self.opcode == 0x93:
+                            elif self.opcode == "0x93":
                                 self.play_note(self.tmp[0], "b1", 50)
                             if len(self.tmp) == 3:
                                 delay = ((self.tmp[1]*256)+(self.tmp[2]))
                                 sleep_ms(delay)
                         self.index += 1
                         
-                    elif self.opcode in (0x80, 0x81, 0x82, 0x83):
-                        if self.opcode == 0x80:
+                    elif self.opcode in ("0x80", "0x81", "0x82", "0x83"):
+                        if self.opcode == "0x80":
                             self.stop_channel("a0")
-                        elif self.opcode == 0x81:
+                        elif self.opcode == "0x81":
                             self.stop_channel("b0")
-                        elif self.opcode == 0x82:
+                        elif self.opcode == "0x82":
                             self.stop_channel("a1")
-                        elif self.opcode == 0x83:
+                        elif self.opcode == "0x83":
                             self.stop_channel("b1")
                             
                         if len(self.tmp) >= 2:
@@ -535,7 +628,7 @@ class MusicBoxObject:
                             sleep_ms(delay)
                         self.index += 1
                         
-                    elif self.opcode in (0xf0, 0xe0):
+                    elif self.opcode in ("0xf0", "0xe0"):
                         if self.mode: 
                             self.index = 0
                 else:
