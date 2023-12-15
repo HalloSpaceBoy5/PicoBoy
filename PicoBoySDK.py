@@ -49,7 +49,10 @@ class ST7789(framebuf.FrameBuffer):
         self.dc = Pin(dc, Pin.OUT)
         self.rst = Pin(rst, Pin.OUT)
         self.cs = Pin(cs, Pin.OUT)
-        self.bl = PWM(Pin(bl, Pin.OUT))
+        try:
+            self.bl = PWM(Pin(bl, Pin.OUT),freq=1000,duty_u16=10000)
+        except:
+            self.bl = PWM(Pin(bl, Pin.OUT))
         self.PWM_FREQUENCY = 1000  
         self.DUTY_CYCLE_MIN = 10000
         self.DUTY_CYCLE=45000
@@ -459,8 +462,8 @@ class PlayerObject:
         if not "PicoBoySDK" in str(type(parent)):
             print("PicoBoySDK Error: The PicoBoySDK object is missing or invalid in "+str(self))
             sys.exit()
-        self.Initx=initx
-        self.Inity=inity
+        self.initx=initx
+        self.inity=inity
         self.x=initx
         self.y=inity
         self.width=width

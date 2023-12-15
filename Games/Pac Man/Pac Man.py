@@ -602,7 +602,7 @@ while True:
     
     if ticks_diff(ticks_ms(), now) > 200:
         now = ticks_ms()
-        pgb.create_text("PRESS ANY BUTTON",-1,150,WHITE)
+        pgb.create_text("PRESS A TO PLAY",-1,150,WHITE)
         pgb.show()
         while ticks_diff(ticks_ms(), now) < 200:
             sleep(0.020)

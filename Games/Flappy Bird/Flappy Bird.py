@@ -204,8 +204,7 @@ while True:
         break
     if ticks_diff(ticks_ms(), now) > 200:
         now = ticks_ms()
-        pgb.create_text("PRESS ANY BUTTON",20, 120,PicoGameBoy.color(0,0,0))
-        pgb.create_text("TO PLAY",50, 130, PicoGameBoy.color(0,0,0))
+        pgb.create_text("PRESS A TO PLAY",20, 120,PicoGameBoy.color(0,0,0))
         pgb.show()
         pgb.free_mem()
         while ticks_diff(ticks_ms(), now) < 200:

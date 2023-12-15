@@ -106,7 +106,7 @@ def title_screen():
         
         if ticks_diff(ticks_ms(), now) > 200:
             now = ticks_ms()
-            pgb.create_text("PRESS ANY BUTTON",-1,175,PicoGameBoy.color(255,255,255))
+            pgb.create_text("PRESS A TO PLAY",-1,175,PicoGameBoy.color(255,255,255))
             pgb.show()
             while ticks_diff(ticks_ms(), now) < 200:
                 sleep(0.020)

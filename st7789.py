@@ -45,11 +45,14 @@ class ST7789(framebuf.FrameBuffer):
                  dc=20, rst=21, cs=17, bl=22, baudrate=62500000):
         self.width = width
         self.height = height
-        self.spi = SPI(id_, sck=Pin(sck), mosi=Pin(mosi), baudrate=baudrate, polarity=0, phase=0)
         self.dc = Pin(dc, Pin.OUT)
         self.rst = Pin(rst, Pin.OUT)
         self.cs = Pin(cs, Pin.OUT)
-        self.bl = PWM(Pin(bl, Pin.OUT))
+        try:
+            self.bl = PWM(Pin(bl, Pin.OUT),freq=1000,duty_u16=10000)
+        except:
+            self.bl = PWM(Pin(bl, Pin.OUT))
+        self.spi = SPI(id_, sck=Pin(sck), mosi=Pin(mosi), baudrate=baudrate, polarity=0, phase=0)
         self.PWM_FREQUENCY = 1000  
         self.DUTY_CYCLE_MIN = 10000 #Minimum Brightness
         self.DUTY_CYCLE=45000 #Brightness

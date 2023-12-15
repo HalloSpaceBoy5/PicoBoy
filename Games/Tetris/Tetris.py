@@ -275,7 +275,7 @@ def title_screen():
         
         if time.ticks_diff(time.ticks_ms(), now) > 200:
             now = time.ticks_ms()
-            pgb.center_text("PRESS ANY BUTTON",WHITE)
+            pgb.center_text("PRESS A TO PLAY",WHITE)
             pgb.show()
             while time.ticks_diff(time.ticks_ms(), now) < 200:
                 time.sleep(0.020)
