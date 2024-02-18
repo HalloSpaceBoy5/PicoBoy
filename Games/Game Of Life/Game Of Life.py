@@ -31,7 +31,7 @@ def title_screen():
         
         if time.ticks_diff(time.ticks_ms(), now) > 200:
             now = time.ticks_ms()
-            pgb.create_text("PRESS A TO PLAY",-1,150,WHITE)
+            pgb.create_text("HOLD A TO PLAY",-1,150,WHITE)
             pgb.show()
             while time.ticks_diff(time.ticks_ms(), now) < 200:
                 time.sleep(0.020)

@@ -232,9 +232,9 @@ while True:
     else:
         pgb.fill_rect(125, 180, 60, 20, PicoGameBoy.color(200,200,200))
     pgb.create_text("Start", 130, 187, PicoGameBoy.color(255,255,255))
-    pgb.create_text("Press all buttons on", -1, 210, PicoGameBoy.color(255,255,255))
-    pgb.create_text("the D-PAD to continue", -1, 225, PicoGameBoy.color(255,255,255))
-    if pgb.button_up() and pgb.button_down() and pgb.button_left() and pgb.button_right():
+    pgb.create_text("Press the buttons select", -1, 210, PicoGameBoy.color(255,255,255))
+    pgb.create_text("and start to continue", -1, 225, PicoGameBoy.color(255,255,255))
+    if pgb.button_select() and pgb.button_start():
         break
     dpad(padx,pady)
     pgb.show()

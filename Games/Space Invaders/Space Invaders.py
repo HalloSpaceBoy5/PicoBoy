@@ -420,10 +420,10 @@ t=True
 while True:
     PicoBoy.Load_Image("Space Invaders Title.pbimg")
     if t:
-        PicoBoy.Create_Text("PRESS A TO PLAY",-1, 202,(255,255,255))
+        PicoBoy.Create_Text("HOLD A TO PLAY",-1, 202,(255,255,255))
         t=False
     elif not t:
-        PicoBoy.Create_Text("PRESS A TO PLAY",-1, 202,(0,0,0))
+        PicoBoy.Create_Text("HOLD A TO PLAY",-1, 202,(0,0,0))
         t=True
     PicoBoy.Update()
     if PicoBoy.Button("Start"):

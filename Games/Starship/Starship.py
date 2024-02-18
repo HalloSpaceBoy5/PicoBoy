@@ -59,7 +59,7 @@ exitthread=False
 playerspeed=5
 bulletspeed=3
 followspeed=5
-tick=0.025
+tick=0.0001
 direction=0 #0=up, 1=down, 2=left, 3=right
 level=0
 class new_bullet:
@@ -319,7 +319,7 @@ def new_level():
             pgb.fill_rect(star[0],star[1],1,1,PicoGameBoy.color(255,255,255))
         pgb.create_text("Level: "+str(level),150,228,PicoGameBoy.color(255,255,255))
         counter=counter+1
-        if counter%(tps/2)==0:
+        if counter%(15)==0:
             aot=aot-1
         if aot<10:
             aotstr="0"+ str(aot)
@@ -399,7 +399,7 @@ while True:
     pgb.show()
     if ticks_diff(ticks_ms(), now) > 200:
         now = ticks_ms()
-        pgb.create_text("PRESS A TO PLAY",-1,160,PicoGameBoy.color(255,255,255))
+        pgb.create_text("HOLD A TO PLAY",-1,160,PicoGameBoy.color(255,255,255))
         pgb.show()
         while ticks_diff(ticks_ms(), now) < 200:
             sleep(0.020)
