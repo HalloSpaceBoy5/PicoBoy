@@ -6,6 +6,7 @@ from st7789 import ST7789
 from time import sleep
 from random import randint
 import struct
+import sys
 
 
 class PicoGameBoy(ST7789):

@@ -1,0 +1,36 @@
+Space Invaders User Manual
+
+Game Overview:
+This is a port of the 1978 classic arcade game Space Ivaders. It is a game where you play as a gunship fighting
+against an array of aliens.
+
+Important things to know:
+- Your score will only be saved when you die; if you return to the home screen before that, your score will be
+  lost.
+- The green squares above the gunship are sheilds that block player and enemy bullets.
+
+Gameplay:
+You control a gunship fighting aliens. Your goal is to take out the aliens before they take you out. If you 
+kill an alien, the others will speed up. As the aliens move about they will fire bullets down at you, if you 
+are hit, you will lose a life. If you can kill all of the aliens before they kill you, you win the
+round and move onto a more difficult round. If you lose all three lives or the aliens reach you, you get a 
+game over.
+
+Controls:
+Left - Move the gunship left
+Right - Move the gunship right
+A - Fire a bullet
+Start - Pause/View Scores
+
+Scoring:
+1st row of enemies - 10 points
+2nd row of enemies - 20 points
+3rd row of enemies - 30 points
+
+Tips:
+- Lead your shots to hit enemies more accuratley
+- Use your sheilds as a cover and shoot through them
+
+Credits:
+- HalloSpaceBoy: Ported to the PicoBoy
+- Nishikado Tomohiro: Original Game Design

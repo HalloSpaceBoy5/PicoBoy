@@ -1,0 +1,37 @@
+Tetris User Manual
+
+Game Overview:
+Tetris is a classic puzzle video game created by Russian game designer Alexey Pajitnov, first released in 1984. 
+It is a very fun and addicting game, making for a perfect addition to your library.
+
+Important things to know:
+- Your score will only be saved when you die; if you return to the home screen before that, your score will be
+  lost.
+
+Gameplay:
+In Tetris, you must manipulate falling tetrominoes to fit perfectly together in the provided space. When a
+perfect line of tetrominoes is completed, the line dissapears and the blocks above it fall down. If your stack
+of tetrominoes gets too high, you will end up with a game over. As your score increases, the speed at which the
+blocks fall increases, making for a well-paced difficulty curve.
+
+Controls:
+Left - Move tetrominoe left
+Right - Move tetrominoe right
+Down - Move tetrominoe down faster
+A - Rotate tetrominoe clockwise
+B - Rotate tetrominoe clockwise
+Start - Pause/View Scores
+
+Scoring:
+- A single line clear: 40 points
+- A double line clear: 100 points
+- A triple line clear: 300 points
+- A quadrouple line clear: 1200 points
+
+Tips:
+- Leave a 1-block wide gap to maximize quadrouple line clears
+
+Credits:
+- HalloSpaceBoy: Ported to the PicoBoy
+- Vincent Mistler: Ported to the Raspberry Pi Pico
+- Alexey Pajitnov: Original Game Design

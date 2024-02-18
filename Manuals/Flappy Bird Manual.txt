@@ -1,0 +1,27 @@
+Flappy Bird User Manual
+
+Game Overview:
+Flappy Bird is a game where you control a bird that flaps wildly to navigate a series of pipes. 
+
+Important things to know:
+- Your score will only be saved when you die; if you return to the home screen before that, your score will be
+  lost.
+- The speed of the game increases as you clear pipes
+
+Gameplay:
+You control a bird that flaps its wings to navigate through pipes. As you continue to dodge pipes, the speed that
+the game runs at will speed up until you hit a pipe and lose. 
+
+Controls:
+A - Flap
+Start - Pause/View Scores
+
+Scoring:
+Each pipe adds one point to your score
+
+Tips:
+ - Think about where a flap will take you far into the future, this makes it easier to not flap too high.
+
+Credits:
+- HalloSpaceBoy: Ported to PicoBoy
+- Dong Nguyen: Original Game Design

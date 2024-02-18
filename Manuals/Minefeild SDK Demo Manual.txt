@@ -1,0 +1,31 @@
+Minefeild SDK Demo User Manual
+
+Game Overview:
+Minefeild is a game that is meant to show off the PicoBoy SDK in an interesting and fun way. It is simplistic
+game about moving on a grid and dodging mines to reach a goal.
+
+Important things to know:
+ - Your score will only be saved when you die; if you return to the home screen before that, your score will be
+  lost.
+ - You move on a grid.
+ - Sometimes reaching the goal is impossible.
+
+Gameplay:
+You control a robot that needs to dodge mines to reach a goal. If you touch a mine, you will have a game over. 
+If you reach the goal, you will move onto the next level.
+
+Controls:
+Up - Move the robot up
+Down - Move the robot down
+Left - Move the robot left
+Right - Move the robot right
+Start - Pause/View Scores
+
+Scoring:
+Every level you clear increments your score
+
+Tips:
+ - Dont hold a button, you will go too fast and die
+
+Credits:
+ - HalloSpaceBoy: Original Game Design and Programming

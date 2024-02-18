@@ -1,0 +1,38 @@
+Breakout User Manual
+
+Game Overview:
+Breakout is a rewritten version of the game Breakout for the Atari 2600. It is a game where you control a paddle.
+and try to bounce a ball off of it to break an array of colored blocks.
+
+Important things to know:
+- Your score will only be saved when you die; if you return to the home screen before that, your score will be
+  lost.
+- The speed of the ball increases as you progress.
+
+Gameplay:
+When you start a new round, your paddle will be in the middle of the screen. You can press the A button to send
+the ball off and begin playing. After breaking all of the blocks, you will encounter a win screen. Pressing A on
+the win screen will start a new round with your score in tact. You can find your lives in the upper right corner
+of the screen , and your score in the upper left. When your lives run out, you will get a death screen. When the 
+death screen occurs, your score will be saved to the leaderboard.
+
+Controls:
+A - Launch ball
+Left - Move paddle left
+Right - Move paddle right
+Start - Pause game/view scores
+
+Scoring:
+1st row: 100 points
+2nd row: 50 points
+3rd row: 25 points
+4th row: 10 points
+5th row: 5 points
+
+Tips:
+- Position your paddle to where the ball is going to be rather than where it is.
+- Try to get the ball bouncing between blocks to increase the score fast.
+
+Credits:
+- HalloSpaceBoy: Porting to PicoBoy
+- Steve Wozniak: Original game design

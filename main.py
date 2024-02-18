@@ -1,10 +1,16 @@
 # Original home screen for PicoBoy by HalloSpaceBoy
 from micropython import const
+from framebuf import FrameBuffer,RGB565
 from PicoGameBoy import PicoGameBoy
 import time
 from random import randint
+import array
 import os
+import sys
+from random import randint
 import machine
+
+
 BLACK = PicoGameBoy.color(0,0,0)
 WHITE = PicoGameBoy.color(255,255,255)
 pgb = PicoGameBoy()
@@ -13,6 +19,206 @@ games=os.listdir("/games")
 loop=0
 gamenum=len(games)-1
 title=0
+
+def readchunkold(filename,x2,y2,w,h):
+    global pgb
+    chunk_size = w * 2 
+    with open(filename, "rb") as image_file:
+        for y in range(h):
+            existing_line_start = ((y + y2) * 240 + x2) * 2
+            y_start=((y + y2) * 240) * 2
+            y_end=((y + y2) * 240 + 240) * 2
+            if existing_line_start + chunk_size>y_end:
+                data=image_file.read(chunk_size)
+                amnt=(existing_line_start+chunk_size)-y_end
+                ndata = data[:-amnt]
+                pgb.buffer[existing_line_start:existing_line_start+chunk_size-amnt]=ndata
+            elif existing_line_start<y_start:
+                data=image_file.read(chunk_size)
+                amnt=chunk_size-(chunk_size+(existing_line_start)-y_start)
+                ndata = data[amnt:]
+                if not ndata==b'':
+                    pgb.buffer[existing_line_start+amnt:existing_line_start+amnt+len(ndata)]=ndata
+            else:
+                time.sleep(0.001)
+                image_file.readinto(pgb.buffer[existing_line_start:existing_line_start + chunk_size])
+
+    
+     
+def readchunk(filename,x2,y2,w,h,i=0):
+    t=int(h/6)
+    with open(filename,"rb") as r:
+        for x in range(6):
+            tempfb=FrameBuffer(bytearray(r.read((2*w)*t)),w,t,RGB565)
+            pgb.blit(tempfb,x2,y2+x*t)
+            del tempfb
+     
+def readchunk_mask(filename,x2,y2,w,h,cmask):
+    gren=PicoGameBoy.color(0,255,0)
+    with open(filename,"rb") as r:
+            for x in range(h):
+                tempfb=FrameBuffer(bytearray(r.read(2*w)),w,1,RGB565)
+                pgb.blit(tempfb,x2,y2+x,gren)
+                del tempfb
+            
+def settings():
+    global bindex
+    global bgcolor
+    global bgcolor565
+    global bgcolors
+    global ttcolor
+    global tcolor
+    global animated
+    runcheck=False
+    black=PicoGameBoy.color(0,0,0)
+    white=PicoGameBoy.color(255,255,255)
+    opt=0
+    time.sleep(0.2)
+    while True:
+        pgb.fill(bgcolor565)
+        pgb.create_text("Settings:",10,10,ttcolor)
+        pgb.create_text("PicoBoy            PBOS V2.3",10,225,ttcolor)
+        options=["Change Brightness", "Change Background", "Data Upload Mode", "Toggle Animation: "+str(animated), "Exit"]
+        if tcolor==0:
+            ottcolor=white
+        else:
+            ottcolor=black
+        for i,option in enumerate(options):
+            pgb.rect(10,25+i*30,220,20,white)
+            pgb.rect(11,26+i*30,218,18,black)
+            if i==opt:
+                pgb.fill_rect(12,27+i*30,216,16,ottcolor)
+            pgb.create_text(option,-1,32+i*30,ttcolor)
+        if pgb.button_up() and opt>0:
+            opt-=1
+            pgb.show()
+            time.sleep(0.1)
+        if pgb.button_down() and opt<len(options)-1:
+            opt+=1
+            pgb.show()
+            time.sleep(0.1)
+        if pgb.button_B():
+            break
+        if pgb.button_A():
+            if opt==0:
+                time.sleep(0.2)
+                while True:
+                    pgb.fill(bgcolor565)
+                    pgb.rect(20,110,200,20,ttcolor)
+                    brightness=pgb.bl.duty_u16()-10000
+                    width=int((brightness/55000)*198)
+                    percentage=int((brightness/55000)*100)
+                    pgb.fill_rect(21,111,width,18,ttcolor)
+                    pgb.create_text(str(percentage)+"%",-1,95,ttcolor)
+                    pgb.create_text("Use the left and right",-1,140,ttcolor)
+                    pgb.create_text("buttons to change the",-1,150,ttcolor)
+                    pgb.create_text("brightness.",-1,160,ttcolor)
+                    pgb.create_text("Press A to exit.",-1,220,ttcolor)
+                    if pgb.button_left():
+                        pgb.decrease_brightness()
+                        pgb.fill_rect(0,95,240,40,bgcolor565)
+                        pgb.rect(20,110,200,20,ttcolor)
+                        brightness=pgb.bl.duty_u16()-10000
+                        width=int((brightness/55000)*198)
+                        percentage=int((brightness/55000)*100)
+                        pgb.fill_rect(21,111,width,18,ttcolor)
+                        pgb.create_text(str(percentage)+"%",-1,95,ttcolor)
+                        pgb.show()
+                        time.sleep(0.0825)
+                    if pgb.button_right():
+                        pgb.increase_brightness()
+                        pgb.fill_rect(0,95,240,40,bgcolor565)
+                        pgb.rect(20,110,200,20,ttcolor)
+                        brightness=pgb.bl.duty_u16()-10000
+                        width=int((brightness/55000)*198)
+                        percentage=int((brightness/55000)*100)
+                        pgb.fill_rect(21,111,width,18,ttcolor)
+                        pgb.create_text(str(percentage)+"%",-1,95,ttcolor)
+                        pgb.show()
+                        time.sleep(0.0825)
+                    if pgb.button_A() or pgb.button_B():
+                        time.sleep(0.2)
+                        break
+                    pgb.show()
+            if opt==1:
+                time.sleep(0.2)
+                while True:
+                    pgb.fill(bgcolor565)
+                    pgb.create_text("Choose a background color",-1,-1,ttcolor)
+                    pgb.create_text("using the left and right",-1,125,ttcolor)
+                    pgb.create_text("buttons.",-1,140,ttcolor)
+                    pgb.create_text("Press A to exit",-1,220,ttcolor)
+                    if runcheck:
+                        runcheck=False
+                    if pgb.button_A() or pgb.button_B():
+                        time.sleep(0.2)
+                        break
+                    if pgb.button_left() and bindex>0:
+                        bindex-=1
+                        runcheck=True
+                        time.sleep(0.1)
+                    if pgb.button_right() and bindex<len(bgcolors)-1:
+                        bindex+=1
+                        runcheck=True
+                        time.sleep(0.1)
+                    if runcheck:
+                        bgcolor=bgcolors[bindex]
+                        bgcolor565=PicoGameBoy.color(*bgcolor)
+                        if sum(bgcolor)<426:
+                            tcolor=1
+                        else:
+                            tcolor=0
+                        ttcolor=PicoGameBoy.color(255,255,255)
+                        if tcolor==0:
+                            ttcolor=PicoGameBoy.color(0,0,0)
+                        with open("background.conf","w") as w:
+                            w.write(str(bindex))
+                    pgb.show()
+            if opt==2:
+                pgb.fill(PicoGameBoy.color(0,0,0))
+                pgb.create_text("DATA UPLOAD MODE",-1,50,PicoGameBoy.color(255,255,255))
+                pgb.create_text("Plug your PicoBoy",-1, 100,PicoGameBoy.color(255,255,255))
+                pgb.create_text("into your computer",-1,112,PicoGameBoy.color(255,255,255))
+                pgb.create_text("and run the PicoBoy",-1,124,PicoGameBoy.color(255,255,255))
+                pgb.create_text("Communication Software.",-1,136,PicoGameBoy.color(255,255,255))
+                pgb.create_text("To exit data",-1,180,PicoGameBoy.color(255,255,255))
+                pgb.create_text("upload mode reset",-1,192,PicoGameBoy.color(255,255,255))
+                pgb.create_text("your PicoBoy.",-1,204,PicoGameBoy.color(255,255,255))
+                pgb.show()
+                sys.exit()
+            if opt==3:
+                animated=not animated
+                with open("animated.conf", "w") as w:
+                    w.write(str(animated))
+                time.sleep(0.1)
+            if opt==4:
+                break
+        if pgb.button_Home():
+            break
+        pgb.show()
+    pgb.fill(bgcolor565)
+    readchunk_mask("picoboy-color.pbimg",0,0,240,60,bgcolor)
+    pgb.fill_rect(0,210,240,30,bgcolor565)
+    pgb.fill_rect(0,210,240,30,bgcolor565)
+    pos=[]
+    for i in range(title):
+        pos.append(".")
+    pos.append("0")
+    for i in range((gamenum+1)-(title+1)):
+        pos.append(".")
+    pgb.create_text("".join(pos).replace("0",".")+"0", x=-1, y=228,color=ttcolor)
+    del pos
+    pgb.fill_rect(0,60,240,20,bgcolor565)
+    pgb.create_text("Settings",-1,65,ttcolor)
+    readchunk("settings.pbimg",60,80,120,120)
+    pgb.poly(40,130,arrowleft,ttcolor,True)
+    pgb.poly(60,80,c1,bgcolor565,True)
+    pgb.poly(60,200,c2,bgcolor565,True)
+    pgb.poly(180,80,c3,bgcolor565,True)
+    pgb.poly(180,200,c4,bgcolor565,True)
+    pgb.show()
+    return
+                
 
 bootlogo=True
 try:
@@ -49,24 +255,225 @@ if bootlogo:
     pgb.sound(0)
     time.sleep(0.9)
 
+bgcolors=(
+    (205, 0, 0),
+    (0, 205, 0),
+    (0, 0, 205),
+    (161, 161, 161),
+    (69, 69, 69),
+    (230, 223, 0),
+    (212, 82, 255))
+
+if gamenum==-1:
+    pgb.fill(PicoGameBoy.color(0,0,0))
+    pgb.create_text("NO GAMES DETECTED",-1,50,PicoGameBoy.color(255,255,255))
+    pgb.create_text("Plug your PicoBoy",-1, 100,PicoGameBoy.color(255,255,255))
+    pgb.create_text("into your computer",-1,112,PicoGameBoy.color(255,255,255))
+    pgb.create_text("and run the PicoBoy",-1,124,PicoGameBoy.color(255,255,255))
+    pgb.create_text("Communication Software",-1,136,PicoGameBoy.color(255,255,255))
+    pgb.create_text("to upload games",-1,148,PicoGameBoy.color(255,255,255))
+    pgb.show()
+    sys.exit()
+
+try:
+    with open("background.conf","r") as r:
+        bindex=int(r.read())
+except:
+    bindex=4
+
+arrowright=array.array('h',[0,0,0,20,20,10])
+arrowleft=array.array('h',[0,0,0,20,-20,10])
+c1=array.array('h',[0,0,0,5,5,0])
+c2=array.array('h',[0,0,0,-5,5,0])
+c3=array.array('h',[0,0,0,5,-5,0])
+c4=array.array('h',[0,0,0,-5,-5,0])
+
+bgcolor=bgcolors[bindex]
+bgcolor565=PicoGameBoy.color(*bgcolor)
+pgb.fill(PicoGameBoy.color(*bgcolor))
+
+if sum(bgcolor)<426:
+    tcolor=1
+else:
+    tcolor=0
+if tcolor==0:
+    ottcolor=PicoGameBoy.color(255,255,255)
+else:
+    ottcolor=PicoGameBoy.color(0,0,0)
+ttcolor=PicoGameBoy.color(255,255,255)
+readchunk_mask("picoboy-color.pbimg",0,0,240,60,bgcolor)
+if tcolor==0:
+    ttcolor=PicoGameBoy.color(0,0,0)
+pgb.fill_rect(0,210,240,30,bgcolor565)
+pgb.fill_rect(0,210,240,30,bgcolor565)
+pos=[]
+for i in range(title):
+    pos.append(".")
+pos.append("0")
+for i in range((gamenum+1)-(title+1)):
+    pos.append(".")
+pgb.create_text("".join(pos)+"S", x=-1, y=228,color=ttcolor)
+pgb.fill_rect(0,60,240,20,bgcolor565)
+pgb.create_text(games[title],-1,65,ttcolor)
+try:
+    readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60,80,120,120)
+except:
+    pgb.fill_rect(60,80,120,120,ttcolor)
+    pgb.create_text("No Image",-1,140,ottcolor)
+    time.sleep(0.1)
+if title==0:
+    pgb.poly(200,130,arrowright,ttcolor,True)
+else:
+    pgb.poly(200,130,arrowright,ttcolor,True)
+    pgb.poly(40,130,arrowleft,ttcolor,True)
+pgb.poly(60,80,c1,bgcolor565,True)
+pgb.poly(60,200,c2,bgcolor565,True)
+pgb.poly(180,80,c3,bgcolor565,True)
+pgb.poly(180,200,c4,bgcolor565,True)
+pgb.show()
+try:
+    with open("animated.conf") as r:
+        if bool(r.read()):
+            animated=True
+        else:
+            animated=False
+except:
+    animated=True
+
+def render():
+        pgb.fill_rect(0,80,240,120,bgcolor565)
+        pgb.fill_rect(0,210,240,30,bgcolor565)
+        pgb.fill_rect(0,210,240,30,bgcolor565)
+        pos=[]
+        for i in range(title):
+            pos.append(".")
+        pos.append("0")
+        for i in range((gamenum+1)-(title+1)):
+            pos.append(".")
+        pgb.create_text("".join(pos)+"S", x=-1, y=228,color=ttcolor)
+        pgb.fill_rect(0,60,240,20,bgcolor565)
+        pgb.create_text(games[title],-1,65,ttcolor)
+        try:
+            readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60,80,120,120)
+        except:
+            pgb.fill_rect(60,80,120,120,ttcolor)
+            pgb.create_text("No Image",-1,140,ottcolor)
+            time.sleep(0.1)
+        if title==0:
+            pgb.poly(200,130,arrowright,ttcolor,True)
+        else:
+            pgb.poly(200,130,arrowright,ttcolor,True)
+            pgb.poly(40,130,arrowleft,ttcolor,True)
+        pgb.poly(60,80,c1,bgcolor565,True)
+        pgb.poly(60,200,c2,bgcolor565,True)
+        pgb.poly(180,80,c3,bgcolor565,True)
+        pgb.poly(180,200,c4,bgcolor565,True)
+        pgb.show()
+
 
 while True:
-    if gamenum==-1:
-        pgb.fill(PicoGameBoy.color(0,0,0))
-        pgb.create_text("NO GAMES DETECTED",-1,50,PicoGameBoy.color(255,255,255))
-        pgb.create_text("Plug your PicoBoy",-1, 100,PicoGameBoy.color(255,255,255))
-        pgb.create_text("into your computer",-1,112,PicoGameBoy.color(255,255,255))
-        pgb.create_text("and run the PicoBoy",-1,124,PicoGameBoy.color(255,255,255))
-        pgb.create_text("Communication Software",-1,136,PicoGameBoy.color(255,255,255))
-        pgb.create_text("to upload games",-1,148,PicoGameBoy.color(255,255,255))
-        pgb.show()
-        break
-    if pgb.button_left():
+    if pgb.button_left() and title>0:
+        if animated:
+            incr=60
+            for i in range(3): #3 is good
+                i+=1
+                pgb.fill_rect(0,78,240,130,bgcolor565)
+                readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60+(i*incr),80,120,120)
+                readchunk(games[title-1]+"/"+games[title-1]+" (Title Image).pbimg",-180+(i*incr),80,120,120)
+                pgb.show()
+        else:
+            time.sleep(0.1)
+        pgb.fill_rect(0,78,240,130,bgcolor565)
         title-=1
-        time.sleep(0.1)
-    if pgb.button_right():
+        render()
+    if pgb.button_right() and title<gamenum:
+        if animated:
+            incr=60
+            for i in range(3):
+                i+=1
+                pgb.fill_rect(0,78,240,130,bgcolor565)
+                readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60-(i*incr),80,120,120)
+                readchunk(games[title+1]+"/"+games[title+1]+" (Title Image).pbimg",300-(i*incr),80,120,120)
+                pgb.show()
+        else:
+            time.sleep(0.1)
+        pgb.fill_rect(0,78,240,130,bgcolor565)
         title+=1
-        time.sleep(0.1)
+        render()
+    if pgb.button_right() and title==gamenum:
+            if animated:
+                incr=60
+                for i in range(3):
+                    i+=1
+                    pgb.fill_rect(0,78,240,130,bgcolor565)
+                    readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60-(i*incr),80,120,120)
+                    readchunk("settings.pbimg",300-(i*incr),80,120,120)
+                    pgb.show()
+            else:
+                time.sleep(0.1)
+            pgb.fill_rect(0,80,240,120,bgcolor565)
+            pgb.fill_rect(0,210,240,30,bgcolor565)
+            pgb.fill_rect(0,210,240,30,bgcolor565)
+            pos=[]
+            for i in range(title):
+                pos.append(".")
+            pos.append("0")
+            for i in range((gamenum+1)-(title+1)):
+                pos.append(".")
+            pgb.create_text("".join(pos).replace("0",".")+"0", x=-1, y=228,color=ttcolor)
+            pgb.fill_rect(0,60,240,20,bgcolor565)
+            pgb.create_text("Settings",-1,65,ttcolor)
+            readchunk("settings.pbimg",60,80,120,120)
+            pgb.poly(40,130,arrowleft,ttcolor,True)
+            pgb.poly(60,80,c1,bgcolor565,True)
+            pgb.poly(60,200,c2,bgcolor565,True)
+            pgb.poly(180,80,c3,bgcolor565,True)
+            pgb.poly(180,200,c4,bgcolor565,True)
+            pgb.show()
+            while True:
+                pgb.show()
+                if pgb.button_A() or pgb.button_start():
+                    settings()
+                    time.sleep(0.1)
+                if pgb.button_left():
+                    if animated:
+                        incr=60
+                        for i in range(3): #3 is good
+                            i+=1
+                            pgb.fill_rect(0,78,240,130,bgcolor565)
+                            readchunk("settings.pbimg",60+(i*incr),80,120,120)
+                            readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",-180+(i*incr),80,120,120)
+                            pgb.show()
+                    else:
+                        time.sleep(0.1)
+                    pgb.fill_rect(0,80,240,120,bgcolor565)
+                    pgb.fill_rect(0,210,240,30,bgcolor565)
+                    pgb.fill_rect(0,210,240,30,bgcolor565)
+                    pos=[]
+                    for i in range(title):
+                        pos.append(".")
+                    pos.append("0")
+                    for i in range((gamenum+1)-(title+1)):
+                        pos.append(".")
+                    pgb.create_text("".join(pos)+"S", x=-1, y=228,color=ttcolor)
+                    pgb.fill_rect(0,60,240,20,bgcolor565)
+                    pgb.create_text(games[title],-1,65,ttcolor)
+                    try:
+                        readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60,80,120,120)
+                    except:
+                        pgb.fill_rect(60,80,120,120,ttcolor)
+                        pgb.create_text("No Image",-1,140,ottcolor)
+                    if title==0:
+                        pgb.poly(200,130,arrowright,ttcolor,True)
+                    else:
+                        pgb.poly(200,130,arrowright,ttcolor,True)
+                        pgb.poly(40,130,arrowleft,ttcolor,True)
+                    pgb.poly(60,80,c1,bgcolor565,True)
+                    pgb.poly(60,200,c2,bgcolor565,True)
+                    pgb.poly(180,80,c3,bgcolor565,True)
+                    pgb.poly(180,200,c4,bgcolor565,True)
+                    pgb.show()
+                    break
     if title>gamenum:
         title=gamenum
     elif title<0:
@@ -83,36 +490,62 @@ while True:
         pgb.create_text("your PicoBoy.",-1,204,PicoGameBoy.color(255,255,255))
         pgb.show()
         break
-    pgb.fill(PicoGameBoy.color(0,0,0))
-    try:
-        pgb.load_image(games[title]+"/"+games[title]+" (Title Image).pbimg")
-    except:
-        for game in games:
-            try:
-                pgb.load_image(game+"/"+game+" (Title Image).pbimg")
-                pgb.fill_rect(13,37,216,120,PicoGameBoy.color(255,255,255))
-                pgb.create_text(games[title], -1, 100, PicoGameBoy.color(0,0,0))
-                break
-            except:
-                pgb.create_text(games[title], -1, -1, PicoGameBoy.color(255,255,255))
-    pos=[]
-    for i in range(title):
-        pos.append(".")
-    pos.append("0")
-    for i in range((gamenum+1)-(title+1)):
-        pos.append(".")
-    pgb.create_text("".join(pos), x=-1, y=228)
     pgb.show()
     if pgb.button_A() or pgb.button_start():
-        with open("gameselection.conf", "w") as w:
-            w.write(str(title))
-        os.rename("./main.py", "./title.py")
-        os.rename("./"+games[title]+"/"+games[title]+".py", "./main.py")
-        pgb.fill(PicoGameBoy.color(0,0,0))
-        pgb.show()
-        machine.reset()
-        break
+        go=False
+        try:
+            x=open("./"+games[title]+"/"+games[title]+".py")
+            while True:
+                try:
+                    f10=x.read(100)
+                    if "import" in f10:
+                        break
+                    if f10=="":
+                        raise
+                except:
+                    raise
+            x.close()
+            go=True
+        except:
+            time.sleep(0.1)
+            pgb.fill_rect(10,90,220,80,PicoGameBoy.color(50,50,50))
+            pgb.create_text("Game failed to start!", -1,110,PicoGameBoy.color(255,255,255))
+            pgb.create_text("This game may be corrupt.", -1, 135, PicoGameBoy.color(255,255,255))
+            pgb.create_text("Press any button to exit.", -1, 150, PicoGameBoy.color(255,255,255))
+            pgb.show()
+            while True:
+                pgb.show()
+                if pgb.any_button():
+                    pgb.fill_rect(10,90,220,80,bgcolor565)
+                    try:
+                        readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60,80,120,120)
+                    except:
+                        pgb.fill_rect(60,80,120,120,ttcolor)
+                        pgb.create_text("No Image",-1,140,ottcolor)
+                        time.sleep(0.1)
+                    if title==0:
+                        pgb.poly(200,130,arrowright,ttcolor,True)
+                    else:
+                        pgb.poly(200,130,arrowright,ttcolor,True)
+                        pgb.poly(40,130,arrowleft,ttcolor,True)
+                    pgb.poly(60,80,c1,bgcolor565,True)
+                    pgb.poly(60,200,c2,bgcolor565,True)
+                    pgb.poly(180,80,c3,bgcolor565,True)
+                    pgb.poly(180,200,c4,bgcolor565,True)
+                    time.sleep(0.1)
+                    break
+                    
+        if go:
+            with open("gameselection.conf", "w") as w:
+                w.write(str(title))
+            os.rename("./main.py", "./title.py")
+            os.rename("./"+games[title]+"/"+games[title]+".py", "./main.py")
+            pgb.fill(PicoGameBoy.color(0,0,0))
+            pgb.show()
+            machine.reset()
+            break
 
         
         
         
+

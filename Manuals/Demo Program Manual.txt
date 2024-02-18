@@ -1,0 +1,22 @@
+Demo Program User Manual
+
+Game Overview:
+This is a game designed to test the PicoBoy hardware and capabilities.
+
+Gameplay:
+You go through 7 stages that tests the PicoBoy hardware and capabilities
+- The Intro
+- The DVD Bounce Section
+- A Chase the Goal Section
+- A List Drawing Section
+- A Button Testing Section
+- A Closing Section
+
+Controls:
+It depends on the section, they will be explained.
+
+Scoring:
+None.
+
+Credits:
+ - HalloSpaceBoy: Original Game Design and Programming

@@ -1,0 +1,38 @@
+Pac Man User Manual
+
+Game Overview:
+This is a port of the 1980 arcade classic Pac Man for the PicoBoy. It is a game where you eat pellets and run
+away from ghosts. This port has all of the same rules with a simplified ghost AI to fit on the PicoBoy. 
+
+Important things to know:
+- Your score will only be saved when you die; if you return to the home screen before that, your score will be
+  lost.
+- At 5000 points, you will get a 1UP
+
+Gameplay:
+In Pac Man, your main goal is to consume all of the pellets in the maze that you are trapped in. While you collect
+the pellets, you are chased by 4 ghosts: Blinky, Inky, Pinky, and Clyde. Each of these ghosts has a different AI
+that is chasing you. Even though these ghosts are threatening, you can turn the tables on them by eating a power
+pellet. This will make the ghosts scared, making them eatable for points. After clearing the maze of all of the
+pellets, you will get a win screen. If you are killed by a ghost and lose all of your lives, you will get a game 
+over.
+
+Controls:
+Up - Move Pac Man up
+Down - Move Pac Man down
+Left - Move Pac Man left
+Right - Move Pac Man right
+Start - Pause/View Scores
+
+Scoring:
+Pellet - 10 points
+Power Pellet - 50 points
+Ghost - 100 points
+
+Tips:
+- Use your power pellets strategically to minimize the ghosts on the map
+- Hide in parts of the maze where the ghosts get confused
+
+Credits:
+- HalloSpaceBoy: Porting to PicoBoy
+- Toru Iwatani: Original Game Design

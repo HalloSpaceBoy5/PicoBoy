@@ -1,0 +1,49 @@
+Game Of Life User Manual
+
+Game Overview:
+In the Game Of Life, a set of pixels are added to or subtracted from in accordance with these rules:
+
+- Any live cell with fewer than two live neighbors dies, as if by underpopulation.
+If a live cell has 0 or 1 live neighbors, it dies in the next generation.
+
+- Any live cell with two or three live neighbors survives to the next generation.
+If a live cell has 2 or 3 live neighbors, it remains alive in the next generation.
+
+- Any live cell with more than three live neighbors dies, as if by overpopulation.
+If a live cell has more than 3 live neighbors, it dies in the next generation.
+
+- Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+If a dead cell has exactly 3 live neighbors, it becomes alive in the next generation.
+
+Following these rules, a simulation will play out that you can watch.
+
+Important things to know:
+- This is a zero-player game. There is no score and no lives. 
+- If the simulation dies, you will go back to the drawing board.
+
+Gameplay:
+You can either draw patterns or choose random patterns to create your cells. You can then begin the simulation.
+and watch the Game Of Life play out.
+
+Controls:
+Up - Move cursor up
+Down - Move cursor down
+Left - Move cursor left
+Right - Move cursor right
+A - Create cell
+B - Destroy cell
+Select - Create random pattern on screen
+Start - Begin simulation/End simulation prematurely
+
+Scoring:
+There is no scoring.
+
+Tips:
+- Experiment! Have fun trying out ideas for cellular growth and patterns!
+
+Credits:
+- HalloSpaceBoy: Modifications to run on the PicoBoy
+- Matthieu Mistler: Original port to Raspberry Pi Pico
+- John Conway: Original Game Design
+
+
