@@ -1,10 +1,9 @@
-#Original game by HalloSpaceBoy "Minefeild" PicoBoy SDK Demo
+#Original game by HalloSpaceBoy "Minefield" PicoBoy SDK Demo
     
 #Program Setup:
 from PicoBoySDK import PicoBoySDK, PlayerObject #This brings code for functions used in this program from the PicoBoy SDK
 from random import randint #This brings the random function used for generating random numbers
 from time import sleep #This brings in a function that is used for making the program wait
-from gc import mem_free
 
 PicoBoy=PicoBoySDK(namespace="Minefield SDK Demo", tick_time=0) #This is the "PicoBoySDK" object. This is an object that represents the PicoBoy that allows you to control the PicoBoy's hardware
 Player=PlayerObject(PicoBoy, initx=112, inity=0, width=16, height=16, sprite=PicoBoy.Load_Sprite("detector.sprt",16,16), speed=16) #This creates the "PlayerObject" Object. This is an object you can create to have a moveable player without any code
@@ -96,7 +95,7 @@ while True:
             PicoBoy.Create_Text("Score:"+str(score), -1, 130, (0,0,0)) #Draws the score on screen
             PicoBoy.Create_Text("Press any button", -1, 150, (0,0,0)) #Draws the text "Press any button to play again."
             PicoBoy.Create_Text("to play again.", -1, 160, (0,0,0)) #The text was split in two to fit the screen
-            PicoBoy.Update() #Updates the PicoBoy. Displays the screen, checks system controls, etc.
+            PicoBoy.Update(score) #Updates the PicoBoy. Displays the screen, checks system controls, etc. Score is passed in to autosave if home is pressed.
             if PicoBoy.Button("Any"): #Checks for any button press on the PicoBoy
                 #Button was pressed
                 break #Exit the infinite loop
@@ -106,4 +105,4 @@ while True:
         PicoBoy.Pause_Screen() #Enter a pause screen
     if PicoBoy.Button("Any"): #If any button is pressed
         sleep(0.1) #Wait 0.1 seconds
-    PicoBoy.Update() #Updates the PicoBoy. Displays the screen, checks system controls, etc.
+    PicoBoy.Update(score) #Updates the PicoBoy. Displays the screen, checks system controls, etc. Score is passed in to autosave if home is pressed.

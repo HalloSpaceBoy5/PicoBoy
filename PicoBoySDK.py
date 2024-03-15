@@ -180,6 +180,8 @@ class PicoBoySDK(ST7789):
         error=""
         if not namespace:
             error="PicoBoySDK Error: Namespace missing"
+        if len(namespace)>18:
+            error="PicoBoySDK Error: Namespace too long. The length should be at most 18 characters"
         try:
             if not error=="":
                 raise
@@ -230,8 +232,10 @@ class PicoBoySDK(ST7789):
     def Render_Sprite(self, sprite, x, y):
         self.blit(sprite, x, y)
     
-    def Update(self, noclear=False):
+    def Update(self, savescore=None, noclear=False):
         if self.home.value()==0:
+            if not savescore==None:
+                self.Save_Score(savescore)
             homebootstop=open("/noboot", "w")
             homebootstop.close()
             self.fill(self.color(0,0,0))

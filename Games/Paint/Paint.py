@@ -1,6 +1,6 @@
 #Original program for PicoBoy by HalloSpaceBoy
 from PicoGameBoy import PicoGameBoy
-from os import rename, remove, listdir
+from os import rename, remove, listdir,statvfs
 rename("/main.py", "/Paint/Paint.py")
 rename("/title.py", "/main.py")
 del rename
@@ -11,6 +11,19 @@ pixelsize=8
 
 COLORWHITE=PicoGameBoy.color(255,255,255)
 COLORBLACK=PicoGameBoy.color(0,0,0)
+
+def natural_sort(lst):
+    """Sort the given list in the way that humans expect."""
+    def alphanum_key(key):
+        def try_int(s):
+            try:
+                return int(s)
+            except ValueError:
+                return s
+
+        return [try_int(c) for c in key.split()]
+
+    return sorted(lst, key=alphanum_key)
 
 def draw_cursor(x, y, p):
     global COLORWHITE
@@ -31,6 +44,7 @@ def check_home():
         pgb.show()
         machine.reset()
         
+
 
 def draw_grid(p):
     for i in range(int(240/p)):
@@ -114,7 +128,7 @@ def menu():
                             pgb.center_text("Are You Sure?",COLORWHITE)
                             pgb.create_text("Are you sure you want", -1, 135, COLORWHITE)
                             pgb.create_text("to replace this drawing?.", -1, 147, COLORWHITE)
-                            pgb.create_text("A for yes, B for no.", -1, 157, COLORWHITE)
+                            pgb.create_text("A for yes, B for no.", -1, 159, COLORWHITE)
                             pgb.show()
                             sleep(0.5)
                             while True:
@@ -131,6 +145,23 @@ def menu():
                         pgb.show()
                         del options
                         collect()
+                        stat=statvfs("/")
+                        afree=(stat[0] * stat[3])
+                        tot=0
+                        for lis in drawing:
+                            for element in lis:
+                                tot+=len(str(element))
+                        tot+=52
+                        tot+=29*30
+                        if afree-tot-5000<0:
+                            pgb.fill_rect(10,90,220,100,COLORBLACK)
+                            pgb.center_text("Error!",COLORWHITE)
+                            pgb.create_text("You don't have enough", -1, 135, COLORWHITE)
+                            pgb.create_text("space to save your", -1, 147, COLORWHITE)
+                            pgb.create_text("Drawing!", -1, 159, COLORWHITE)
+                            pgb.show()
+                            sleep(2)
+                            return
                         with open("/games/Paint", "a") as w:
                             w.write("---PICOBOYFILELIST---"+file.replace(" (Used)","")+".pbd")
                         del w
@@ -184,6 +215,7 @@ def menu():
                         pos+=1
                         options.append(opt)
                 option=0
+                options=natural_sort(options)
                 while True:
                     if files==[]:
                         options=["Tools", "Save", "Load", "Delete Save"]
@@ -215,15 +247,29 @@ def menu():
                             pgb.show()
                             rept=-1
                             del drawing
-                            drawing=[]
-                            with open("/Paint/"+file+".pbd") as f:
-                                for i in range(30):
-                                    comp=[]
-                                    for x in f.readline().split(":"):
-                                        comp.append(int(x))
-                                    drawing.append(comp)
-                            del comp
-                            del f
+                            try:
+                                drawing=[]
+                                with open("/Paint/"+file+".pbd") as f:
+                                    for i in range(30):
+                                        comp=[]
+                                        for x in f.readline().split(":"):
+                                            comp.append(int(x))
+                                        drawing.append(comp)
+                                del comp
+                                del f
+                            except:
+                                drawing=[]
+                                for i in range(int(240/pixelsize)):
+                                    z=[]
+                                    for f in range(int(240/pixelsize)):
+                                        z.append(PicoGameBoy.color(255,255,255))
+                                    drawing.append(z)
+                                pgb.fill_rect(10,90,220,80,COLORBLACK)
+                                pgb.center_text("Error!",COLORWHITE)
+                                pgb.create_text("The selected drawing", -1, 135, COLORWHITE)
+                                pgb.create_text("is corrupted!", -1, 147, COLORWHITE)
+                                pgb.show()
+                                sleep(2)
                             return
                     if pgb.button_B() or pgb.button_select():
                         options=["Tools", "Save", "Load", "Delete Save"]
@@ -249,6 +295,7 @@ def menu():
                         options.append(opt)
                 option=0
                 del pos
+                options=natural_sort(options)
                 while True:
                     if files==[]:
                         options=["Tools", "Save", "Load", "Delete Save"]
@@ -320,6 +367,7 @@ def menu():
                             for opt in files:
                                 pos+=1
                                 options.append(opt)
+                            options=natural_sort(options)
                         option=0
                     if pgb.button_B() or pgb.button_select():
                         options=["Tools", "Save", "Load", "Delete Save"]

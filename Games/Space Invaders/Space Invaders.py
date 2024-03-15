@@ -1,8 +1,7 @@
 try:
     from PicoBoySDK import PicoBoySDK, PlayerObject
     PicoBoy=PicoBoySDK("Space Invaders",0)
-    Player=PlayerObject(PicoBoy,112,224,16,16,PicoBoy.Load_Sprite("player.sprt",16,16),4)
-    test=Player.initx
+    PicoBoy.Update(False, 0)
 except:
     try:
         del PicoBoy
@@ -26,7 +25,7 @@ except:
     pgb.create_text("Your OS is not",-1,20,PicoGameBoy.color(255,255,255))
     pgb.create_text("up to date!",-1, 35,PicoGameBoy.color(255,255,255))
     pgb.create_text("This game requires",-1,120,PicoGameBoy.color(255,255,255))
-    pgb.create_text("at least PBOS V2.2",-1, 135,PicoGameBoy.color(255,255,255))
+    pgb.create_text("at least PBOS V2.4",-1, 135,PicoGameBoy.color(255,255,255))
     pgb.create_text("to play this game.",-1,150,PicoGameBoy.color(255,255,255))
     pgb.create_text("Press Home to quit.",-1,220,PicoGameBoy.color(255,255,255))
     while True:
@@ -42,7 +41,7 @@ from random import randint
 import time
 from gc import mem_free
 
-
+Player=PlayerObject(PicoBoy,112,224,16,16,PicoBoy.Load_Sprite("player.sprt",16,16),4)
 Player.direction="X"
 hit_taken=False
 enemysprite=PicoBoy.Load_Sprite("invader.sprt",16,16)
@@ -410,7 +409,7 @@ def main_game():
             return False
         if PicoBoy.Button("Start"):
             PicoBoy.Pause_Screen()
-        PicoBoy.Update()
+        PicoBoy.Update(score)
 
 
 lives=3
@@ -452,7 +451,7 @@ while True:
             PicoBoy.Create_Text("Your score is: "+str(score),-1,100,(255,255,255))
             PicoBoy.Create_Text("Press A to continue",-1,120,(255,255,255))
             PicoBoy.Create_Text("to the next level.",-1,135,(255,255,255))
-            PicoBoy.Update()
+            PicoBoy.Update(score)
             if PicoBoy.Button("A"):
                 time.sleep(0.5)
                 level+=1
