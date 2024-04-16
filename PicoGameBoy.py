@@ -1,6 +1,6 @@
 # Original source files for PicoGameBoy.py by Vincent Mistler for YouMakeTech
 # Modified By HalloSpaceBoy for the PicoBoy
-from machine import Pin, PWM
+from machine import Pin, PWM, ADC
 from framebuf import FrameBuffer, RGB565
 from st7789 import ST7789
 from time import sleep
@@ -30,7 +30,16 @@ class PicoGameBoy(ST7789):
         self.__fb=[] # Array of FrameBuffer objects for sprites
         self.__w=[]
         self.__h=[]
-        
+        self.vpin=ADC(29)
+        self.audio_pwm_wrap=5000
+        self.curve=1.8
+        self.vol_max=100000#30000
+        self.vol_min=2500
+        try:
+            with open("/volume.conf", "r") as r:
+                self.vol=int(r.read())
+        except:
+            self.vol=self.vol_max
     # center_text(s,color) displays a text in the middle of 
     # the screen with the specified color
     def free_mem(self):
@@ -45,6 +54,31 @@ class PicoGameBoy(ST7789):
             self.increase_brightness()
         if self.button_down() and self.button_select():
             self.decrease_brightness()
+        if self.button_right() and self.button_select():
+            self.increase_vol()
+        if self.button_left() and self.button_select():
+            self.decrease_vol()
+        adc_reading  = self.vpin.read_u16()
+        adc_voltage  = (adc_reading * 3.3) / 65535
+        vsys_voltage = adc_voltage * 12
+        if vsys_voltage>10:
+            vsys_voltage = adc_voltage * 3
+        if vsys_voltage<1.9:
+            self.fill(PicoGameBoy.color(0,0,0))
+            self.create_text("BATTERY CRITICALLY LOW!",-1,30,PicoGameBoy.color(255,255,255))
+            self.create_text("Please replace the", -1, 130, PicoGameBoy.color(255,255,255))
+            self.create_text("batteries in your PicoBoy.", -1, 145, PicoGameBoy.color(255,255,255))
+            self.create_text("Please switch your", -1, 200, PicoGameBoy.color(255,255,255))
+            self.create_text("PicoBoy off.", -1, 215, PicoGameBoy.color(255,255,255))
+            self.rect(75,60,80,40,PicoGameBoy.color(255,0,0))
+            self.fill_rect(155,70,10,20,PicoGameBoy.color(255,0,0))
+            self.line(75,60,155,99,PicoGameBoy.color(255,0,0))
+            self.sound(0)
+            self.sound(0,2)
+            self.sound(0,3)
+            self.sound(0,4)
+            self.show_screen()
+            sys.exit()
     
     def center_text(self, s, color = 1):
         x = int(self.width/2)- int(len(s)/2 * 8)
@@ -58,6 +92,8 @@ class PicoGameBoy(ST7789):
             y = int(self.height/2) - 8
         self.text(s, x, y, color)
         
+
+    
     # center_text(s,color) displays a text in the right corner of 
     # the screen with the specified color
     def top_right_corner_text(self, s, color = 1):
@@ -208,29 +244,54 @@ class PicoGameBoy(ST7789):
     
     # sound(freq) makes a sound at the selected frequency in Hz
     # call sound(0) to stop playing the sound
-    def sound(self, freq, channel=1, duty_u16 = 2000):
+    def increase_vol(self):
+        if self.vol<=self.vol_max-5500:
+            self.vol+=4875
+        else:
+            self.vol=self.vol_max
+        try:
+            with open("volume.conf", "w") as w:
+                w.write(str(self.vol))
+        except:
+            ""
+                
+    def decrease_vol(self):
+        if self.vol>=self.vol_min+5500:
+            self.vol-=4875
+        else:
+            self.vol=self.vol_min
+        try:
+            with open("volume.conf", "w") as w:
+                w.write(str(self.vol))
+        except:
+            ""
+    
+    def sound(self, freq, channel=1, j=0):
+        pwm_divider = 133000000 / self.audio_pwm_wrap / (freq+1)
+        max_count = (freq * self.audio_pwm_wrap) / 10000
+        level = (self.vol / 100.0**self.curve) * max_count
         if channel==1:
             if freq>0:
                 self.__buzzer.freq(freq)
-                self.__buzzer.duty_u16(duty_u16)
+                self.__buzzer.duty_u16(int(level))
             else:
                 self.__buzzer.duty_u16(0)
         if channel==2:
             if freq>0:
                 self.__buzzer2.freq(freq)
-                self.__buzzer2.duty_u16(duty_u16)
+                self.__buzzer2.duty_u16(int(level))
             else:
                 self.__buzzer2.duty_u16(0)
         if channel==3:
             if freq>0:
                 self.__buzzer3.freq(freq)
-                self.__buzzer3.duty_u16(duty_u16)
+                self.__buzzer3.duty_u16(int(level))
             else:
                 self.__buzzer3.duty_u16(0)
         if channel==4:
             if freq>0:
                 self.__buzzer4.freq(freq)
-                self.__buzzer4.duty_u16(duty_u16)
+                self.__buzzer4.duty_u16(int(level))
             else:
                 self.__buzzer4.duty_u16(0)
             

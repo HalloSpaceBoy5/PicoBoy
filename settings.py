@@ -230,12 +230,44 @@ def background():
             return
         pgb.show()    
 
-    
+vpin=machine.ADC(29)
+pastpercentage=[]
 while True:
     pgb.fill(bgcolor565)
     pgb.create_text("Settings",-1,10,ttcolor)
+    adc_reading  = vpin.read_u16()
+    adc_voltage  = (adc_reading * 3.3) / 65535
+    vsys_voltage = adc_voltage * 12
+    console=0
+    if vsys_voltage>10:
+        vsys_voltage = adc_voltage * 3
+        percentage=int(int(((round(vsys_voltage,3)-1.9)/2.7)*100))
+        console=1
+    else:
+        percentage=int(int(((round(vsys_voltage,3)-1.9)/1)*100))
+        console=0
+    if console==0:
+        if percentage>100 and percentage<125:
+            percentage=100
+        if percentage<130:
+            pastpercentage.append(percentage)
+            if len(pastpercentage)>200:
+                pastpercentage.pop(0)
+            percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+    elif console==1:
+        if percentage>100 and percentage<110:
+            percentage=100
+        if percentage<110:
+            pastpercentage.append(percentage)
+            if len(pastpercentage)>200:
+                pastpercentage.pop(0)
+            percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
     pgb.create_text("PicoBoy            "+version,10,225,ttcolor)
-    options=["Change Brightness", "Change Background", "Data Upload Mode", "Toggle Animation: "+str(animated), "Exit"]
+    if percentage>100:
+        pgb.create_text("USB",100,225, ttcolor)
+    else:
+        pgb.create_text(str(percentage)+"%",100,225,ttcolor)
+    options=["Change Brightness", "Change Volume", "Change Background", "Data Upload Mode", "Toggle Animation: "+str(animated), "Exit"]
     if tcolor==0:
         ottcolor=white
     else:
@@ -297,10 +329,55 @@ while True:
                 pgb.show()
         if opt==1:
             time.sleep(0.2)
+            while True:
+                pgb.fill(bgcolor565)
+                pgb.rect(20,110,200,20,ttcolor)
+                volume=pgb.vol
+                width=int(((volume-pgb.vol_min)/(pgb.vol_max-pgb.vol_min))*198)
+                percentage=int(((volume-pgb.vol_min)/(pgb.vol_max-pgb.vol_min))*100)
+                pgb.fill_rect(21,111,width,18,ttcolor)
+                pgb.create_text(str(percentage)+"%",-1,95,ttcolor)
+                pgb.create_text(str(percentage)+"%",-1,95,ttcolor)
+                pgb.create_text("Use the left and right",-1,140,ttcolor)
+                pgb.create_text("buttons to change the",-1,150,ttcolor)
+                pgb.create_text("volume.",-1,160,ttcolor)
+                pgb.create_text("Press A to exit.",-1,220,ttcolor)
+                if pgb.button_left():
+                    pgb.decrease_vol()
+                    pgb.fill_rect(0,95,240,40,bgcolor565)
+                    pgb.rect(20,110,200,20,ttcolor)
+                    volume=pgb.vol
+                    width=int(((volume-pgb.vol_min)/(pgb.vol_max-pgb.vol_min))*198)
+                    percentage=int(((volume-pgb.vol_min)/(pgb.vol_max-pgb.vol_min))*100)
+                    pgb.fill_rect(21,111,width,18,ttcolor)
+                    pgb.create_text(str(percentage)+"%",-1,95,ttcolor)
+                    pgb.show()
+                    pgb.sound(200)
+                    time.sleep(0.0825)
+                    pgb.sound(0)
+                if pgb.button_right():
+                    pgb.increase_vol()
+                    pgb.fill_rect(0,95,240,40,bgcolor565)
+                    pgb.rect(20,110,200,20,ttcolor)
+                    volume=pgb.vol
+                    width=int(((volume-pgb.vol_min)/(pgb.vol_max-pgb.vol_min))*198)
+                    percentage=int(((volume-pgb.vol_min)/(pgb.vol_max-pgb.vol_min))*100)
+                    pgb.fill_rect(21,111,width,18,ttcolor)
+                    pgb.create_text(str(percentage)+"%",-1,95,ttcolor)
+                    pgb.show()
+                    pgb.sound(200)
+                    time.sleep(0.0825)
+                    pgb.sound(0)
+                if pgb.button_A() or pgb.button_B():
+                    time.sleep(0.2)
+                    break
+                pgb.show()
+        if opt==2:
+            time.sleep(0.2)
             pgb.show()
             background()
             time.sleep(0.2)
-        if opt==2:
+        if opt==3:
             pgb.fill(PicoGameBoy.color(0,0,0))
             pgb.create_text("DATA UPLOAD MODE",-1,50,PicoGameBoy.color(255,255,255))
             pgb.create_text("Plug your PicoBoy",-1, 100,PicoGameBoy.color(255,255,255))
@@ -312,7 +389,7 @@ while True:
             pgb.create_text("your PicoBoy.",-1,204,PicoGameBoy.color(255,255,255))
             pgb.show()
             sys.exit()
-        if opt==3:
+        if opt==4:
             if animated:
                 animated=False
             else:
@@ -320,7 +397,7 @@ while True:
             with open("animated.conf", "w") as w:
                 w.write(str(animated))
             time.sleep(0.1)
-        if opt==4:
+        if opt==5:
             homebootstop=open("/noboot", "w")
             homebootstop.close()
             pgb.fill(PicoGameBoy.color(0,0,0))

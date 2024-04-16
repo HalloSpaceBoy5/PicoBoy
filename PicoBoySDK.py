@@ -1,6 +1,6 @@
 # Original Software Development Kit by HalloSpaceBoy
 # Code used from MikeDev and Vincient Mistler
-from machine import Pin, PWM, SPI, reset
+from machine import Pin, PWM, SPI, reset, ADC
 import framebuf
 from framebuf import FrameBuffer, RGB565
 from time import sleep
@@ -113,14 +113,14 @@ class ST7789(framebuf.FrameBuffer):
     
     def decrease_brightness(self):
         if self.DUTY_CYCLE > self.DUTY_CYCLE_MIN:
-            self.DUTY_CYCLE -= 5000
+            self.DUTY_CYCLE -= 2750
         self.bl.duty_u16(self.DUTY_CYCLE)
         with open("/brghtness.conf", "w") as w:
             w.write(str(self.DUTY_CYCLE))
 
     def increase_brightness(self):
         if self.DUTY_CYCLE < self.DUTY_CYCLE_MAX:
-            self.DUTY_CYCLE += 5000
+            self.DUTY_CYCLE += 2750
         self.bl.duty_u16(self.DUTY_CYCLE)
         with open("/brghtness.conf", "w") as w:
             w.write(str(self.DUTY_CYCLE))
@@ -142,6 +142,7 @@ class ST7789(framebuf.FrameBuffer):
 
     def show_screen(self):
         self.write_cmd(RAMWR, self.buffer)
+        
         
     def colorc(self,rgb565):
         lsb = (rgb565 & 0b0000000011111111)<<8
@@ -222,7 +223,17 @@ class PicoBoySDK(ST7789):
         self.spk_channel4 = PWM(Pin(15))
         super().__init__(width=240, height=240, id_=0, sck=18, mosi=19,
                          dc=20, rst=21, cs=17, bl=22, baudrate=62500000)
-        self.sprites=[] 
+        self.sprites=[]
+        self.vpin=ADC(29)
+        self.audio_pwm_wrap=5000
+        self.curve=1.8
+        self.vol_max=100000
+        self.vol_min=2500
+        try:
+            with open("/volume.conf", "r") as r:
+                self.vol=int(r.read())
+        except:
+            self.vol=self.vol_max
         
     def Load_Sprite(self,filename,width,height):
         with open(filename,"rb") as read:
@@ -246,6 +257,10 @@ class PicoBoySDK(ST7789):
             self.increase_brightness()
         if self.Button("Down") and self.Button("Select"):
             self.decrease_brightness()
+        if self.Button("Right") and self.Button("Select"):
+            self.increase_vol()
+        if self.Button("Left") and self.Button("Select"):
+            self.decrease_vol()
         if self.cycle%50==0:
             self.cycle=0
             collect()
@@ -253,6 +268,49 @@ class PicoBoySDK(ST7789):
         sleep(self.tick)
         if not noclear:
             self.Fill_Screen((0,0,0))
+        adc_reading  = self.vpin.read_u16()
+        adc_voltage  = (adc_reading * 3.3) / 65535
+        vsys_voltage = adc_voltage * 12
+        if vsys_voltage>10:
+            vsys_voltage = adc_voltage * 3
+        if vsys_voltage<1.9:
+            self.fill(self.color(0,0,0))
+            self.Create_Text("BATTERY CRITICALLY LOW!",-1,30,(255,255,255))
+            self.Create_Text("Please replace the", -1, 130, (255,255,255))
+            self.Create_Text("batteries in your PicoBoy.", -1, 145, (255,255,255))
+            self.Create_Text("Please switch your", -1, 200, (255,255,255))
+            self.Create_Text("PicoBoy off.", -1, 215, (255,255,255))
+            self.rect(75,60,80,40,self.color(255,0,0))
+            self.fill_rect(155,70,10,20,self.color(255,0,0))
+            self.line(75,60,155,99,self.color(255,0,0))
+            self.Play_Sound(0)
+            self.Play_Sound(0,2)
+            self.Play_Sound(0,3)
+            self.Play_Sound(0,4)
+            self.show_screen()
+            sys.exit()
+            
+    def increase_vol(self):
+        if self.vol<=self.vol_max-5500:
+            self.vol+=4875
+        else:
+            self.vol=self.vol_max
+        try:
+            with open("volume.conf", "w") as w:
+                w.write(str(self.vol))
+        except:
+            ""
+                
+    def decrease_vol(self):
+        if self.vol>=self.vol_min+5500:
+            self.vol-=4875
+        else:
+            self.vol=self.vol_min
+        try:
+            with open("volume.conf", "w") as w:
+                w.write(str(self.vol))
+        except:
+            ""
             
     def Button(self, button):
         if button=="Any":
@@ -310,28 +368,31 @@ class PicoBoySDK(ST7789):
         self.fill(self.color(*color))
 
     def Play_Sound(self, freq, channel=1, duty_u16 = 2000):
+        pwm_divider = 133000000 / self.audio_pwm_wrap / (freq+1)
+        max_count = (freq * self.audio_pwm_wrap) / 10000
+        level = (self.vol / 100.0**self.curve) * max_count
         if channel==1:
             if freq>0:
                 self.spk_channel1.freq(freq)
-                self.spk_channel1.duty_u16(duty_u16)
+                self.spk_channel1.duty_u16(int(level))
             else:
                 self.spk_channel1.duty_u16(0)
         if channel==2:
             if freq>0:
                 self.spk_channel2.freq(freq)
-                self.spk_channel2.duty_u16(duty_u16)
+                self.spk_channel2.duty_u16(int(level))
             else:
                 self.spk_channel2.duty_u16(0)
         if channel==3:
             if freq>0:
                 self.spk_channel3.freq(freq)
-                self.spk_channel3.duty_u16(duty_u16)
+                self.spk_channel3.duty_u16(int(level))
             else:
                 self.spk_channel3.duty_u16(0)
         if channel==4:
             if freq>0:
                 self.spk_channel4.freq(freq)
-                self.spk_channel4.duty_u16(duty_u16)
+                self.spk_channel4.duty_u16(int(level))
             else:
                 self.spk_channel4.duty_u16(0)
 
@@ -409,10 +470,10 @@ class PicoBoySDK(ST7789):
         self.fill_rect(10,90,220,80,self.color(50,50,50))
         self.Create_Text("Game Paused", -1,-1,(255,255,255))
         self.Create_Text("Press start to resume.", -1, 135, (255,255,255))
-        self.Update(True)
+        self.Update(True, True)
         sleep(0.25)
         while True:
-            self.Update(True)
+            self.Update(True, True)
             if self.Button("Start"):
                 sleep(0.25)
                 return
@@ -519,6 +580,9 @@ class MusicBoxObject:
         self.isReading=False
         self.savedsong=[]
         self.index=0
+        self.audio_pwm_wrap=5000
+        self.curve=1.8
+        self.vol=self.parent.vol/18
         self.thread=start_new_thread(self.Play,())
             
     def _pitch(self, freq):
@@ -528,18 +592,22 @@ class MusicBoxObject:
         return round((percent/100)*65535)
     
     def play_note(self, note, channel, duty):
+        self.vol=self.parent.vol/18
+        pwm_divider = 133000000 / self.audio_pwm_wrap / (note+1)
+        max_count = (note * self.audio_pwm_wrap) / 10000
+        level = (self.vol / 100.0**self.curve) * max_count
         if channel == "a0":
             self.ch_a_0.freq(round(self._pitch(note)))
-            self.ch_a_0.duty_u16(self._duty_cycle(duty))
+            self.ch_a_0.duty_u16(self._duty_cycle(int(level)))
         elif channel == "a1":
             self.ch_a_1.freq(round(self._pitch(note)))
-            self.ch_a_1.duty_u16(self._duty_cycle(duty))
+            self.ch_a_1.duty_u16(self._duty_cycle(int(level)))
         elif channel == "b0":
             self.ch_b_0.freq(round(self._pitch(note)))
-            self.ch_b_0.duty_u16(self._duty_cycle(duty))
+            self.ch_b_0.duty_u16(self._duty_cycle(int(level)))
         elif channel == "b1":
             self.ch_b_1.freq(round(self._pitch(note)))
-            self.ch_b_1.duty_u16(self._duty_cycle(duty))
+            self.ch_b_1.duty_u16(self._duty_cycle(int(level)))
 
     def stop_channel(self, channel):
         if channel == "a0":

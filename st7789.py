@@ -57,7 +57,13 @@ class ST7789(framebuf.FrameBuffer):
         self.DUTY_CYCLE_MIN = 10000 #Minimum Brightness
         self.DUTY_CYCLE=45000 #Brightness
         self.DUTY_CYCLE_MAX = 65000 #Maximum Brightness
+        
+        ### Enable for screenshots
+        #self.sbuffer=bytearray(self.height * self.width * 2)
+        #self.buffer = memoryview(self.sbuffer)
+        ##### Otherwise:
         self.buffer = memoryview(bytearray(self.height * self.width * 2))
+        
         super().__init__(self.buffer, self.width, self.height, framebuf.RGB565)
         
         self.init_display()
@@ -122,17 +128,23 @@ class ST7789(framebuf.FrameBuffer):
     
     def decrease_brightness(self):
         if self.DUTY_CYCLE > self.DUTY_CYCLE_MIN:
-            self.DUTY_CYCLE -= 5000
+            self.DUTY_CYCLE -= 2750
         self.bl.duty_u16(self.DUTY_CYCLE)
-        with open("/brghtness.conf", "w") as w:
-            w.write(str(self.DUTY_CYCLE))
+        try:
+            with open("/brghtness.conf", "w") as w:
+                w.write(str(self.DUTY_CYCLE))
+        except:
+            ""
 
     def increase_brightness(self):
         if self.DUTY_CYCLE < self.DUTY_CYCLE_MAX:
-            self.DUTY_CYCLE += 5000
+            self.DUTY_CYCLE += 2750
         self.bl.duty_u16(self.DUTY_CYCLE)
-        with open("/brghtness.conf", "w") as w:
-            w.write(str(self.DUTY_CYCLE))
+        try:
+            with open("/brghtness.conf", "w") as w:
+                w.write(str(self.DUTY_CYCLE))
+        except:
+            ""
     
     def power_off(self):
         pass

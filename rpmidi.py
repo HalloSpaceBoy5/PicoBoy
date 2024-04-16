@@ -45,11 +45,15 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
 class RPMidi:
-    def __init__(self):
+    def __init__(self, picogb):
         self.ch_a_0 = PWM(Pin(15))
         self.ch_a_1 = PWM(Pin(14))
         self.ch_b_0 = PWM(Pin(13))
         self.ch_b_1 = PWM(Pin(12))
+        self.audio_pwm_wrap=5000
+        self.curve=1.8
+        self.picogb=picogb
+        self.vol=self.picogb.vol/18
         self.stop_all()
 
     def _pitch(self, freq):
@@ -59,18 +63,22 @@ class RPMidi:
         return round((percent/100)*65535)
 
     def play_note(self, note, channel, duty):
+        self.vol=self.picogb.vol/18
+        pwm_divider = 133000000 / self.audio_pwm_wrap / (note+1)
+        max_count = (note * self.audio_pwm_wrap) / 10000
+        level = (self.vol / 100.0**self.curve) * max_count
         if channel == "a0":
             self.ch_a_0.freq(round(self._pitch(note)))
-            self.ch_a_0.duty_u16(self._duty_cycle(duty))
+            self.ch_a_0.duty_u16(self._duty_cycle(int(level)))
         elif channel == "a1":
             self.ch_a_1.freq(round(self._pitch(note)))
-            self.ch_a_1.duty_u16(self._duty_cycle(duty))
+            self.ch_a_1.duty_u16(self._duty_cycle(int(level)))
         elif channel == "b0":
             self.ch_b_0.freq(round(self._pitch(note)))
-            self.ch_b_0.duty_u16(self._duty_cycle(duty))
+            self.ch_b_0.duty_u16(self._duty_cycle(int(level)))
         elif channel == "b1":
             self.ch_b_1.freq(round(self._pitch(note)))
-            self.ch_b_1.duty_u16(self._duty_cycle(duty))
+            self.ch_b_1.duty_u16(self._duty_cycle(int(level)))
 
     def stop_channel(self, channel):
         if channel == "a0":
@@ -190,3 +198,4 @@ class RPMidi:
                                 index = 0 # Song is looping, go back to beginning of song.
                     else:
                         index += 1
+                        

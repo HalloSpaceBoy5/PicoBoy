@@ -14,11 +14,13 @@ import machine
 BLACK = PicoGameBoy.color(0,0,0)
 WHITE = PicoGameBoy.color(255,255,255)
 pgb = PicoGameBoy()
-
+vpin = machine.ADC(29)
 games=os.listdir("/games")
 loop=0
 gamenum=len(games)-1
 title=0
+pastpercentage=[]
+pastpercent=101
 
 
 def readchunk(filename, x2, y2, w, h):
@@ -112,16 +114,18 @@ except:
     bootlogo=True
 if bootlogo:
     pgb.fill(BLACK)
-    with open("logo.pbimg","rb") as r:
-        data=r.read()
-    tempfb=FrameBuffer(bytearray(data),64,64,RGB565)
-    pgb.blit(tempfb,88,50)
-    del tempfb
-    with open("logo-text.pbimg","rb") as r:
-        data=r.read()
-    tempfb=FrameBuffer(bytearray(data),102,15,RGB565)
-    pgb.blit(tempfb,69,150)
-    del tempfb
+    readchunk("logo.pbimg",88,50,64,64)
+    #with open("logo.pbimg","rb") as r:
+    #    data=r.read()
+    #tempfb=FrameBuffer(bytearray(data),64,64,RGB565)
+    #pgb.blit(tempfb,88,50)
+    #del tempfb
+    readchunk("logo-text.pbimg",69,150,102,15)
+    #with open("logo-text.pbimg","rb") as r:
+    #    data=r.read()
+    #tempfb=FrameBuffer(bytearray(data),102,15,RGB565)
+    #pgb.blit(tempfb,69,150)
+    #del tempfb
     pgb.show_screen()
     pgb.sound(98)
     time.sleep(0.2)
@@ -195,6 +199,8 @@ c3=array.array('h',[0,0,0,5,-5,0])
 c4=array.array('h',[0,0,0,-5,-5,0])
 
 if not bgimage:
+    if bindex>len(bgcolors)-1:
+        bindex=8
     bgcolor=bgcolors[bindex]
     bgcolor565=PicoGameBoy.color(*bgcolor)
     pgb.fill(PicoGameBoy.color(*bgcolor))
@@ -294,8 +300,78 @@ else:
     onsett=True
     
     
+def draw_battery():
+    global pastpercentage
+    global pastpercent
+    adc_reading  = vpin.read_u16()
+    adc_voltage  = (adc_reading * 3.3) / 65535
+    vsys_voltage = adc_voltage * 12
+    console=0
+    if vsys_voltage>10:
+        vsys_voltage = adc_voltage * 3
+        percentage=int(int(((round(vsys_voltage,3)-1.9)/2.7)*100))
+        console=1
+    else:
+        percentage=int(int(((round(vsys_voltage,3)-1.9)/1)*100))
+        console=0
+    if vsys_voltage<1.9:
+        pgb.fill(BLACK)
+        pgb.create_text("BATTERY CRITICALLY LOW!",-1,30,WHITE)
+        pgb.create_text("Please replace the", -1, 130, WHITE)
+        pgb.create_text("batteries in your PicoBoy.", -1, 145, WHITE)
+        pgb.create_text("Please switch your", -1, 200, WHITE)
+        pgb.create_text("PicoBoy off.", -1, 215, WHITE)
+        pgb.rect(75,60,80,40,PicoGameBoy.color(255,0,0))
+        pgb.fill_rect(155,70,10,20,PicoGameBoy.color(255,0,0))
+        pgb.line(75,60,155,99,PicoGameBoy.color(255,0,0))
+        pgb.show()
+        sys.exit()
+    if console==0:
+        if percentage>100 and percentage<125:
+            percentage=100
+        if percentage<130:
+            pastpercentage.append(percentage)
+            if len(pastpercentage)>200:
+                pastpercentage.pop(0)
+            percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+    elif console==1:
+        if percentage>100 and percentage<110:
+            percentage=100
+        if percentage<110:
+            pastpercentage.append(percentage)
+            if len(pastpercentage)>200:
+                pastpercentage.pop(0)
+            percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+    
+        
+    battx=9
+    batty=183
+    pgb.rect(battx,batty,20,40,ttcolor)
+    pgb.fill_rect(battx+5,batty-4,10,5,ttcolor)
+    if percentage>100:
+        pgb.create_text("U",battx+6, batty+7,ttcolor)
+        pgb.create_text("S",battx+6, batty+17,ttcolor)
+        pgb.create_text("B",battx+6, batty+27,ttcolor)
+        pgb.create_text("USB",battx+10-int(len(str(percentage))/2 * 8), batty+44, ttcolor)
+    else:
+        h=int(38*(percentage/100))
+        pgb.fill_rect(battx+1,batty+1+(38-h),18,h,ttcolor)
+        pgb.create_text(str(percentage)+"%",battx+10-int(len(str(percentage)+"%")/2 * 8), batty+43, ttcolor)
+    
+def draw_battery_backing():
+    battx=9
+    batty=183
+    pgb.fill_rect(battx-2,batty-4,24,55,bgcolor565)
+    pgb.fill_rect(battx-5-2,batty-4,5,55,bgcolor565)
+    pgb.fill_rect(battx+20+2,batty-4,5,55,bgcolor565)
+    pgb.fill_rect(battx-2,batty-9,24,5,bgcolor565)
+    pgb.fill_rect(battx-2,batty+51,24,5,bgcolor565)
+    pgb.poly(battx-5-2,batty-9,array.array('h',[5,5,0,5,5,0]),bgcolor565,True)
+    pgb.poly(battx+19+2,batty-9,array.array('h',[0,5,5,5,0,0]),bgcolor565,True)
+    pgb.poly(battx-5-2,batty+55,array.array('h',[0,-5,5,0,5,-5]),bgcolor565,True)
+    pgb.poly(battx+19+2,batty+55,array.array('h',[0,0,0,-5,5,-5]),bgcolor565,True)
 
-def render():
+def render(f=True):
         if bgimage:
             draw_image(7)
         else:
@@ -360,7 +436,8 @@ def render():
         pgb.poly(60,200,c2,bgcolor565,True)
         pgb.poly(180,80,c3,bgcolor565,True)
         pgb.poly(180,200,c4,bgcolor565,True)
-        pgb.show()
+        if f:
+            pgb.show()
 
 try:
     with open("/animated.conf") as r:
@@ -375,6 +452,7 @@ while True:
     if pgb.button_left() and title>0 and not onsett:
         if animated and not bgimage:
             incr=20
+            draw_battery_backing()
             for i in range(12): #3 is good
                 i+=1
                 pgb.fill_rect(0,78,240,130,bgcolor565)
@@ -405,10 +483,14 @@ while True:
             pgb.fill_rect(0,78,240,130,bgcolor565)
         
         title-=1
-        render()
+        render(False)
+        draw_battery_backing()
+        draw_battery()
+        pgb.show()
     if pgb.button_right() and title<gamenum and not onsett:
         if animated and not bgimage:
             incr=20
+            draw_battery_backing()
             for i in range(12):
                 i+=1
                 pgb.fill_rect(0,80,240,130,bgcolor565)
@@ -438,12 +520,16 @@ while True:
         if not bgimage:
             pgb.fill_rect(0,80,240,130,bgcolor565)
         title+=1
-        render()
+        render(False)
+        draw_battery_backing()
+        draw_battery()
+        pgb.show()
     if (pgb.button_right() and title==gamenum) or onsett:
             if onsett:
                 title-=1
             if animated and not onsett and not bgimage:
                 incr=20
+                draw_battery_backing()
                 for i in range(12):
                     i+=1
                     pgb.fill_rect(0,80,240,130,bgcolor565)
@@ -518,9 +604,13 @@ while True:
             pgb.poly(60,200,c2,bgcolor565,True)
             pgb.poly(180,80,c3,bgcolor565,True)
             pgb.poly(180,200,c4,bgcolor565,True)
+            draw_battery_backing()
+            draw_battery()
             pgb.show()
             while True:
+                draw_battery()
                 pgb.show()
+                draw_battery_backing()
                 if pgb.button_A() or pgb.button_start():
                     with open("gameselection.conf", "w") as w:
                         w.write(str(title+1))
@@ -545,6 +635,7 @@ while True:
                 if pgb.button_left():
                     if animated and not bgimage:
                         incr=20
+                        draw_battery_backing()
                         for i in range(12): #3 is good
                             i+=1
                             pgb.fill_rect(0,80,240,130,bgcolor565)
@@ -566,7 +657,9 @@ while True:
                             pgb.show()
                     elif not bgimage:
                         time.sleep(0.1)
-                    render()                    
+                    render(False)
+                    draw_battery_backing()
+                    draw_battery()
                     pgb.show()
                     break
                     
@@ -586,7 +679,9 @@ while True:
         pgb.create_text("your PicoBoy.",-1,204,PicoGameBoy.color(255,255,255))
         pgb.show()
         break
+    draw_battery()
     pgb.show()
+    draw_battery_backing()
     if pgb.button_A() or pgb.button_start():
         go=False
         try:
