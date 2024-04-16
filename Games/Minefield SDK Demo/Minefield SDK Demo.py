@@ -1,13 +1,14 @@
 #Original game by HalloSpaceBoy "Minefield" PicoBoy SDK Demo
-    
+
 #Program Setup:
-from PicoBoySDK import PicoBoySDK, PlayerObject #This brings code for functions used in this program from the PicoBoy SDK
+from PicoBoySDK import PicoBoySDK, PlayerObject, MusicBoxObject #This brings code for functions used in this program from the PicoBoy SDK
 from random import randint #This brings the random function used for generating random numbers
 from time import sleep #This brings in a function that is used for making the program wait
 
 PicoBoy=PicoBoySDK(namespace="Minefield SDK Demo", tick_time=0) #This is the "PicoBoySDK" object. This is an object that represents the PicoBoy that allows you to control the PicoBoy's hardware
 Player=PlayerObject(PicoBoy, initx=112, inity=0, width=16, height=16, sprite=PicoBoy.Load_Sprite("detector.sprt",16,16), speed=16) #This creates the "PlayerObject" Object. This is an object you can create to have a moveable player without any code
-
+MusicBox=MusicBoxObject(PicoBoy, 1) # Initialize the MusicBox Object
+MusicBox.Play_Song("Minefield Song.pbs") # Play the song file "Minefield Song.pbs"
 
 #Declared Variables:
 minesprite=PicoBoy.Load_Sprite("mine.sprt",16,16) #Set the variable minesprite to the sprite in the file "mine.sprt"
@@ -49,11 +50,12 @@ while True:
         PicoBoy.Render_Sprite(minesprite,location[0],location[1]) #Draws the mine sprite
         if PicoBoy.Check_Collision(x=Player.x, y=Player.y, width=Player.width, height=Player.height, x2=location[0], y2=location[1], width2=16, height2=16, speed=4, mode=1): #Checks if there is a collision between the player and the enemy
             #Player collided with enemy "Game Over"
-            PicoBoy.Play_Sound(100) #Play game over sound
+            MusicBox.Stop_Song() #Stop the song
+            PicoBoy.Play_Sound(100, 4) #Play game over sound on channel 4
             sleep(0.1)
             PicoBoy.Stop_Sound()
             sleep(0.05)
-            PicoBoy.Play_Sound(100)
+            PicoBoy.Play_Sound(100, 4)
             sleep(0.1)
             PicoBoy.Stop_Sound()
             new_locations() #Generate new locations
@@ -74,17 +76,20 @@ while True:
                 if PicoBoy.Button("A"): #Checks for the A button press on the PicoBoy
                     #Button was pressed
                     score=0 #Reset the score
+                    sleep(0.2) # Wait .2 seconds to account for button holding
+                    MusicBox.Play_Song("Minefield Song.pbs") # Play the song file "Minefield Song.pbs"
                     break #Exit the infinite loop
             break
     PicoBoy.Render_Sprite(flagsprite,winlocation[0],winlocation[1]) #Draws the win flag
     if PicoBoy.Check_Collision(x=Player.x, y=Player.y, width=Player.width, height=Player.height, x2=winlocation[0], y2=winlocation[1], width2=16, height2=16, speed=4, mode=1): #Checks if there is a collision between the player and the win spot
         score+=1 #Add one to the score
         new_locations() #Generate new locations
-        PicoBoy.Play_Sound(200) #Play victory sound
+        MusicBox.Stop_Song() #Stop the song
+        PicoBoy.Play_Sound(200, 4) #Play victory sound on channel 4
         sleep(0.1)
         PicoBoy.Stop_Sound()
         sleep(0.05)
-        PicoBoy.Play_Sound(200)
+        PicoBoy.Play_Sound(200, 4)
         sleep(0.1)
         PicoBoy.Stop_Sound()
         sleep(0.5) #Wait half a second
@@ -98,11 +103,15 @@ while True:
             PicoBoy.Update(score) #Updates the PicoBoy. Displays the screen, checks system controls, etc. Score is passed in to autosave if home is pressed.
             if PicoBoy.Button("Any"): #Checks for any button press on the PicoBoy
                 #Button was pressed
+                sleep(0.2) # Wait .2 seconds to account for button holding
+                MusicBox.Play_Song("Minefield Song.pbs") # Play the song file "Minefield Song.pbs"
                 break #Exit the infinite loop
     PicoBoy.Create_Text("Score: "+str(score), -1, 5, (255,255,255)) #Displays the score onscreen
     Player.Update() #Updates the player. Checks for movement, renders the player, etc.
     if PicoBoy.Button("Start"): #Check for the start button
+        MusicBox.Stop_Song() #Stop the song
         PicoBoy.Pause_Screen() #Enter a pause screen
+        MusicBox.Play_Song("Minefield Song.pbs") # Play the song file "Minefield Song.pbs"
     if PicoBoy.Button("Any"): #If any button is pressed
         sleep(0.1) #Wait 0.1 seconds
     PicoBoy.Update(score) #Updates the PicoBoy. Displays the screen, checks system controls, etc. Score is passed in to autosave if home is pressed.

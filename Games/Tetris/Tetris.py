@@ -14,7 +14,8 @@ os.rename("/main.py", "/Tetris/Tetris.py")
 os.rename("/title.py", "/main.py")
 pgb = PicoGameBoy()
 try:
-    pgb.sound(0,1,2000)
+    f=RPMidi(pgb)
+    del f
 except:
     while True:
         if pgb.button_Home():
@@ -27,7 +28,7 @@ except:
         pgb.fill(PicoGameBoy.color(0,0,0))
         pgb.create_text("Update your OS!",-1,25,PicoGameBoy.color(255,255,255))
         pgb.create_text("This game requires PBOS",-1,100,PicoGameBoy.color(255,255,255))
-        pgb.create_text("version 1.1",-1,110,PicoGameBoy.color(255,255,255))
+        pgb.create_text("version 2.5",-1,110,PicoGameBoy.color(255,255,255))
         pgb.create_text("Update your PicoBoy",-1,140,PicoGameBoy.color(255,255,255))
         pgb.create_text("to play this game.",-1,150,PicoGameBoy.color(255,255,255))
         pgb.create_text("Press Home to quit.",-1,220,PicoGameBoy.color(255,255,255))
@@ -40,7 +41,7 @@ GRID_OFFSET = 2
 GRID_ROWS  = 20
 GRID_COLS  = 10
 currentmusic=[0xF0]
-midi=RPMidi()
+midi=RPMidi(pgb)
 # image definitions 12x12 pixels
 theme=[0x90,76, 1,9, 0x91,64, 0,245, 0x92,71, 0x80, 0,16, 0x81, 0,218, 0x82, 0,16, 0x90,72, 0x91,64, 0,234, 0x80, 
 0,11, 0x90,74, 0,15, 0x81, 0,235, 0x91,64, 0,250, 0x92,72, 0x80, 0,10, 0x81, 0,219, 0x82, 0,15, 0x90,71, 
@@ -149,7 +150,7 @@ def play_music():
     global currentmusic
     global theme
     global exitthread
-    midi=RPMidi()
+    midi=RPMidi(pgb)
     while True:
         if exitthread:
             exitthread=False
