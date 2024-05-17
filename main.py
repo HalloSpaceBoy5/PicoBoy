@@ -23,9 +23,9 @@ pastpercentage=[]
 pastpercent=101
 
 
-def readchunk(filename, x2, y2, w, h):
+def readchunk(filename, x2, y2, w, h, q=True):
     if x2>240:
-        time.sleep(0.005)
+        time.sleep(0.015)
         return
     buffersize=w*2
     p=240-w-x2
@@ -38,13 +38,21 @@ def readchunk(filename, x2, y2, w, h):
         p=0
     o=0
     x=bytearray(p*2)
+    
+    size=0
     with open(filename, "rb") as image_file:
         for y in range(h):
             existing_line_start = ((y + y2) * 240 + x2) * 2
             image_file.readinto(pgb.buffer[existing_line_start:existing_line_start + buffersize])
             image_file.readinto(x[0:p*2])
+            size += image_file.tell()
             o+=p
-
+    if not size==1742400 and q:
+        pgb.fill_rect(x2,y2,w,h,ttcolor)
+        pgb.create_text("Image",x2+40,y2+55,ottcolor)
+        pgb.create_text("Corrupted",x2+22,y2+65,ottcolor)
+        time.sleep(0.01)
+        return
 
 
 def readchunkold(filename,x2,y2,w,h,i=0,z=6):
@@ -114,13 +122,13 @@ except:
     bootlogo=True
 if bootlogo:
     pgb.fill(BLACK)
-    readchunk("logo.pbimg",88,50,64,64)
+    readchunk("logo.pbimg",88,50,64,64,False)
     #with open("logo.pbimg","rb") as r:
     #    data=r.read()
     #tempfb=FrameBuffer(bytearray(data),64,64,RGB565)
     #pgb.blit(tempfb,88,50)
     #del tempfb
-    readchunk("logo-text.pbimg",69,150,102,15)
+    readchunk("logo-text.pbimg",69,150,102,15,False)
     #with open("logo-text.pbimg","rb") as r:
     #    data=r.read()
     #tempfb=FrameBuffer(bytearray(data),102,15,RGB565)
@@ -276,12 +284,12 @@ if title<=gamenum:
         pgb.create_text(games[title],-1,65,ttcolor)
     else:
         pgb.create_text("Settings",-1,65,ttcolor)
-    try:
-        readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60,80,120,120)
-    except:
-        pgb.fill_rect(60,80,120,120,ttcolor)
-        pgb.create_text("No Image",-1,140,ottcolor)
-        time.sleep(0.1)
+    #try:
+    readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60,80,120,120)
+    #except:
+    #    pgb.fill_rect(60,80,120,120,ttcolor)
+    #    pgb.create_text("No Image",-1,140,ottcolor)
+    #    time.sleep(0.1)
     if title==0:
         pgb.poly(197,125,arrowrightbg,bgcolor565,True)
         pgb.poly(200,130,arrowright,ttcolor,True)
@@ -423,7 +431,7 @@ def render(f=True):
         except:
             pgb.fill_rect(60,80,120,120,ttcolor)
             pgb.create_text("No Image",-1,140,ottcolor)
-            time.sleep(0.005)
+            time.sleep(0.015)
         if title==0:
             pgb.poly(197,125,arrowrightbg,bgcolor565,True)
             pgb.poly(200,130,arrowright,ttcolor,True)
@@ -461,13 +469,13 @@ while True:
                 except:
                     pgb.fill_rect(-180+(i*incr),81,120,120,ttcolor)
                     pgb.create_text("No Image",-152+(i*incr),140,ottcolor)
-                    time.sleep(0.005)
+                    time.sleep(0.015)
                 try:
                     readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60+(i*incr),80,120,120)
                 except:
                     pgb.fill_rect(60+(i*incr),80,120,120,ttcolor)
                     pgb.create_text("No Image",84+(i*incr),140,ottcolor)
-                    time.sleep(0.005)
+                    time.sleep(0.015)
                 pgb.poly(60+(i*incr),80,c1,bgcolor565,True)
                 pgb.poly(60+(i*incr),200,c2,bgcolor565,True)
                 pgb.poly(180+(i*incr),80,c3,bgcolor565,True)
@@ -499,13 +507,13 @@ while True:
                 except:
                         pgb.fill_rect(60-(i*incr),80,120,120,ttcolor)
                         pgb.create_text("No Image",84-(i*incr),140,ottcolor)
-                        time.sleep(0.005)
+                        time.sleep(0.015)
                 try:
                     readchunk(games[title+1]+"/"+games[title+1]+" (Title Image).pbimg",300-(i*incr),80,120,120)
                 except:
                     pgb.fill_rect(300-(i*incr),80,120,120,ttcolor)
                     pgb.create_text("No Image",328-(i*incr),140,ottcolor)
-                    time.sleep(0.005)
+                    time.sleep(0.015)
                 pgb.poly(60-(i*incr),80,c1,bgcolor565,True)
                 pgb.poly(60-(i*incr),200,c2,bgcolor565,True)
                 pgb.poly(180-(i*incr),80,c3,bgcolor565,True)
@@ -538,7 +546,7 @@ while True:
                     except:
                         pgb.fill_rect(60-(i*incr),81,120,120,ttcolor)
                         pgb.create_text("No Image",84-(i*incr),140,ottcolor)
-                        time.sleep(0.005)
+                        time.sleep(0.015)
                     readchunk("settings.pbimg",300-(i*incr),80,120,120)
                     pgb.poly(60-(i*incr),80,c1,bgcolor565,True)
                     pgb.poly(60-(i*incr),200,c2,bgcolor565,True)
@@ -644,7 +652,7 @@ while True:
                             except:
                                 pgb.fill_rect(-180+(i*incr),81,120,120,ttcolor)
                                 pgb.create_text("No Image",-152+(i*incr),140,ottcolor)
-                                time.sleep(0.005)
+                                time.sleep(0.015)
                             readchunk("settings.pbimg",60+(i*incr),80,120,120)
                             pgb.poly(60+(i*incr),80,c1,bgcolor565,True)
                             pgb.poly(60+(i*incr),200,c2,bgcolor565,True)

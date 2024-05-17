@@ -204,7 +204,7 @@ class PicoBoySDK(ST7789):
             else:
                 print(error)
                 sys.exit()
-        
+        self.maskcolor=self.color(31,17,9)
         self.namespace=namespace
         self.tick=tick_time
         self.cycle=1
@@ -241,8 +241,96 @@ class PicoBoySDK(ST7789):
         return sprite
     
     def Render_Sprite(self, sprite, x, y):
-        self.blit(sprite, x, y)
+        self.blit(sprite, x, y, self.maskcolor)
     
+    def Load_Small_Image(self,filename, x2, y2, w, h):
+        if x2>240:
+            sleep(0.005)
+            return
+        if x2<-w:
+            sleep(0.005)
+            return
+        if y2>240:
+            sleep(0.005)
+            return
+        if y2<-h:
+            sleep(0.005)
+            return
+        wx=0
+        wy=0
+        if x2+w>240:
+            wx=1
+        if x2<0:
+            wx=2
+        if y2+h>240:
+            wy=1
+        if y2<0:
+            wy=2
+        buffersize=w*2
+        if wx==1:
+            p=240-w-x2
+            if p<0:
+                e=abs(240-x2)
+                buffersize=e*2
+            if p<0:
+                p=abs(p)
+            else:
+                p=0
+            o=0
+            x=bytearray(p*2)
+        elif wx==2:
+            p=w-(w-x2)
+            if p<0:
+                e=abs(w+x2)
+                buffersize=e*2
+            if p<0:
+                p=abs(p)
+            else:
+                p=0
+            o=0
+            x=memoryview(bytearray(p*2))
+        ydiff=0
+        if wy==2:
+            ydiff=h-(h+y2)
+            z=memoryview(bytearray(w*2))
+        if wy==1:
+            ydiff=((h+y2)-240)
+            z=memoryview(bytearray(w*2))
+        with open(filename, "rb") as image_file:
+            if wx==2:
+                for y in range(h):
+                    if not y>=ydiff and wy==2:
+                        image_file.readinto(z[0:w*2])
+                    elif wy==1 and y>h-ydiff:
+                        image_file.readinto(z[0:w*2])
+                    else:
+                        existing_line_start = ((y + y2) * 240) * 2
+                        image_file.readinto(x[0:p*2])
+                        image_file.readinto(self.buffer[existing_line_start:existing_line_start + buffersize])
+                        o+=p
+            elif wx==1:
+                for y in range(h):
+                    if not y>=ydiff and wy==2:
+                        image_file.readinto(z[0:w*2])
+                    elif wy==1 and y>h-ydiff:
+                        image_file.readinto(z[0:w*2])
+                    else:
+                        existing_line_start = ((y + y2) * 240 + x2) * 2
+                        image_file.readinto(self.buffer[existing_line_start:existing_line_start + buffersize])
+                        image_file.readinto(x[0:p*2])
+                        o+=p
+            else:
+                for y in range(h):
+                    if not y>=ydiff and wy==2:
+                        image_file.readinto(z[0:w*2])
+                    elif wy==1 and y>h-ydiff:
+                        image_file.readinto(z[0:w*2])
+                    else:
+                        existing_line_start = ((y + y2) * 240 + x2) * 2
+                        image_file.readinto(self.buffer[existing_line_start:existing_line_start + buffersize])
+                    sleep(0.0005)
+
+
     def Update(self, savescore=None, noclear=False):
         if self.home.value()==0:
             if not savescore==None:
