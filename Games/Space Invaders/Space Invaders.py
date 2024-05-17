@@ -245,7 +245,7 @@ def main_game():
         PicoBoy.Create_Text("Lives: "+str(lives),165,4,(255,255,255))
         PicoBoy.hline(0,17,240,PicoBoy.color(255,255,255))
         Player.Update()
-        if PicoBoy.Button("A") and a_cooldown==0:
+        if PicoBoy.Button("A") and len(playerbullets)==0 and a_cooldown==0:
             playerbullets.append(Bullet(Player.x, Player.y, 8, 1, True))
             f_cooldown=4
             a_cooldown=5

@@ -5,8 +5,11 @@ from random import randint
 from math import sqrt
 import os
 
-os.rename("/main.py", "/Breakout/Breakout.py")
-os.rename("/title.py", "/main.py")
+try:
+    os.rename("/main.py", "/Breakout/Breakout.py")
+    os.rename("/title.py", "/main.py")
+except:
+    ""
 
 pgb=PicoGameBoy()
 pgb.free_mem()
@@ -191,17 +194,58 @@ def win_screen():
         elif pgb.button_A():
             sleep(0.5)
             return
+        
+def Check_Collision(x,y,width,height,x2,y2,width2,height2,speed,mode):
+    if x < x2 + width2 and x + width > x2 and y < y2 + height and y + height > y2:
+        x_adjust = min(x + width - x2, x2 + width2 - x)
+        y_adjust = min(y + height - y2, y2 + height - y)
+        if x_adjust < y_adjust:
+            if x + speed+width > x2 and x+speed < x2:
+                if mode==2:
+                    x=0
+                    y=0
+                if mode==0 or mode==2:
+                    x -= x_adjust
+                elif mode==1:
+                    return True
+            else:
+                if mode==2:
+                    x=0
+                    y=0
+                if mode==0 or mode==2:
+                    x += x_adjust
+                elif mode==1:
+                    return True
+        else:
+            if y + height+speed > y2 and y+speed < y2:
+                if mode==2:
+                    y=0
+                    x=0
+                if mode==0 or mode==2:
+                    y -= y_adjust
+                elif mode==1:
+                    return True
+            else:
+                if mode==2:
+                    x=0
+                    y=0
+                if mode==0 or mode==2:
+                    y += y_adjust
+                elif mode==1:
+                    return True
+    else:
+        if mode==2:
+            x=0
+            y=0
+    if mode==0:
+        return x, y
+    elif mode==1:
+        return False
+    elif mode==2:
+        return x,y
 
 
-def check_collision(speed,detectionradius, posx, posy, width, height, posx2, posy2, width2, height2):
-    bbox1 = [posx, posy, posx + width, posy + height]
-    bbox2 = [posx2, posy2, posx2 + width2, posy2 + height2]
 
-    if bbox1[0] < bbox2[2] and bbox1[2] > bbox2[0] and bbox1[1] < bbox2[3] and bbox1[3] > bbox2[1]:
-        if posx + width + speed >= posx2 and posx - speed <= posx2 + width2 and posy + height + speed >= posy2 and posy - speed <= posy2 + height2:
-            return True
-    
-    return False
 
 def draw_boxes():
     global row1
@@ -214,6 +258,7 @@ def draw_boxes():
     global speed
     global changedirection
     global ballspeedy
+    global ballspeedx
     global offset
     global score
     alreadybroken=False
@@ -225,12 +270,19 @@ def draw_boxes():
                     colornum3=0#randint(50,255)
                     blo=25*f+10
                     if not row1[f]==0 and not alreadybroken:
-                        if check_collision(abs(ballspeedy),35,blo,0+offset,20,10,ballx,bally,10,10):
+                        cx,cy=Check_Collision(blo,0+offset,20,10,ballx,bally,10,10,5,2)
+                        if not cx==0 or not cy==0:
+                            ballx+=cx
+                            bally+=cy
                             row1[f]=0
                             score=score+100
                             alreadybroken=True
                             pgb.sound(123)
-                            changedirection=True
+                            #changedirection=True
+                            if not cx==0:
+                                ballspeedx=-ballspeedx
+                            if not cy==0:
+                                ballspeedy=-ballspeedy
 
                             
                             
@@ -245,12 +297,19 @@ def draw_boxes():
                     colornum3=0#randint(50,255)
                     blo=25*f+10
                     if not row2[f]==0 and not alreadybroken:
-                        if check_collision(abs(ballspeedy),35,blo,25+offset,20,10,ballx,bally,10,10):
+                        cx,cy=Check_Collision(blo,25+offset,20,10,ballx,bally,10,10,5,2)
+                        if not cx==0 or not cy==0:
+                            ballx+=cx
+                            bally+=cy
                             row2[f]=0
                             score=score+50
                             alreadybroken=True
                             pgb.sound(123)
-                            changedirection=True
+                            #changedirection=True
+                            if not cy==0:
+                                ballspeedy=-ballspeedy
+                            elif not cx==0:
+                                ballspeedx=-ballspeedx
                             
                     if row2[f]==0:
                         pgb.fill_rect(blo,25+offset,20,10, PicoGameBoy.color(0,0,0))
@@ -263,12 +322,19 @@ def draw_boxes():
                     colornum3=255#randint(50,255)
                     blo=25*f+10
                     if not row3[f]==0 and not alreadybroken:
-                        if check_collision(abs(ballspeedy),30,blo,50+offset,20,10,ballx,bally,10,10):
+                        cx,cy=Check_Collision(blo,50+offset,20,10,ballx,bally,10,10,5,2)
+                        if not cx==0 or not cy==0:
+                            ballx+=cx
+                            bally+=cy
                             row3[f]=0
                             score=score+25
                             alreadybroken=True
                             pgb.sound(123)
-                            changedirection=True
+                            #changedirection=True
+                            if not cy==0:
+                                ballspeedy=-ballspeedy
+                            elif not cx==0:
+                                ballspeedx=-ballspeedx
                             
                     if row3[f]==0:
                         pgb.fill_rect(blo,50+offset,20,10, PicoGameBoy.color(0,0,0))
@@ -281,12 +347,19 @@ def draw_boxes():
                     colornum3=0#randint(50,255)
                     blo=25*f+10
                     if not row4[f]==0 and not alreadybroken:
-                        if check_collision(abs(ballspeedy),45,blo,75+offset,20,10,ballx,bally,10,10):
+                        cx,cy=Check_Collision(blo,75+offset,20,10,ballx,bally,10,10,5,2)
+                        if not cx==0 or not cy==0:
+                            ballx+=cx
+                            bally+=cy
                             row4[f]=0
                             score=score+10
                             alreadybroken=True
                             pgb.sound(123)
-                            changedirection=True
+                            #changedirection=True
+                            if not cy==0:
+                                ballspeedy=-ballspeedy
+                            elif not cx==0:
+                                ballspeedx=-ballspeedx
                             
                     if row4[f]==0:
                         pgb.fill_rect(blo,75+offset,20,10, PicoGameBoy.color(0,0,0))
@@ -299,12 +372,19 @@ def draw_boxes():
                     colornum3=0#randint(50,255)
                     blo=25*f+10
                     if not row5[f]==0 and not alreadybroken:
-                        if check_collision(abs(ballspeedy),35,blo,100+offset,20,10,ballx,bally,10,10):
+                        cx,cy=Check_Collision(blo,100+offset,20,10,ballx,bally,10,10,5,2)
+                        if not cx==0 or not cy==0:
+                            ballx+=cx
+                            bally+=cy
                             row5[f]=0
                             score=score+5
                             alreadybroken=True
                             pgb.sound(123)
-                            changedirection=True
+                            #changedirection=True
+                            if not cy==0:
+                                ballspeedy=-ballspeedy
+                            elif not cx==0:
+                                ballspeedx=-ballspeedx
                             
                     if row5[f]==0:
                         pgb.fill_rect(blo,100+offset,20,10, PicoGameBoy.color(0,0,0))
@@ -337,6 +417,7 @@ def main_game():
     row5=[1,1,1,1,1,1,1,1,1]
     stationary=True
     while True:
+        
         going=True
         
         while going:
@@ -350,7 +431,6 @@ def main_game():
             if pgb.button_start():
                 pause_screen()
             pgb.fill(PicoGameBoy.color(0,0,0))
-            draw_boxes()
             #player movement
             if pgb.button_left() and playerx>15:
                 playerx=playerx-speed
@@ -359,12 +439,14 @@ def main_game():
                 
             #ball physics
             if stationary:
+                draw_boxes()
                 pgb.sprite(1,playerx+10,210)
                 ballx=playerx+10
                 bally=210
                 if pgb.button_A():
                     stationary=False
                     bally=bally-5
+            
             else:
                 ballcoords=[[ballx,bally],[ballx,bally+10],[ballx+10,bally],[ballx+10,bally+10]]
                 if ballcoords[2][0]<20:
@@ -390,46 +472,32 @@ def main_game():
                     pgb.sound(349)
                     sleep(0.05)
                     pgb.sound(0)
-                if changedirection:
-                    cchoice=randint(0,5)
-                    if ballspeedx==0:
-                        res=randint(0,1)
-                        res=5 if res==1 else -5
-                        ballspeedx=res
-                        if ballspeedy<0:
-                            ballspeedy+=2
-                        else:
-                            ballspeedy-=2
-                    elif cchoice==5:
-                        ballspeedx=0
-                        if ballspeedy<0:
-                            ballspeedy-=2
-                        else:
-                            ballspeedy+=2
-                    else:
-                        rchoice=randint(0,2)
-                        if rchoice==0:
-                            ballspeedx=-ballspeedx
-                        else:
-                            ballspeedx=ballspeedx
-                    ballspeedy=-ballspeedy
-                    changedirection=False
-                if check_collision(abs(ballspeedy),30,ballx,bally,10,10,playerx,220,30,20):
-                    if ballspeedx==0:
-                        res=randint(0,1)
-                        res=5 if res==1 else -5
-                        ballspeedx=res
-                        if ballspeedy<0:
-                            ballspeedy+=2
-                        else:
-                            ballspeedy-=2
-                        ballspeedy=-abs(ballspeedy)
-                    else:
-                        ballspeedy=-abs(ballspeedy)
-                    bally=bally-5
-                    pgb.sound(349)
                 bally=bally+ballspeedy
                 ballx=ballx+ballspeedx
+                cx,cy=Check_Collision(ballx,bally,10,10,playerx,220,30,10,5,2)
+                if not cx==0 or not cy==0:
+                    bally+=cy
+                    if ballx>playerx and ballx<playerx+6:
+                        ballspeedx=-(int(defspeed)-3)
+                    elif ballx>playerx+6 and ballx<playerx+12:
+                        ballspeedx=-(int(defspeed)-2)
+                    elif ballx>playerx+12 and ballx<playerx+18:
+                        if ballspeedx<0:
+                            ballspeedx=-int(defspeed)
+                        else:
+                            ballspeedx=int(defspeed)
+                    elif ballx>playerx+18 and ballx<playerx+24:
+                        ballspeedx=int(defspeed)-2
+                    elif ballx>playerx+24 and ballx<playerx+30:
+                        ballspeedx=int(defspeed)-3
+                    if not cy==0:
+                        ballspeedy=-ballspeedy
+                    else:
+                        ballspeedy=-abs(ballspeedy)
+                    if cx==0:
+                        bally=bally-5
+                    pgb.sound(349)
+                draw_boxes()
                 pgb.sprite(1,ballx,bally)
                 if lives<1:
                     return False
