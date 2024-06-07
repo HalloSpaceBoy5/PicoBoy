@@ -6,7 +6,7 @@ This is the PicoBoy. The ultimate handheld console for not only playing great ga
 ![Picoboy-removebg-preview](https://github.com/HalloSpaceBoy5/PicoBoy/assets/111699451/76deac49-ed36-4a1e-bd76-fd61e6afe750)
 # Important Links:
 ## Website
-[COMING SOON]
+PicoBoy.co
 ## Discord
 https://discord.gg/xTaUqVxDRY
 ## Buy the kit: 
