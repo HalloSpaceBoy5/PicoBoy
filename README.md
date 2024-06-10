@@ -9,8 +9,8 @@ This is the PicoBoy. The ultimate handheld console for not only playing great ga
 https://PicoBoy.co
 ## Discord
 https://discord.gg/xTaUqVxDRY
-## Buy the kit: 
-https://www.tindie.com/products/hallospaceboy/picoboy-game-console-kit/
+## Buy the console:
+https://www.tindie.com/products/hallospaceboy/picoboy-v2-the-ultimate-diy-console/
 ## Casing Files
 #### PicoBoy V1
 https://www.printables.com/model/469537-picoboy
