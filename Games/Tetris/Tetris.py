@@ -9,9 +9,11 @@ import machine
 import _thread
 import gc
 from rpmidi import RPMidi
-
-os.rename("/main.py", "/Tetris/Tetris.py")
-os.rename("/title.py", "/main.py")
+try:
+    os.rename("/main.py", "/Tetris/Tetris.py")
+    os.rename("/title.py", "/main.py")
+except:
+    ""
 pgb = PicoGameBoy()
 try:
     f=RPMidi(pgb)
@@ -493,10 +495,11 @@ def main_game():
         if pauseright:
             pauseright=False
             skip=True
+        
         if (pgb.button_A() or pgb.button_B()) and not n==6:
-            if last_button!="UP":
+            if last_button!="SKIP":
                 rotate=True
-            last_button="UP"
+            last_button="SKIP"
         elif pgb.button_left() and not pauseleft and not skip:
                 last_button="RIGHT"
                 dx=-1
@@ -510,6 +513,9 @@ def main_game():
             delay=0
         else:
             last_button="NONE"
+        DROP=False
+        if pgb.button_up():
+                DROP=True
         if skip:
             skip=False
         if pgb.button_down():
@@ -559,6 +565,35 @@ def main_game():
                 has_rotated=True
 
         # move down
+        if DROP:
+            while True:
+                for i in range(4):
+                    prev_x[i]=x[i]
+                    prev_y[i]=y[i]
+                    y[i]+=dy
+                   
+                if collision(x,y):
+                    # collision detected
+                    # collision at the top of the screen?
+                    # => game over
+                    for i in range(4):
+                        if prev_y[i]<=1:
+                            return
+                    
+                    # => Store the last good position in the field
+                    for i in range(4):
+                        field[prev_y[i]][prev_x[i]]=n
+                    
+                    # => choose randomly the next trinomino
+                    n =  next_n
+                    next_n = randint(0, 6)
+                    for i in range(4):
+                        x[i]=(tetrominos[n][i]) % 2;
+                        y[i]=int(tetrominos[n][i] / 2);
+                        
+                        x[i]+=int(GRID_COLS/2)
+                    time.sleep(0.1)
+                    break
         ticks_ms = time.ticks_ms()
         if time.ticks_diff(ticks_ms, now) > delay:
             now = ticks_ms
@@ -570,7 +605,7 @@ def main_game():
             else:
                 freq=0
             has_rotated = False
-            
+
             for i in range(4):
                 prev_x[i]=x[i]
                 prev_y[i]=y[i]
