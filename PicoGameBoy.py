@@ -64,12 +64,44 @@ class PicoGameBoy(ST7789):
         if vsys_voltage>10:
             vsys_voltage = adc_voltage * 3
         if vsys_voltage<1.9:
+            try:
+                with open("langauge.conf") as r:
+                    self.langauge=int(r.read())
+                if self.langauge>4:
+                    raise
+            except:
+                self.langauge=0
             self.fill(PicoGameBoy.color(0,0,0))
-            self.create_text("BATTERY CRITICALLY LOW!",-1,30,PicoGameBoy.color(255,255,255))
-            self.create_text("Please replace the", -1, 130, PicoGameBoy.color(255,255,255))
-            self.create_text("batteries in your PicoBoy.", -1, 145, PicoGameBoy.color(255,255,255))
-            self.create_text("Please switch your", -1, 200, PicoGameBoy.color(255,255,255))
-            self.create_text("PicoBoy off.", -1, 215, PicoGameBoy.color(255,255,255))
+            if self.langauge==0:
+                self.create_text("BATTERY CRITICALLY LOW!",-1,30,PicoGameBoy.color(255,255,255))
+                self.create_text("Please replace the", -1, 130, PicoGameBoy.color(255,255,255))
+                self.create_text("batteries in your PicoBoy.", -1, 145, PicoGameBoy.color(255,255,255))
+                self.create_text("Please switch your", -1, 200, PicoGameBoy.color(255,255,255))
+                self.create_text("PicoBoy off.", -1, 215, PicoGameBoy.color(255,255,255))
+            if self.langauge==1:
+                self.create_text("BATERIA CRITICAMENTE BAJA!",-1,30,PicoGameBoy.color(255,255,255))
+                self.create_text("Por favor reemplace el", -1, 130, PicoGameBoy.color(255,255,255))
+                self.create_text("baterias en su PicoBoy.", -1, 145, PicoGameBoy.color(255,255,255))
+                self.create_text("Por favor cambia tu", -1, 200, PicoGameBoy.color(255,255,255))
+                self.create_text("PicoBoy fuera.", -1, 215, PicoGameBoy.color(255,255,255))
+            if self.langauge==2:
+                self.create_text("BATTERIE CRITIQUEMENT FAIBLE!",-1,30,PicoGameBoy.color(255,255,255))
+                self.create_text("Veuillez remplacer le", -1, 130, PicoGameBoy.color(255,255,255))
+                self.create_text("piles dans votre PicoBoy.", -1, 145, PicoGameBoy.color(255,255,255))
+                self.create_text("Veuillez changer votre", -1, 200, PicoGameBoy.color(255,255,255))
+                self.create_text("PicoBoy s'en va.", -1, 215, PicoGameBoy.color(255,255,255))
+            if self.langauge==3:
+                self.create_text("BATTERIE KRITISCH NIEDRIG!",-1,30,PicoGameBoy.color(255,255,255))
+                self.create_text("Bitte ersetzen Sie die", -1, 130, PicoGameBoy.color(255,255,255))
+                self.create_text("Batterien in Ihrem PicoBoy.", -1, 145, PicoGameBoy.color(255,255,255))
+                self.create_text("Bitte wechseln Sie Ihr", -1, 200, PicoGameBoy.color(255,255,255))
+                self.create_text("PicoBoy aus.", -1, 215, PicoGameBoy.color(255,255,255))
+            if self.langauge==4:
+                self.create_text("BATTERIA CRITICAMENTE SCARICA!",-1,30,PicoGameBoy.color(255,255,255))
+                self.create_text("Si prega di sostituire il", -1, 130, PicoGameBoy.color(255,255,255))
+                self.create_text("batterie del tuo PicoBoy.", -1, 145, PicoGameBoy.color(255,255,255))
+                self.create_text("Per favore, cambia il tuo", -1, 200, PicoGameBoy.color(255,255,255))
+                self.create_text("PicoBoy spento.", -1, 215, PicoGameBoy.color(255,255,255))
             self.rect(75,60,80,40,PicoGameBoy.color(255,0,0))
             self.fill_rect(155,70,10,20,PicoGameBoy.color(255,0,0))
             self.line(75,60,155,99,PicoGameBoy.color(255,0,0))

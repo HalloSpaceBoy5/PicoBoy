@@ -113,17 +113,27 @@ class ST7789(framebuf.FrameBuffer):
     
     def decrease_brightness(self):
         if self.DUTY_CYCLE > self.DUTY_CYCLE_MIN:
-            self.DUTY_CYCLE -= 2750
+            self.DUTY_CYCLE -= int((self.DUTY_CYCLE_MAX-self.DUTY_CYCLE_MIN)/20)
+        if self.DUTY_CYCLE<self.DUTY_CYCLE_MIN:
+            self.DUTY_CYCLE=self.DUTY_CYCLE_MIN
         self.bl.duty_u16(self.DUTY_CYCLE)
-        with open("/brghtness.conf", "w") as w:
-            w.write(str(self.DUTY_CYCLE))
+        try:
+            with open("/brghtness.conf", "w") as w:
+                w.write(str(self.DUTY_CYCLE))
+        except:
+            ""
 
     def increase_brightness(self):
         if self.DUTY_CYCLE < self.DUTY_CYCLE_MAX:
-            self.DUTY_CYCLE += 2750
+            self.DUTY_CYCLE += int((self.DUTY_CYCLE_MAX-self.DUTY_CYCLE_MIN)/20)
+        if self.DUTY_CYCLE>self.DUTY_CYCLE_MAX:
+            self.DUTY_CYCLE=self.DUTY_CYCLE_MAX
         self.bl.duty_u16(self.DUTY_CYCLE)
-        with open("/brghtness.conf", "w") as w:
-            w.write(str(self.DUTY_CYCLE))
+        try:
+            with open("/brghtness.conf", "w") as w:
+                w.write(str(self.DUTY_CYCLE))
+        except:
+            ""
     
     def power_off(self):
         pass
@@ -204,6 +214,13 @@ class PicoBoySDK(ST7789):
             else:
                 print(error)
                 sys.exit()
+        try:
+            with open("/langauge.conf") as r:
+                self.langauge=int(r.read())
+            if self.langauge>4:
+                raise
+        except:
+            self.langauge=0
         self.maskcolor=self.color(31,17,9)
         self.namespace=namespace
         self.tick=tick_time
@@ -363,11 +380,37 @@ class PicoBoySDK(ST7789):
             vsys_voltage = adc_voltage * 3
         if vsys_voltage<1.9:
             self.fill(self.color(0,0,0))
-            self.Create_Text("BATTERY CRITICALLY LOW!",-1,30,(255,255,255))
-            self.Create_Text("Please replace the", -1, 130, (255,255,255))
-            self.Create_Text("batteries in your PicoBoy.", -1, 145, (255,255,255))
-            self.Create_Text("Please switch your", -1, 200, (255,255,255))
-            self.Create_Text("PicoBoy off.", -1, 215, (255,255,255))
+            print(self.langauge)
+            if self.langauge==0:
+                self.Create_Text("BATTERY CRITICALLY LOW!",-1,30,(255,255,255))
+                self.Create_Text("Please replace the", -1, 130, (255,255,255))
+                self.Create_Text("batteries in your PicoBoy.", -1, 145, (255,255,255))
+                self.Create_Text("Please switch your", -1, 200, (255,255,255))
+                self.Create_Text("PicoBoy off.", -1, 215, (255,255,255))
+            if self.langauge==1:
+                self.Create_Text("BATERIA CRITICAMENTE BAJA!",-1,30,(255,255,255))
+                self.Create_Text("Por favor reemplace el", -1, 130, (255,255,255))
+                self.Create_Text("baterias en su PicoBoy.", -1, 145, (255,255,255))
+                self.Create_Text("Por favor cambia tu", -1, 200, (255,255,255))
+                self.Create_Text("PicoBoy fuera.", -1, 215, (255,255,255))
+            if self.langauge==2:
+                self.Create_Text("BATTERIE CRITIQUEMENT FAIBLE!",-1,30,(255,255,255))
+                self.Create_Text("Veuillez remplacer le", -1, 130, (255,255,255))
+                self.Create_Text("piles dans votre PicoBoy.", -1, 145, (255,255,255))
+                self.Create_Text("Veuillez changer votre", -1, 200, (255,255,255))
+                self.Create_Text("PicoBoy s'en va.", -1, 215, (255,255,255))
+            if self.langauge==3:
+                self.Create_Text("BATTERIE KRITISCH NIEDRIG!",-1,30,(255,255,255))
+                self.Create_Text("Bitte ersetzen Sie die", -1, 130, (255,255,255))
+                self.Create_Text("Batterien in Ihrem PicoBoy.", -1, 145, (255,255,255))
+                self.Create_Text("Bitte wechseln Sie Ihr", -1, 200, (255,255,255))
+                self.Create_Text("PicoBoy aus.", -1, 215, (255,255,255))
+            if self.langauge==4:
+                self.Create_Text("BATTERIA CRITICAMENTE SCARICA!",-1,30,(255,255,255))
+                self.Create_Text("Si prega di sostituire il", -1, 130, (255,255,255))
+                self.Create_Text("batterie del tuo PicoBoy.", -1, 145, (255,255,255))
+                self.Create_Text("Per favore, cambia il tuo", -1, 200, (255,255,255))
+                self.Create_Text("PicoBoy spento.", -1, 215, (255,255,255))
             self.rect(75,60,80,40,self.color(255,0,0))
             self.fill_rect(155,70,10,20,self.color(255,0,0))
             self.line(75,60,155,99,self.color(255,0,0))

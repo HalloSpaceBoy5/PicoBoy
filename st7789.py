@@ -128,7 +128,9 @@ class ST7789(framebuf.FrameBuffer):
     
     def decrease_brightness(self):
         if self.DUTY_CYCLE > self.DUTY_CYCLE_MIN:
-            self.DUTY_CYCLE -= 2750
+            self.DUTY_CYCLE -= int((self.DUTY_CYCLE_MAX-self.DUTY_CYCLE_MIN)/20)
+        if self.DUTY_CYCLE<self.DUTY_CYCLE_MIN:
+            self.DUTY_CYCLE=self.DUTY_CYCLE_MIN
         self.bl.duty_u16(self.DUTY_CYCLE)
         try:
             with open("/brghtness.conf", "w") as w:
@@ -138,7 +140,9 @@ class ST7789(framebuf.FrameBuffer):
 
     def increase_brightness(self):
         if self.DUTY_CYCLE < self.DUTY_CYCLE_MAX:
-            self.DUTY_CYCLE += 2750
+            self.DUTY_CYCLE += int((self.DUTY_CYCLE_MAX-self.DUTY_CYCLE_MIN)/20)
+        if self.DUTY_CYCLE>self.DUTY_CYCLE_MAX:
+            self.DUTY_CYCLE=self.DUTY_CYCLE_MAX
         self.bl.duty_u16(self.DUTY_CYCLE)
         try:
             with open("/brghtness.conf", "w") as w:
