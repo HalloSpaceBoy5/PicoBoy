@@ -18,6 +18,7 @@ Controls:
 Left - Move tetrominoe left
 Right - Move tetrominoe right
 Down - Move tetrominoe down faster
+Up - Drop tetrominoe
 A - Rotate tetrominoe clockwise
 B - Rotate tetrominoe clockwise
 Start - Pause/View Scores
