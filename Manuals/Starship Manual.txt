@@ -1,21 +1,23 @@
 Starship User Manual
 
 Game Overview:
-Starship is a game where you dodge projectiles and stay alive for a certain amount of time. As the level
-increases, the amount of time increases, as does the number of enemies. Starship was originally a game
-written for the GameBoy by HalloSpaceBoy, but was ported to the PicoBoy for its better graphics.
+Starship is a game about surviving the barages of bullets thrown at you by enemies while collecting as 
+much score as possible. As the level increases, the amount of time increases, as does the number of enemies. 
+Starship was originally a game written for the GameBoy by HalloSpaceBoy, but was ported to the PicoBoy for its better graphics.
 
 Important things to know:
 - Your score will only be saved when you die; if you return to the home screen before that, your score will be
   lost.
+- Collect all of the score boosters around the map to increase your score
 - Your number of lives resets at the beginning of every level
 
 Gameplay:
 You control a spaceship, and your main goal is to dodge the projectiles fired at you by enemy ships. After a 
-certian amount of time alive, you will pass the level and move on. If you lose all 3 lives in this time, you
+certian amount of time alive, you will pass the level and move on. If you lose all of your lives in this time, you
 will get a game over. In Starship, there are two different kinds of enemies: static enemies and follower enemies. 
 Static enemies will stay in place and fire at a set rate; follower enemies will follow you on whatever axis
-they move on while firing at you. 
+they move on while firing at you. Collect the score boosters around the map while surviving to increase your score.
+
 
 Controls:
 Up - Move spaceship up
@@ -25,10 +27,12 @@ Right - Move spaceship right
 Start - Pause/View Scores
 
 Scoring:
-Every level that you pass adds one to your score.
+Every level that you pass adds 100 to your score and every score booster you collect adds the amount it says to
+your score.
 
 Tips:
 - Don't stay in one spot for too long; it will lead to sticky situations.
+- Prioritze the higher value score boosters
 
 Credits:
 - HalloSpaceBoy: Original Game Design and Programming

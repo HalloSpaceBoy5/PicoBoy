@@ -1,589 +1,499 @@
-# Original game designed for the PicoBoy by HalloSpaceBoy
-from os import rename
-from PicoGameBoy import PicoGameBoy
-from rpmidi import RPMidi
-rename("main.py","/Starship/Starship.py")
-rename("title.py","main.py")
-del rename
-pgb=PicoGameBoy()
-starship=bytearray(b'1\x861\x861\x86\x00\x001\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x86\x00\x001\x861\x861\x861\x861\x861\x86\x00\x001\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x86\x00\x001\x861\x861\x861\x861\x86\x00\x00\xff\xff\x00\x001\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x86\x00\x00\xff\xff\x00\x001\x861\x861\x861\x86\x00\x00\xff\xff\x00\x001\x861\x861\x861\x861\x861\x861\x86\x00\x001\x861\x861\x861\x861\x861\x861\x86\x00\x00\xff\xff\x00\x001\x861\x861\x86\x00\x00\xff\xff\xff\xff\xff\xff\x00\x001\x861\x861\x861\x861\x86\x00\x00\x05^\x00\x001\x861\x861\x861\x861\x86\x00\x00\xff\xff\xff\xff\xff\xff\x00\x001\x861\x86\x00\x00\xff\xff\xff\xff\xff\xff\x00\x001\x861\x861\x861\x861\x86\x00\x00\x05^\x00\x001\x861\x861\x861\x861\x86\x00\x00\xff\xff\xff\xff\xff\xff\x00\x001\x861\x86\x00\x00\xff\xff\xff\xff\xff\xff\x00\x001\x861\x861\x861\x86\x00\x00\x05^\x05^\x05^\x00\x001\x861\x861\x861\x86\x00\x00\xff\xff\xff\xff\xff\xff\x00\x001\x86\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x001\x861\x861\x86\x00\x00\x05^\x00\x00\x05^\x00\x001\x861\x861\x86\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\x9c\xf3\x00\x001\x861\x86\x00\x00\x05\xdf\x00\x00\x05^\x00\x00\x05\xdf\x00\x001\x861\x86\x00\x00\x9c\xf3\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\x9c\xf3\x9c\xf3\x00\x001\x86\x00\x00\x00\x00\x05^\x05^\x05^\x00\x00\x00\x001\x86\x00\x00\x9c\xf3\x9c\xf3\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\x9c\xf3\x9c\xf3\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x9c\xf3\x9c\xf3\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\x00\x00\xff\xff\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\xff\xff\x00\x00\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\x00\x00\xff\xff\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\xff\xff\x00\x00\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\xff\xff\x00\x00\xff\xff\xff\xff\x00\x00\xff\xff\x00\x00\xff\xff\xff\xff\x00\x00\xff\xff\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\x00\x00\x00\x00\x00\x00\x9c\xf3\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\xff\xff\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\xff\xff\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\x9c\xf3\x00\x00\x00\x00\x9c\xf3\x00\x00\x00\x00\x9c\xf3\x9c\xf3\x00\x00\xff\xff\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\xff\xff\x00\x00\x9c\xf3\x9c\xf3\x00\x00\x00\x00\x9c\xf3\x00\x00\x00\x00\x9c\xf3\x00\x00\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\xff\xff\xff\xff\x00\x00\xff\xff\x00\x00\xff\xff\xff\xff\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\x00\x00\x9c\xf3\x00\x00\x00\x00\x9c\xf3\x00\x00\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\xff\xff\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\xff\xff\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\x00\x00\x9c\xf3\x00\x00\x00\x00\x9c\xf3\x00\x00\xff\xff\x00\x00\x00\x00\x00\x00\xff\xff\x00\x00\xff\xff\x00\x00\xff\xff\xff\xff\xff\xff\x00\x00\xff\xff\x00\x00\xff\xff\x00\x00\x00\x00\x00\x00\xff\xff\x00\x00\x9c\xf3\x00\x00\x00\x00\x9c\xf3\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\x00\x00\x9c\xf3\x00\x00\x00\x00\x9c\xf3\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x9c\xf3\x00\x00\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\x00\x001\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x86\x00\x00\x00\x00\x9c\xf3\x9c\xf3\x9c\xf3\x9c\xf3\x00\x00\x00\x00\x9c\xf3\x9c\xf3\x00\x00\x00\x001\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x86\x00\x00\x00\x00\x9c\xf3\x9c\xf3\x00\x00\x00\x00\x00\x00\x00\x001\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x86\x00\x00\x00\x00\x00\x00')
-#OS Version detection
-try:
-    f=RPMidi(pgb)
-    del f
-except:
-    while True:
-        if pgb.button_Home():
-            homebootstop=open("/noboot", "w")
-            homebootstop.close()
-            pgb.fill(PicoGameBoy.color(0,0,0))
-            pgb.show()
-            machine.reset()
-            break
-        pgb.fill(PicoGameBoy.color(0,0,0))
-        pgb.create_text("Update your OS!",-1,25,PicoGameBoy.color(255,255,255))
-        pgb.create_text("Update your PicoBoy",-1,140,PicoGameBoy.color(255,255,255))
-        pgb.create_text("to play this game.",-1,150,PicoGameBoy.color(255,255,255))
-        pgb.show()
-pgb.add_sprite(starship, 25,25,1)
-pgb.add_sprite(starship,25,25,3)
-pgb.add_sprite(starship,25,25,4)
-pgb.add_sprite(starship,25,25,2)
-del starship
-enemy=bytearray(b'1\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x86\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x001\x861\x861\x861\x86\x00\x00{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf\x00\x00\xa5\x14\xa5\x14\x00\x00\x00\x001\x861\x861\x861\x86\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xa5\x14\xa5\x14\xa5\x14\x00\x00\x00\x001\x861\x861\x861\x86\x00\x00{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf\x00\x00\xa5\x14\xa5\x14\xa5\x14\x00\x00{\xcf\x00\x001\x861\x861\x861\x86\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xa5\x14\xa5\x14\xa5\x14\xa5\x14\x00\x00{\xcf\x00\x001\x861\x861\x861\x86\x00\x00\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00{\xcf{\xcf\x00\x001\x861\x861\x861\x86\x00\x00\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00R\xaaR\xaaR\xaaR\xaa\x00\x00{\xcf{\xcf\x00\x001\x861\x861\x861\x86\x00\x00\xa5\x14\xa5\x14\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x81\xa6\x81\xa6\x81\xa6\x81\xa6\x00\x00R\xaaR\xaaR\xaaR\xaa\x00\x00{\xcf{\xcf\x00\x001\x86\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xd9$\xd9$\xd9$\x00\x00\x81\xa6\x81\xa6\x81\xa6\x81\xa6\x00\x00R\xaaR\xaaR\xaaR\xaa\x00\x00{\xcf{\xcf\x00\x001\x86\x00\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\x00\x00\xd9$\xd9$\xd9$\x00\x00\x81\xa6\x81\xa6\x81\xa6\x81\xa6\x00\x00R\xaaR\xaaR\xaaR\xaa\x00\x00{\xcf{\xcf\x00\x001\x86\x00\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\x00\x00\xd9$\xd9$\xd9$\x00\x00\x81\xa6\x81\xa6\x81\xa6\x81\xa6\x00\x00R\xaaR\xaaR\xaaR\xaa\x00\x00{\xcf{\xcf\x00\x001\x86\x00\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\x00\x00\xd9$\xd9$\xd9$\x00\x00\x81\xa6\x81\xa6\x81\xa6\x81\xa6\x00\x00R\xaaR\xaaR\xaaR\xaa\x00\x00{\xcf{\xcf\x00\x001\x86\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xd9$\xd9$\xd9$\x00\x00\x81\xa6\x81\xa6\x81\xa6\x81\xa6\x00\x00R\xaaR\xaaR\xaaR\xaa\x00\x00{\xcf{\xcf\x00\x001\x861\x861\x861\x86\x00\x00\xa5\x14\xa5\x14\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x81\xa6\x81\xa6\x81\xa6\x81\xa6\x00\x00R\xaaR\xaaR\xaaR\xaa\x00\x00{\xcf{\xcf\x00\x001\x861\x861\x861\x86\x00\x00\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00R\xaaR\xaaR\xaaR\xaa\x00\x00{\xcf{\xcf\x00\x001\x861\x861\x861\x86\x00\x00\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\xa5\x14\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00{\xcf{\xcf\x00\x001\x861\x861\x861\x86\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xa5\x14\xa5\x14\xa5\x14\xa5\x14\x00\x00{\xcf\x00\x001\x861\x861\x861\x86\x00\x00{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf\x00\x00\xa5\x14\xa5\x14\xa5\x14\x00\x00{\xcf\x00\x001\x861\x861\x861\x86\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xa5\x14\xa5\x14\xa5\x14\x00\x00\x00\x001\x861\x861\x861\x86\x00\x00{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf{\xcf\x00\x00\xa5\x14\xa5\x14\x00\x00\x00\x001\x861\x861\x861\x86\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x001\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x861\x86')
-pgb.add_sprite(enemy,25,25)
-pgb.add_sprite(enemy,25,25,2)
-del enemy
-bullet=bytearray(b'1\x861\x861\x861\x861\x86\xd9$\xd9$\xd9$\xd9$\xd9$1\x861\x861\x861\x861\x861\x861\x861\x86\xd9$\xd9$\xd9$\xd9$\xd9$\xd9$\xd9$\xd9$\xd9$1\x861\x861\x861\x861\x86\xd9$\xd9$\xd9$\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xd9$\xd9$\xd9$1\x861\x861\x86\xd9$\xd9$\xd9$\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xd9$\xd9$\xd9$1\x861\x86\xd9$\xd9$\xa9\xa6\xa9\xa6\xa9\xa6\xf8\x00\xf8\x00\xf8\x00\xa9\xa6\xa9\xa6\xa9\xa6\xd9$\xd9$1\x86\xd9$\xd9$\xa9\xa6\xa9\xa6\xa9\xa6\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xa9\xa6\xa9\xa6\xa9\xa6\xd9$\xd9$\xd9$\xd9$\xa9\xa6\xa9\xa6\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xa9\xa6\xa9\xa6\xd9$\xd9$\xd9$\xd9$\xa9\xa6\xa9\xa6\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xa9\xa6\xa9\xa6\xd9$\xd9$\xd9$\xd9$\xa9\xa6\xa9\xa6\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xa9\xa6\xa9\xa6\xd9$\xd9$\xd9$\xd9$\xa9\xa6\xa9\xa6\xa9\xa6\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xf8\x00\xa9\xa6\xa9\xa6\xa9\xa6\xd9$\xd9$1\x86\xd9$\xd9$\xa9\xa6\xa9\xa6\xa9\xa6\xf8\x00\xf8\x00\xf8\x00\xa9\xa6\xa9\xa6\xa9\xa6\xd9$\xd9$1\x861\x86\xd9$\xd9$\xd9$\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xd9$\xd9$\xd9$1\x861\x861\x86\xd9$\xd9$\xd9$\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xa9\xa6\xd9$\xd9$\xd9$1\x861\x861\x861\x861\x86\xd9$\xd9$\xd9$\xd9$\xd9$\xd9$\xd9$\xd9$\xd9$1\x861\x861\x861\x861\x861\x861\x861\x86\xd9$\xd9$\xd9$\xd9$\xd9$1\x861\x861\x861\x861\x86')
-pgb.add_sprite(bullet,15,15)
-del bullet
-from time import sleep, ticks_diff, ticks_ms
-from random import randint, choice as randomchoice
-from math import sqrt
-import _thread
-from gc import collect
-currentmusic=[0000]
-rept=True
-starcoords=[]
-for i in range(75):
-    x=randint(10,200)
-    y=randint(35,210)
-    starcoords.append([x,y])
-bullets=[]
-static=[]
-followers=[]
-lives=3
-playerx=100
-playery=100
-playerwidth=25
-playerheight=25
-exitthread=False
-playerspeed=5
-bulletspeed=3
-followspeed=5
-tick=0.0001
-direction=0 #0=up, 1=down, 2=left, 3=right
-level=0
-class new_bullet:
-    def __init__(self,posx,posy,direction,pos_in_list):
-        self.posx=posx
-        self.posy=posy
-        self.direction=direction
-        self.width=10
-        self.height=10
-        self.pil=pos_in_list
-    def check_collision(self):
-        global playerx
-        global playery
-        global playerwidth
-        global playerheight
-        global playerspeed
-        cenpoint1=[self.posx+self.width/2,self.posy+self.height/2]
-        cenpoint2=[playerx+playerwidth/2,playery+playerheight/2]
-        dist=sqrt((cenpoint1[0]-cenpoint2[0])**2+(cenpoint1[1]-cenpoint2[1])**2)
-        if dist<30:
-            playerpos=[[self.posx,self.posy],[self.posx+self.width,self.posy],[self.posx,self.posy+self.height],[self.posx+self.width,self.posy+self.height]]
-            colliderpos=[[playerx,playery],[playerx+playerwidth, playery],[playerx,playery+playerheight],[playerx+playerwidth,playery+playerheight]]
-            if (playerpos[0][0]>colliderpos[0][0] or playerpos[1][0]>colliderpos[0][0]) and (playerpos[0][0]<colliderpos[1][0] or playerpos[1][0]<colliderpos[1][0]) and self.posy<colliderpos[0][1] and self.posy>colliderpos[0][1]-(playerspeed*2):
-                return True
-            elif (playerpos[0][0]>colliderpos[0][0] or playerpos[1][0]>colliderpos[0][0]) and (playerpos[0][0]<colliderpos[1][0] or playerpos[1][0]<colliderpos[1][0]) and self.posy>colliderpos[0][1] and self.posy<colliderpos[0][1]+(playerspeed*2):
-                return True
-            elif (playerpos[1][1]>colliderpos[1][1] or playerpos[2][1]>colliderpos[1][1]) and (playerpos[1][1]<colliderpos[2][1] or playerpos[2][1]<colliderpos[2][1]) and self.posx>colliderpos[2][0] and self.posx<colliderpos[2][0]+(playerspeed*2):
-                    return True
-            elif (playerpos[1][1]>colliderpos[1][1] or playerpos[2][1]>colliderpos[1][1]) and (playerpos[1][1]<colliderpos[2][1] or playerpos[2][1]<colliderpos[2][1]) and self.posx<colliderpos[2][0] and self.posx>colliderpos[2][0]-(playerspeed*2):
-                    return True
-    def update(self):
-        global pgb
-        global bulletspeed
-        global bullets
-        global lives
-        if self.direction=="left":
-            if self.posx<0:
-                bullets.remove(self)
-                del self
-                return
-            self.posx=self.posx-int(bulletspeed)
-        elif (self.direction=="down"):
-            if self.posy>=210-self.height:
-                try:
-                    bullets.remove(self)
-                    del self
-                except:
-                    ""
-                return
-            self.posy=self.posy+int(bulletspeed)
-        pgb.sprite(6,self.posx,self.posy)
-        if self.check_collision():
-            try:
-                bullets.remove(self)
-            except:
-                "no bullet"
-            lives=lives-1
-            lfreq=-100
-            for i in range(500):
-                pgb.sound(500)
-                pgb.sound(1500)
-            pgb.sound(0)
-            for i in bullets:
-                del i
-            bullets=[]
-class enemy:
-    def __init__(self, posx, posy, axis, delay,idd):
-        self.posx=posx
-        self.posy=posy
-        self.axis=axis
-        self.delay=delay
-        self.counter=0
-        self.idd=idd
-    def update(self):
-        global bullets
-        global playerx
-        global playery
-        global followspeed
-        if self.idd==0:
-            if self.axis==0:
-                pgb.sprite(5, self.posx, self.posy)
-                if self.counter % self.delay == 0:
-                    if len(bullets)-1<=0:
-                        tlen=0
-                    else:
-                        tlen=len(bullets)-1
-                    newB=new_bullet(self.posx+5, self.posy+35, "down", tlen)
-                    bullets.append(newB)
-            if self.axis==1:
-                pgb.sprite(4, self.posx, self.posy)
-                if self.counter % self.delay == 0:
-                    if len(bullets)-1<=0:
-                        tlen=0
-                    else:
-                        tlen=len(bullets)-1
-                    newB = new_bullet(self.posx-25, self.posy+5, "left", tlen)
-                    bullets.append( newB )
-            self.counter=self.counter+1
-        if self.idd==1:
-            if self.axis==0:
-                if self.posx<playerx:
-                    self.posx=self.posx+followspeed
-                if self.posx>playerx:
-                    self.posx=self.posx-followspeed
-                pgb.sprite(5, self.posx, self.posy)
-                if self.counter % self.delay == 0:
-                    if len(bullets)-1<=0:
-                        tlen=0
-                    else:
-                        tlen=len(bullets)-1
-                    newB=new_bullet(self.posx+5, self.posy+35, "down", tlen)
-                    bullets.append(newB)
-            if self.axis==1:
-                if self.posy<playery:
-                    self.posy=self.posy+followspeed
-                if self.posy>playery:
-                    self.posy=self.posy-followspeed
-                pgb.sprite(4, self.posx, self.posy)
-                if self.counter % self.delay == 0:
-                    if len(bullets)-1<=0:
-                        tlen=0
-                    else:
-                        tlen=len(bullets)-1
-                    newB = new_bullet(self.posx-25, self.posy+5, "left", tlen)
-                    bullets.append( newB )
-            self.counter=self.counter+1
-def play_music():
-    global midi
-    global rept
-    global currentmusic
-    global exitthread
-    midi=RPMidi(pgb)
-    while True:
-        if exitthread:
-            exitthread=False
-            _thread.exit()
-        if not currentmusic==[0000]:
-            if rept and not currentmusic==[0000]:
-                while rept and not currentmusic==[0000]:
-                    midi.play_song(currentmusic)
-            else:
-                midi.play_song(currentmusic)
-                currentmusic=[0000]
-        sleep(tick)
-def no_music():
-    global currentmusic
-    global rept
-    global midi
-    rept=False
-    currentmusic=[0000]
-    midi.stop_all_music()
-    midi.stop_all()
-def new_level():
-    global direction
-    global playerx
-    global playery
-    global level
-    global tick
-    global musicthread
-    global currentmusic
-    global rept
-    global ls
-    global starcoords
-    global followers
-    global exitthread
-    global static
-    global bullets
-    playerx=100
-    playery=100
-    no_music()
-    tps=1/tick
-    aot=randint(15,20)
-    counter=1
-    level=level+1
-    for i in followers:
-        del i
-    for i in static:
-        del i
-    for i in bullets:
-        del i
-    followers=[]
-    static=[]
-    bullets=[]
-    lastaxs=-1
-    axis=-2
-    if level<=10:
-        s=4
-    elif level<=20:
-        s=5
-    else:
-        s=6
-    for i in range(s):
-        while axis==lastaxs:
-            axis=randint(0,1)
-        lastaxs=axis
-        if axis==0:
-            x=randint(10,180)
-            y=0
-            static.append(enemy(x,y,axis,randint(40,80),0))
-        elif axis==1:
-            x=215
-            y=randint(45,180)
-            static.append(enemy(x,y,axis,randint(40,80),0))
-    for i in range(2):
-        while axis==lastaxs:
-            axis=randint(0,1)
-        lastaxs=axis
-        if axis==0:
-            x=randint(10,160)
-            y=0
-            followers.append(enemy(x,y,axis,randint(40,80),1))
-        elif axis==1:
-            x=215
-            y=randint(45,205)
-            followers.append(enemy(x,y,axis,randint(40,80),1))
-    while True:
-        musicchoice=randint(0,2)
-        if not musicchoice==ls:
-            ls=musicchoice
-            break
-    while True:
-        rept=True
-        if musicchoice==0:
-            currentmusic=[0x90,48, 0x91,72, 1,228, 0x81, 0,5, 0x80, 0,10, 0x90,47, 1,234, 0x80, 0,10, 0x90,46, 0x91,75, 1,234, 0x80, 
-0x81, 0,16, 0x90,45, 0,234, 0x80, 0,10, 0x90,47, 0,235, 0x80, 0,15, 0x90,48, 0x91,72, 1,234, 0x80, 0x81, 0,10, 
-0x90,47, 1,229, 0x80, 0,15, 0x90,46, 0x91,70, 1,234, 0x80, 0x81, 0,16, 0x90,45, 0x91,70, 0,229, 0x80, 0,5, 
-0x81, 0,10, 0x90,47, 0x91,71, 0,250, 0x80, 0x81, 0xF0]
-        elif musicchoice==1:
-            currentmusic=[0x90,72, 0x91,48, 1,238, 0x80, 0x81, 0,5, 0x90,49, 0x91,73, 1,234, 0x80, 0x81, 0,10, 0x90,47, 0x91,76, 0,245, 
-0x81, 0,5, 0x91,75, 0,245, 0x80, 0x81, 0,5, 0x90,46, 1,234, 0x80, 0,10, 0x90,48, 0x91,72, 1,234, 0x81, 0,5, 
-0x80, 0,5, 0x90,49, 0x91,73, 1,234, 0x80, 0x81, 0,10, 0x90,47, 0x91,76, 0,245, 0x81, 0,11, 0x91,75, 0,234, 
-0x80, 0,5, 0x81, 0,5, 0x90,46, 0,6, 0x91,74, 0,239, 0x81, 0,5, 0x91,73, 0,250, 0x80, 0x81, 0xF0]
-        else:
-            currentmusic=[0x90,60, 0x91,72, 0,114, 0x81, 0,135, 0x91,72, 0,115, 0x81, 0,10, 0x91,72, 0,115, 0x80, 0x81, 0,10, 0x90,65, 
-0x91,77, 1,234, 0x80, 0x81, 0,10, 0x90,60, 0,250, 0x91,72, 0,115, 0x81, 0,10, 0x91,72, 0,115, 0x80, 0x81, 0,10, 
-0x90,63, 0x91,77, 1,234, 0x80, 0x81, 0,10, 0x90,60, 0x91,72, 0,115, 0x81, 0,135, 0x91,72, 0,115, 0x81, 0,10, 
-0x91,72, 0,115, 0x80, 0x81, 0,10, 0x90,65, 0x91,77, 1,234, 0x80, 0x81, 0,10, 0x90,65, 1,5, 0x91,77, 0,229, 
-0x80, 0x81, 0,16, 0x90,72, 0,5, 0x91,67, 0,104, 0x80, 0,10, 0x90,72, 0,115, 0x80, 0,10, 0x90,79, 0,250, 
-0x80, 0x81, 0xF0]
-        try:
-            collect()
-            _thread.start_new_thread(play_music, ())
-        except:
-            "Already running"
-        if lives==0:
-            return False
-        if pgb.button_Home():
-            homebootstop=open("/noboot", "w")
-            homebootstop.close()
-            pgb.fill(PicoGameBoy.color(0,0,0))
-            pgb.show()
-            machine.reset()
-            break
-        pgb.fill(PicoGameBoy.color(48,48,48))
-        pgb.create_text(str(lives),225,10,PicoGameBoy.color(255,255,255))
-        pgb.fill_rect(0,25,240,10,PicoGameBoy.color(175,175,175))
-        pgb.fill_rect(0,215,240,10,PicoGameBoy.color(175,175,175))
-        pgb.fill_rect(205,0,10,215,PicoGameBoy.color(175,175,175))
-        for star in starcoords:
-            pgb.fill_rect(star[0],star[1],1,1,PicoGameBoy.color(255,255,255))
-        pgb.create_text("Level: "+str(level),150,228,PicoGameBoy.color(255,255,255))
-        counter=counter+1
-        if counter%(15)==0:
-            aot=aot-1
-        if aot<10:
-            aotstr="0"+ str(aot)
-        else:
-            aotstr=str(aot)
-        pgb.create_text("Time: "+aotstr,25,228,PicoGameBoy.color(255,255,255))
-        if aot==0:
-            return True
-        for e in static:
-            e.update()
-        for e in followers:
-            e.update()
-        for bullet in bullets:
-            bullet.update()
-        if pgb.button_up() and playery>35:
-            playery=playery-playerspeed
-            direction=0
-        elif pgb.button_down() and playery<215-playerheight:
-            playery=playery+playerspeed
-            direction=1
-        elif pgb.button_left() and playerx>0:
-            playerx=playerx-playerspeed
-            direction=2
-        elif pgb.button_right() and playerx<205-playerwidth:
-            playerx=playerx+playerspeed
-            direction=3
-        pgb.sprite(direction,playerx,playery)
-        if pgb.button_start():
-                no_music()
-                currentmusic=[0000]
-                exitthread=True
-                pgb.fill_rect(10,90,220,80,PicoGameBoy.color(0,0,0))
-                pgb.center_text("Game Paused",PicoGameBoy.color(255,255,255))
-                pgb.create_text("Press Start to resume", -1, 135, PicoGameBoy.color(255,255,255))
-                pgb.show()
-                sleep(0.5)
-                while True:
-                    pgb.fill_rect(10,90,220,80,PicoGameBoy.color(0,0,0))
-                    pgb.center_text("Game Paused",PicoGameBoy.color(255,255,255))
-                    pgb.create_text("Press Start to resume", -1, 135, PicoGameBoy.color(255,255,255))
-                    pgb.show()
-                    if pgb.button_Home():
-                        homebootstop=open("/noboot", "w")
-                        homebootstop.close()
-                        pgb.fill(PicoGameBoy.color(0,0,0))
-                        pgb.show()
-                        machine.reset()
-                        break
-                    if pgb.button_start():
-                        sleep(0.5)
-                        break
-                    sleep(tick)
-        pgb.show()
-        sleep(tick)
+from PicoBoySDK import PicoBoySDK, MusicBoxObject
+from random import randint, choice
+from math import ceil
+from time import sleep, ticks_ms, ticks_diff
+from array import array
 
-rept=True
-currentmusic=[0x90,48, 0x91,72, 1,244, 0x90,48, 0x91,74, 0,250, 0x90,51, 0,250, 0x92,72, 0x81, 0,250, 0x90,70, 0x82, 0,250, 
-0x80, 1,244, 0x90,51, 0x91,72, 1,244, 0x90,51, 0x91,74, 0,250, 0x92,48, 0x80, 0,250, 0x90,73, 0x81, 0,250, 0x91,72, 
-0x80, 0x82, 0,250, 0x90,71, 0x81, 0,250, 0x91,70, 0x80, 0,250, 0x81, 0xF0]
-now = ticks_ms()
+
+PicoBoy=PicoBoySDK("Starship",0.01)
 try:
-    collect()
-    _thread.start_new_thread(play_music, ())
+    PicoBoy.Line(0,0,1,1,(0,0,0))
 except:
-    "Already running"
+    PicoBoy.Fill_Screen((0,0,0))
+    PicoBoy.Create_Text("This game requires",-1,20,(255,255,255))
+    PicoBoy.Create_Text("at least PBOS V3.1",-1, 35,(255,255,255))
+    PicoBoy.Create_Text("Press Home to quit.",-1,220,(255,255,255))
+    while True:
+        PicoBoy.Update(noclear=True)
+    
+MusicBox=MusicBoxObject(PicoBoy,1)
+bulletsprite=PicoBoy.Load_Sprite("bullet.sprt",7,7)
+playersprites=[PicoBoy.Load_Sprite("starship_up.sprt",17,17),PicoBoy.Load_Sprite("starship_down.sprt",17,17),PicoBoy.Load_Sprite("starship_left.sprt",17,17),PicoBoy.Load_Sprite("starship_right.sprt",17,17)]
+enemysprites=[PicoBoy.Load_Sprite("enemy_left.sprt",17,17),PicoBoy.Load_Sprite("enemy_down.sprt",17,17)]
+playerboundtop=27
+playerboundright=27
+playerboundbottom=23
+score=0
+level=1
+musicchoice=-1
+starcoords=[]
+for i in range(100):
+    starcoords.append((randint(0,240-playerboundright),randint(playerboundtop,240-playerboundbottom)))
+
+def init():
+    global Playerx,Playery,Playerspeed,Playerdirection,level,score,time,bulletlist,enemlist,lives,frameshift,slist,musicchoice
+    Playerx,Playery=randint(playerboundtop,240-playerboundbottom-17),randint(0,240-playerboundright-17)
+    Playerspeed=5
+    Playerdirection=0 #0,1,2,3 = up,down,left,right
+    bulletlist=[]
+    enemlist=[]
+    slist=[]
+    frameshift=0
+    lives=3+int(level/10)
+    time=randint(15+int(level/2),20+int(level/2))
+    while True:
+        nmc=randint(0,2)
+        if not nmc==musicchoice:
+            break
+    MusicBox.Stop_Song()
+    MusicBox.Change_Mode(1)
+    if nmc==0:
+        MusicBox.Play_Song("game_theme.pbs")
+    elif nmc==1:
+        MusicBox.Play_Song("game_theme2.pbs")
+    else:
+        MusicBox.Play_Song("game_theme3.pbs")
+    musicchoice=nmc
+
+def check_player():
+    global Playerx,Playery,Playerdirection
+    if PicoBoy.Button("Up"):
+        if Playery>playerboundtop:
+            Playery-=Playerspeed
+        Playerdirection=0
+    elif PicoBoy.Button("Down"):
+        if Playery<240-playerboundbottom-17:
+            Playery+=Playerspeed
+        Playerdirection=1
+    elif PicoBoy.Button("Left"):
+        if Playerx>0:
+            Playerx-=Playerspeed
+        Playerdirection=2
+    elif PicoBoy.Button("Right"):
+        if Playerx<240-playerboundright-17:
+            Playerx+=Playerspeed
+        Playerdirection=3
+    if Playery<playerboundtop:
+        Playery=playerboundtop
+    if Playery>240-playerboundbottom-17:
+        Playery=240-playerboundbottom-17
+    if Playerx<0:
+        Playerx=0
+    if Playerx>240-playerboundright-17:
+        Playerx=240-playerboundright-17
+    PicoBoy.Render_Sprite(playersprites[Playerdirection],Playerx+frameshift,Playery)
+        
+def gen_enemies():
+    scale=1
+    if level>4:
+        g=False
+        if level<10 and not g:
+            c=randint(int(1*ceil(scale/1)),int(2*ceil(scale/1)))
+            g=True
+        if level<20 and not g:
+            c=randint(int(1*ceil(scale/1)),int(3*ceil(scale/1)))
+            g=True
+        if level<40 and not g:
+            c=randint(int(1*ceil(scale/1)),int(4*ceil(scale/1)))
+            g=True
+        if level>=40:
+            c=randint(int(2*ceil(scale/1)),int(4*ceil(scale/1)))
+        w=randint(15+abs(5-int(level/10)),25+abs(10-int(level/10)))
+        if w>100:
+            w=randint(100,120)
+        enemlist.append(enemy(223,100,1,0,c,w))
+        w=randint(15+abs(5-int(level/10)),25+abs(10-int(level/10)))
+        if w>100:
+            w=randint(100,120)
+        enemlist.append(enemy(100,0,1,1,c,w))
+    else:
+        w=randint(60+int(5*level),90+int(5*level))
+        if w>100:
+            w=randint(100,120)
+        enemlist.append(enemy(223,100,1,randint(0,1),randint(int(1*scale),int(2*scale)),w))
+    a=choice([True, False])
+    pastx=[]
+    pasty=[]
+    right=0
+    top=0
+    num=randint(2+int(level/6),3+int(level/6))
+    for i in range(num):
+        if a:
+            top+=1
+            a=not a
+        else:
+            right+=1
+            a=not a
+    top=int(top)
+    right=int(right)
+    for i in range(top):
+        g=False
+        if level<10 and not g:
+            c=randint(1,2)
+            g=True
+        if level<20 and not g:
+            c=randint(2,3)
+            g=True
+        if level<40 and not g:
+            c=randint(2,4)
+            g=True
+        if level>=40:
+            c=randint(2,4)
+        count=0
+        while True:
+            if count==10000:
+                break
+            count+=1
+            coo=randint(10,240-45)
+            val=True
+            for value in enemlist:
+                if PicoBoy.Check_Collision(coo-8,0,34,17,value.x,value.y,17,17,1,1):# pygame.Rect(coo-16,0,64,32).colliderect(value.rect):
+                    val=False
+            if val:
+                break
+        w=randint(10+abs(5-int(level/10)),20+abs(10-int(level/10)))
+        if w>100:
+            w=randint(100,120)
+        enemlist.append(enemy(coo,0,0,1,c,w))
+        pastx.append(coo)
+        if int((240-100)/32)-len(pastx)<0:
+            break
+    for i in range(right):
+        g=False
+        if level<10 and not g:
+            c=randint(1,2)
+            g=True
+        if level<20 and not g:
+            c=randint(2,3)
+            g=True
+        if level<40 and not g:
+            c=randint(2,4)
+            g=True
+        if level>=40:
+            c=randint(2,4)
+        count=0
+        while True:
+            if count==100000:
+                break
+            count+=1
+            coo=randint(61,240-50)
+            val=True
+            for value in enemlist:
+                if PicoBoy.Check_Collision(207,coo,17,17,value.x,value.y,17,17,1,1):# pygame.Rect(swidth-33,coo,32,32).colliderect(value.rect):
+                    val=False
+            if val:
+                break
+        w=randint(10+abs(5-int(level/10)),20+abs(10-int(level/10)))
+        if w>100:
+            w=randint(100,120)
+        enemlist.append(enemy(223,coo,0,0,c,w))
+        pasty.append(coo)
+        if int((240-111)/32)-len(pasty)<0:
+            break
+
+class enemy:
+    def __init__(self,x,y,typ,direction,speed,firerate):
+        self.counter=-1
+        self.firerate=firerate
+        self.speed=Playerspeed-1
+        self.firespeed=speed
+        self.x=x
+        self.y=y
+        self.direction=direction
+        self.type=typ
+        if typ==1:
+            if direction==0:
+                self.x=240-17
+                self.y=100
+            else:
+                self.x=100
+                self.y=0
+        else:
+            if direction==0:
+                self.x=240-17
+            else:
+                self.y=0
+        
+    def update(self):
+        self.counter+=1
+        if self.type==1:
+            if self.direction==1:
+                if self.x>Playerx:
+                    self.x-=self.speed
+                if self.x<Playerx:
+                    self.x+=self.speed
+                if self.counter%self.firerate==0:
+                    bulletlist.append(bullet(self.x+5,self.y+17,self.firespeed,self.direction))
+            if self.direction==0:
+                if self.y>Playery:
+                    self.y-=self.speed
+                if self.y<Playery:
+                    self.y+=self.speed
+                if self.counter%self.firerate==0:
+                    bulletlist.append(bullet(self.x-10,self.y+5,self.firespeed,self.direction))
+        if self.type==0:
+            if self.direction==1:
+                if self.counter%self.firerate==0:
+                    bulletlist.append(bullet(self.x+5,self.y+17,self.firespeed,self.direction))
+            else:
+                if self.counter%self.firerate==0:
+                    bulletlist.append(bullet(self.x-10,self.y+5,self.firespeed,self.direction))
+        PicoBoy.Render_Sprite(enemysprites[self.direction],self.x+frameshift,self.y)
+
+class bullet:
+    def __init__(self, x, y, speed, direction):
+        self.x=x
+        self.y=y
+        self.speed=speed
+        self.direction=direction
+    
+    def update(self):
+        global bulletsprite,lives,frameshift,sfxcounter
+        if self.direction==0:
+            self.x-=self.speed
+            if self.x<-17:
+                bulletlist.remove(self)
+                return
+        if self.direction==1:
+            self.y+=self.speed
+            if self.y>240-playerboundbottom:
+                bulletlist.remove(self)
+                return
+        if PicoBoy.Check_Collision(Playerx+frameshift,Playery+8,17,10,self.x+frameshift,self.y,7,7,0,1):
+            lives-=1
+            bulletlist.remove(self)
+            frameshift=10
+            for i in range(350):
+                PicoBoy.Play_Sound(randint(5000,10000),4)
+            PicoBoy.Stop_Sound(4)
+            return
+        PicoBoy.Render_Sprite(bulletsprite,self.x+frameshift,self.y)
+
+class scoreboost:
+    def __init__(self,x,y,amt):
+        self.amt=amt
+        self.x=x
+        self.y=y
+        self.gotten=False
+        self.counter=0
+        
+    def update(self):
+        global score
+        if self.gotten:
+            self.counter+=1
+            PicoBoy.Create_Text("+"+str(self.amt),self.x-int(len("+"+str(self.amt))/2)*2+frameshift,self.y-4,(255,255,255))
+            if self.counter<2:
+                PicoBoy.Play_Sound(530,4)
+            elif self.counter<5:
+                PicoBoy.Play_Sound(650,4)
+            if self.counter==6:
+                PicoBoy.Stop_Sound(4)
+            if self.counter%50==0:
+                slist.remove(self)
+                return
+        else:
+            if PicoBoy.Check_Collision(self.x-10+frameshift,self.y-10,20,20,Playerx,Playery,17,17,Playerspeed,1):
+                score+=self.amt
+                self.gotten=True
+                PicoBoy.Play_Sound(130,4)
+            PicoBoy.ellipse(self.x+frameshift,self.y,10,10,PicoBoy.color(0,180,0),True)
+            PicoBoy.ellipse(self.x+frameshift,self.y,9,9,PicoBoy.color(100,100,100),True)
+            PicoBoy.Create_Text(str(self.amt),(self.x)-(int(len(str(self.amt))/2)*8)+frameshift,self.y-3,(255,255,255))
+        
+class timer:
+    def __init__(self):
+        self.time=0
+        self.counter=0
+        
+    def tick(self):
+        self.counter+=1
+        if self.counter%20==0:
+            self.time+=1
+        return self.time
+        
+
+def new_level():
+    global Playerx,Playery,Playerspeed,Playerdirection,level,score,time,bulletlist,enemlist,lives,frameshift,slist
+    init()
+    gen_enemies()
+    Timer=timer()
+    while True:
+        PicoBoy.Fill_Screen((48,48,48))
+        timeg=Timer.tick()
+        for s in starcoords:
+            PicoBoy.vline(s[0]+frameshift,s[1],1,PicoBoy.color(255,255,255))
+        PicoBoy.Fill_Rect(0+frameshift,19,240,8,(175,175,175))
+        PicoBoy.Fill_Rect(214+frameshift,0,8,220,(175,175,175))
+        if randint(0,25+abs(50-(level*10)))==0 and len(slist)<5:
+            while True:
+                while True:
+                    xs=randint(20,150)
+                    if not xs in range(Playerx-10,Playerx+10):
+                        break
+                while True:
+                    ys=randint(100,150)
+                    if not ys in range(Playerx-10,Playerx+10):
+                        break
+                go=True
+                #for p in powerups:
+                #    if PicoBoy.Check_Collision(xs-10,ys-10,20,20,Playerx,Playery,17,17,Playerspeed,1):
+                #       go=False
+                for p in slist:
+                    if PicoBoy.Check_Collision(xs-10,ys-10,20,20,p.x-10,p.y-10,20,20,Playerspeed,1):
+                        go=False
+                if go:
+                    break
+            slist.append(scoreboost(xs,ys,choice((10,10,10,10,10,10,10,10,10,10,25,25,25,25,25,25,25,50,50,50,50,50,75,75,75,75,99,99))))
+        check_player()
+        for s in slist:
+            s.update()
+        for e in enemlist:
+            e.update()
+        for b in bulletlist:
+            b.update()
+        PicoBoy.Fill_Rect(0+frameshift,217,240,8,(175,175,175))
+        PicoBoy.Create_Text("Score: "+str(score),240-((len("Score: "+str(score))+1)*8)+frameshift,229,(255,255,255))
+        PicoBoy.Create_Text("Time: "+str(time-timeg),8+frameshift,229,(255,255,255))
+        PicoBoy.Create_Text(str(lives),231-int(((len(str(lives))*8)/2))+frameshift,6,(255,255,255))
+        if PicoBoy.Button("Start"):
+            PicoBoy.Pause_Screen()
+        PicoBoy.Update()
+        if time-timeg<0:
+            return True
+        if lives<=0:
+            return False
+        if frameshift>0:
+            frameshift-=1
+      
+      
+blocsl=[]
+blocsr=[]
+for i in range(randint(6,8)):
+    while True:
+        c=(randint(5,48),randint(55,188))
+        cont=True
+        for f in blocsl:
+            if PicoBoy.Check_Collision(c[0],c[1],17,17,f[0],f[1],17,17,1,1):
+                cont=False
+        if cont:
+            break
+    blocsl.append(c)
+for i in range(randint(6,8)):
+    while True:
+        c=(randint(168,221),randint(55,188))
+        cont=True
+        for f in blocsr:
+            if PicoBoy.Check_Collision(c[0],c[1],17,17,f[0],f[1],17,17,1,1):
+                cont=False
+        if cont:
+            break
+    blocsr.append(c)
+MusicBox.Play_Song("main_title.pbs")
+now = ticks_ms()
 while True:
-    collect()
-    if pgb.button_Home():
-        homebootstop=open("/noboot", "w")
-        homebootstop.close()
-        pgb.fill(PicoGameBoy.color(0,0,0))
-        pgb.show()
-        machine.reset()
-        break
-    pgb.load_image("/Starship/starship_title.bin")
-    pgb.show()
+    PicoBoy.Fill_Screen((48,48,48))
+    for s in starcoords:
+        PicoBoy.vline(int(s[0]*1.2),int(s[1]*1.2-20),1,PicoBoy.color(255,255,255))
+    for c in blocsl:
+        PicoBoy.Render_Sprite(bulletsprite,c[0],c[1])
+    for c in blocsr:
+        PicoBoy.Render_Sprite(bulletsprite,c[0],c[1])
+    PicoBoy.Load_Small_Image("title.pbimg",23,20,194,25)
+    PicoBoy.Load_Small_Image("Big Starship.pbimg",80,55,83,78)
+    PicoBoy.Fill_Rect(80, 140, 5, 65, (255,255,255))
+    PicoBoy.Fill_Rect(158, 140, 5, 65, (255,255,255))
+    PicoBoy.Fill_Rect(100, 140, 5, 45, (255,255,255))
+    PicoBoy.Fill_Rect(138, 140, 5, 45, (255,255,255))
+    PicoBoy.Fill_Rect(119, 140, 5, 35, (255,255,255))
+    PicoBoy.Fill_Rect(20,215,200,20,(0,255,0))
+    PicoBoy.Fill_Rect(22,218,194,14,(0,0,0))
     if ticks_diff(ticks_ms(), now) > 200:
         now = ticks_ms()
-        pgb.create_text("HOLD A TO PLAY",-1,160,PicoGameBoy.color(255,255,255))
-        pgb.show()
+        PicoBoy.Create_Text("HOLD A TO PLAY",-1,221,(255,255,255))
+        PicoBoy.Update(noclear=True)
         while ticks_diff(ticks_ms(), now) < 200:
             sleep(0.020)
         now = ticks_ms()
-    if pgb.button_start():
-            x=open("Starship/highscoresStarship.sc", "r")
-            scores=x.read()
-            x.close()
-            del x
-            scores=scores.split("\n")
-            pgb.fill(PicoGameBoy.color(0,0,0))
-            pgb.create_text("High Scores:", -1, 15, PicoGameBoy.color(255,255,255))
-            for i in range(len(scores)):
-                pgb.create_text("Score "+str(i+1)+": Level "+str(scores[i]), -1, 50+i*15, PicoGameBoy.color(255,255,255))
-            pgb.create_text("Press B to exit", -1, 220, PicoGameBoy.color(255,255,255))
-            while True:
-                if pgb.button_B():
-                    break
-                if pgb.button_Home():
-                    homebootstop=open("/noboot", "w")
-                    homebootstop.close()
-                    pgb.fill(PicoGameBoy.color(0,0,0))
-                    pgb.show()
-                    machine.reset()
-                    break
-                pgb.show()
-    elif pgb.button_A():
+    PicoBoy.Update()
+    if PicoBoy.Button("Start"):
+        PicoBoy.Show_Scores()
+    elif PicoBoy.Button("A"):
         break
 sleep(0.25)
-ls=4
-
 while True:
     if new_level():
-            no_music()
-            collect()
-            try:
-                _thread.start_new_thread(play_music, ())
-            except:
-                "Already running"
-            currentmusic=[0x90,51, 0x91,63, 0,187, 0x92,50, 0x90,62, 0x81, 0,188, 0x91,51, 0x90,63, 0x82, 0,187, 0x91,52, 0x90,64, 0,188, 
-0x92,51, 0x91,63, 0x80, 0,187, 0x90,52, 0x91,64, 0x82, 0,188, 0x90,53, 0x91,65, 0,62, 0x90,53, 0x91,65, 0,63, 
-0x90,53, 0x91,65, 0,62, 0x90,53, 0x91,65, 0,63, 0x90,53, 0x91,65, 0,62, 0x90,53, 0x91,65, 0,63, 0x80, 0x81, 
-0xF0]
-            lives=3
-            bulletspeed+=.25
-            for i in followers:
-                del i
-            for i in static:
-                del i
-            for i in bullets:
-                del i
-            followers=[]
-            static=[]
-            bullets=[]
-            pgb.fill(PicoGameBoy.color(0,0,0))
-            pgb.rect(70,20,100,80,PicoGameBoy.color(255,255,255))
-            pgb.fill_rect(90, 30,10,10,PicoGameBoy.color(255,255,255))
-            pgb.fill_rect(140, 30,10,10,PicoGameBoy.color(255,255,255))
-            pgb.rect(90,60,60,20,PicoGameBoy.color(255,255,255))
-            pgb.line(90,60,150,60,PicoGameBoy.color(0,0,0))
-            pgb.create_text("Level Clear!",-1,125,PicoGameBoy.color(255,255,255))
-            pgb.create_text("Press A to play",-1, 145, PicoGameBoy.color(255,255,255))
-            pgb.create_text("the next level",-1, 160, PicoGameBoy.color(255,255,255))
-            pgb.create_text("Press home to quit.", -1, 180, PicoGameBoy.color(255,255,255))
-            pgb.create_text("Level: "+str(level),-1,200,PicoGameBoy.color(255,255,255))
-            pgb.show()
+            score+=100
+            MusicBox.Change_Mode(0)
+            MusicBox.Stop_Song()
+            MusicBox.Play_Song("level_clear.pbs")
+            PicoBoy.fill(PicoBoy.color(48,48,48))
+            for s in starcoords:
+                PicoBoy.vline(int(s[0]*1.2),int(s[1]*1.2-20),1,PicoBoy.color(255,255,255))
+            PicoBoy.Create_Text("Level Clear!",-1,20,(255,255,255))
+            PicoBoy.Load_Small_Image("Big Starship.pbimg",80,45,83,78)
+            PicoBoy.Create_Text("Press A to play",-1, 145, (255,255,255))
+            PicoBoy.Create_Text("the next level",-1, 160, (255,255,255))
+            PicoBoy.Create_Text("Press home to quit.", -1, 180, (255,255,255))
+            PicoBoy.Create_Text("Level: "+str(level),-1,200,(255,255,255))
+            PicoBoy.Create_Text("Score: "+str(score), -1, 217, (255,255,255))
+            PicoBoy.Update(score)
             while True:
-                if pgb.button_Home():
-                    with open("Starship/highscoresStarship.sc", "r") as s:
-                        scores=s.read().split("\n")
-                        for r in range(len(scores)):
-                            scores[r]=int(scores[r])
-                    newscores=scores
-                    newscores.append(int(level))
-                    newscores.sort(reverse=True)
-                    for i in range(len(newscores)): newscores[i]=str(newscores[i])
-                    with open("Starship/highscoresStarship.sc", "w+") as w:
-                        w.write("\n".join(newscores[:10]))
-                    del newscores
-                    del scores
-                    homebootstop=open("/noboot", "w")
-                    homebootstop.close()
-                    pgb.fill(PicoGameBoy.color(0,0,0))
-                    pgb.show()
-                    machine.reset()
-                    break
-                elif pgb.button_A():
-                    no_music()
+                PicoBoy.fill(PicoBoy.color(48,48,48))
+                for s in starcoords:
+                    PicoBoy.vline(int(s[0]*1.2),int(s[1]*1.2-20),1,PicoBoy.color(255,255,255))
+                PicoBoy.Create_Text("Level Clear!",-1,20,(255,255,255))
+                PicoBoy.Load_Small_Image("Big Starship.pbimg",80,45,83,78)
+                PicoBoy.Create_Text("Press A to play",-1, 145, (255,255,255))
+                PicoBoy.Create_Text("the next level",-1, 160, (255,255,255))
+                PicoBoy.Create_Text("Press home to quit.", -1, 180, (255,255,255))
+                PicoBoy.Create_Text("Level: "+str(level),-1,200,(255,255,255))
+                PicoBoy.Create_Text("Score: "+str(score), -1, 217, (255,255,255))
+                PicoBoy.Update(score)
+                if PicoBoy.Button("A"):
+                    level+=1
                     break
     else:
-        no_music()
-        collect()
-        try:
-            _thread.start_new_thread(play_music, ())
-        except:
-            "Already running"
-        currentmusic=[0x90,45, 0x91,48, 1,119, 0x80, 0x81, 0,250, 0x90,44, 0x91,47, 1,119, 0x80, 0x81, 0,250, 0x90,43, 0x91,46, 1,119, 
-0x80, 0x81, 1,119, 0x90,41, 0x91,44, 0,62, 0x90,41, 0x91,44, 0,63, 0x90,41, 0x91,44, 0,62, 0x90,41, 0x91,44, 
-0,63, 0x90,41, 0x91,44, 0,62, 0x90,41, 0x91,44, 0,63, 0x90,41, 0x91,44, 0,62, 0x90,41, 0x91,44, 0,63, 
-0x90,41, 0x91,44, 0,62, 0x90,41, 0x91,44, 0,63, 0x90,41, 0x91,44, 0,62, 0x90,41, 0x91,44, 0,63, 0x90,41, 
-0x91,44, 0,62, 0x90,41, 0x91,44, 0,63, 0x90,41, 0x91,44, 0,62, 0x90,41, 0x91,44, 0,63, 0x80, 0x81, 0xF0]
-        for i in followers:
-            del i
-        for i in static:
-            del i
-        for i in bullets:
-            del i
-        bulletspeed=3
-        followers=[]
-        static=[]
-        bullets=[]
-        lives=3
-        with open("Starship/highscoresStarship.sc", "r") as s:
-            scores=s.read().split("\n")
-            for r in range(len(scores)):
-                scores[r]=int(scores[r])
-        newscores=scores
-        newscores.append(int(level))
-        newscores.sort(reverse=True)
-        for i in range(len(newscores)): newscores[i]=str(newscores[i])
-        with open("Starship/highscoresStarship.sc", "w+") as w:
-            w.write("\n".join(newscores[:10]))
-        del newscores
-        del scores
-        pgb.sound(0)
-        pgb.fill(PicoGameBoy.color(0,0,0))
-        pgb.rect(70,20,100,80,PicoGameBoy.color(255,255,255))
-        pgb.fill_rect(90, 30,10,10,PicoGameBoy.color(255,255,255))
-        pgb.fill_rect(140, 30,10,10,PicoGameBoy.color(255,255,255))
-        pgb.rect(90,60,60,20,PicoGameBoy.color(255,255,255))
-        pgb.line(90,79,150,79,PicoGameBoy.color(0,0,0))
-        pgb.create_text("Game Over",-1,125,PicoGameBoy.color(255,255,255))
-        pgb.create_text("Press A to play again.", -1, 145, PicoGameBoy.color(255,255,255))
-        pgb.create_text("Press home to quit.", -1, 160, PicoGameBoy.color(255,255,255))
-        pgb.create_text("Level: "+str(level), -1, 180, PicoGameBoy.color(255,255,255))
-        pgb.show()
+        PicoBoy.Save_Score(score)
+        MusicBox.Change_Mode(0)
+        MusicBox.Stop_Song()
+        MusicBox.Play_Song("game_over.pbs")
+        PicoBoy.fill(PicoBoy.color(48,48,48))
+        for s in starcoords:
+            PicoBoy.vline(int(s[0]*1.2),int(s[1]*1.2-20),1,PicoBoy.color(255,255,255))
+        PicoBoy.Create_Text("Game Over",-1,20,(255,255,255))
+        PicoBoy.Load_Small_Image("Big Starship.pbimg",80,45,83,78)
+        for i in range(5):
+            PicoBoy.Line(70,40-i,173,128-i,(255,0,0))
+        for i in range(5):
+            PicoBoy.Line(173,40-i,70,128-i,(255,0,0))
+        PicoBoy.Create_Text("Press A to play again.", -1, 145, (255,255,255))
+        PicoBoy.Create_Text("Press home to quit.", -1, 160, (255,255,255))
+        PicoBoy.Create_Text("Press start", -1, 175, (255,255,255))
+        PicoBoy.Create_Text("to view scores.", -1, 190, (255,255,255))
+        PicoBoy.Create_Text("Level: "+str(level), -1, 205, (255,255,255))
+        PicoBoy.Create_Text("Score: "+str(score), -1, 217, (255,255,255))
+        PicoBoy.Update()
         while True:
-            pgb.fill(PicoGameBoy.color(0,0,0))
-            pgb.rect(70,20,100,80,PicoGameBoy.color(255,255,255))
-            pgb.fill_rect(90, 30,10,10,PicoGameBoy.color(255,255,255))
-            pgb.fill_rect(140, 30,10,10,PicoGameBoy.color(255,255,255))
-            pgb.rect(90,60,60,20,PicoGameBoy.color(255,255,255))
-            pgb.line(90,79,150,79,PicoGameBoy.color(0,0,0))
-            pgb.create_text("Game Over",-1,125,PicoGameBoy.color(255,255,255))
-            pgb.create_text("Press A to play again.", -1, 145, PicoGameBoy.color(255,255,255))
-            pgb.create_text("Press home to quit.", -1, 160, PicoGameBoy.color(255,255,255))
-            pgb.create_text("Press start", -1, 175, PicoGameBoy.color(255,255,255))
-            pgb.create_text("to view scores.", -1, 190, PicoGameBoy.color(255,255,255))
-            pgb.create_text("Level: "+str(level), -1, 205, PicoGameBoy.color(255,255,255))
-            pgb.show()
-            if pgb.button_Home():
-                homebootstop=open("/noboot", "w")
-                homebootstop.close()
-                pgb.fill(PicoGameBoy.color(0,0,0))
-                pgb.show()
-                machine.reset()
+            PicoBoy.fill(PicoBoy.color(48,48,48))
+            for s in starcoords:
+                PicoBoy.vline(int(s[0]*1.2),int(s[1]*1.2-20),1,PicoBoy.color(255,255,255))
+            PicoBoy.Create_Text("Game Over",-1,20,(255,255,255))
+            PicoBoy.Load_Small_Image("Big Starship.pbimg",80,45,83,78)
+            for i in range(5):
+                PicoBoy.Line(70,40-i,173,128-i,(255,0,0))
+            for i in range(5):
+                PicoBoy.Line(173,40-i,70,128-i,(255,0,0))
+            PicoBoy.Create_Text("Press A to play again.", -1, 145, (255,255,255))
+            PicoBoy.Create_Text("Press home to quit.", -1, 160, (255,255,255))
+            PicoBoy.Create_Text("Press start", -1, 175, (255,255,255))
+            PicoBoy.Create_Text("to view scores.", -1, 190, (255,255,255))
+            PicoBoy.Create_Text("Level: "+str(level), -1, 205, (255,255,255))
+            PicoBoy.Create_Text("Score: "+str(score), -1, 217, (255,255,255))
+            PicoBoy.Update()
+            if PicoBoy.Button("Start"):
+                PicoBoy.Show_Scores()
+            elif PicoBoy.Button("A"):
+                score=0
+                level=1
                 break
-            if pgb.button_start():
-                    x=open("Starship/highscoresStarship.sc", "r")
-                    scores=x.read()
-                    x.close()
-                    del x
-                    scores=scores.split("\n")
-                    pgb.fill(PicoGameBoy.color(0,0,0))
-                    pgb.create_text("High Scores:", -1, 15, PicoGameBoy.color(255,255,255))
-                    for i in range(len(scores)):
-                        pgb.create_text("Score "+str(i+1)+": Level "+str(scores[i]), -1, 50+i*15, PicoGameBoy.color(255,255,255))
-                    pgb.create_text("Press B to exit", -1, 220, PicoGameBoy.color(255,255,255))
-                    while True:
-                        if pgb.button_B():
-                            break
-                        if pgb.button_Home():
-                            homebootstop=open("/noboot", "w")
-                            homebootstop.close()
-                            pgb.fill(PicoGameBoy.color(0,0,0))
-                            pgb.show()
-                            machine.reset()
-                            break
-                        pgb.show()
-            elif pgb.button_A():
-                level=0
-                no_music()
-                break
+ 

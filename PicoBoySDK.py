@@ -494,7 +494,25 @@ class PicoBoySDK(ST7789):
             print("Fill_Rect() color must be a tuple!")
             sys.exit()
         self.fill_rect(x,y,width,height,self.color(*color))
+        
+    def Line(self,x1,y1,x2,y2,c):
+        if not 'tuple' in str(type(c)):
+            print("Line() color must be a tuple!")
+            sys.exit()
+        self.line(x1,y1,x2,y2,self.color(*c))
+        
+    def Hline(self,x1,y1,h,c):
+        if not 'tuple' in str(type(c)):
+            print("Hline() color must be a tuple!")
+            sys.exit()
+        self.hline(x1,y1,h,self.color(*c))
 
+    def Vline(self,x1,y1,w,c):
+        if not 'tuple' in str(type(c)):
+            print("Vline() color must be a tuple!")
+            sys.exit()
+        self.vline(x1,y1,w,self.color(*c))
+            
     def Fill_Screen(self,color):
         self.fill(self.color(*color))
 

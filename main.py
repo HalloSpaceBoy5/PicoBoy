@@ -96,6 +96,7 @@ try:
         bgcolor=bgcolors[bindex]
     except:
         bgimage=True
+        bindex=8
         bgcolor=(69,69,69)
         bgcolor565=PicoGameBoy.color(69,69,69)
         bgimagefile=data[:]
