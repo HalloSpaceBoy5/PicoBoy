@@ -1,6 +1,6 @@
 ## Thank you to Ash Hill at Tom's Hardware for doing a writeup on the PicoBoy!
 Link: https://www.tomshardware.com/news/raspberry-pi-pico-handheld-picoboy
-## PicoBoy V2s are currently sold out. If you would like to buy one, please join the waitlist on Tindie. This will allow me to estimate how many kits people want.
+## PicoBoy V2s are currently sold out. If you would like to buy one, please join the waitlist on Tindie. This will allow me to estimate how many kits people want for when I restock.
 # PicoBoy
 
 This is the PicoBoy. The ultimate handheld console for not only playing great games but also making great games. The PicoBoy is fun and accessible for both new and experienced developers and gamers. It sports the PicoBoySDK, a developer environment that is as easy as it is powerful to use, allowing anyone of any skill level to make amazing games. The PicoBoy can be bought as a kit or as a prebuilt, allowing you to make your own videogame console and learn to solder in the process. This is the PicoBoy, an impossibly powerful, inexpensive, and easy-to-use handheld console.\
