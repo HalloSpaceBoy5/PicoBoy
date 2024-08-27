@@ -1,5 +1,3 @@
-## Thank you to Ash Hill at Tom's Hardware for doing a writeup on the PicoBoy!
-Link: https://www.tomshardware.com/news/raspberry-pi-pico-handheld-picoboy
 ## PicoBoy V2s are back in stock! Get yours while you can on the Tindie store!
 # Meet the PicoBoy
 This is the PicoBoy. The ultimate handheld console for not only playing great games but also making great games. The PicoBoy is fun and accessible for both new and experienced developers and gamers. It sports the PicoBoySDK, a developer environment that is as easy as it is powerful to use, allowing anyone of any skill level to make amazing games. The PicoBoy can be bought as a kit or as a prebuilt, allowing you to make your own videogame console and learn to solder in the process. This is the PicoBoy, an impossibly powerful, inexpensive, and easy-to-use handheld console.\
@@ -34,6 +32,12 @@ The PicoBoy SDK is avalible and easy to use! It makes developing games as easy a
 
 # Using the PicoBoy Communication Software
 The PicoBoy Communication Software is a handy peice of software that makes it easy to modifiy your PicoBoy. It can add games, delete games, format the console, update the console, customize the console, as well as many more features. Upon opening, Your computer may warn you saying that it is suspicious software. I promise it isin't, I wrote it myself. The reason your computer warns you is because the software is not signed with a certified software key, which I do not have the budget for. To use the software, follow the instructions for each function in the user guide.
+
+# Mentions
+## Ash Hill at Tom's Hardware did a story on the PicoBoy!
+Link: https://www.tomshardware.com/news/raspberry-pi-pico-handheld-picoboy
+## Jeff Geerling mentioned the PicoBoy V2 in his video about the Pico 2!
+Link: https://www.jeffgeerling.com/blog/2024/raspberry-pi-pico-2-rp2350-adds-more-pio-risc-v-cores
 
 # Credits
 ## Vincent Mistler
