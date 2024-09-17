@@ -8,6 +8,7 @@ import os
 import sys
 from random import randint
 import machine
+from math import ceil
 
 try:
     os.rename("/main.py", "/settings.py")
@@ -93,6 +94,90 @@ def readchunk_mask( filename,x2,y2,w,h,cmask=57351):
                 tempfb=FrameBuffer(bytearray(r.read(2*w)),w,1,RGB565)
                 pgb.blit(tempfb,x2,y2+x,cmask)
                 del tempfb
+
+def stats():
+    pgb.fill(bgcolor565)
+    if language==0:
+        pgb.create_text("OS Stats",-1,10,ttcolor)
+        noptions=["OS Version: ", "MicroPy Version: ", "Storage Free: ", "Games: ","Libraries: ","Battery: "]
+        pgb.create_text("Press B to exit",-1,220,ttcolor)
+    elif language==1:
+        pgb.create_text("OS Estadistica",-1,10,ttcolor)
+        noptions=["OS Version: ", "MicroPy Version: ", "Espacio Libre: ", "Juegos: ","Bibliotecas: ","Bateria: "]
+        pgb.create_text("Presione B para salir",-1,220,ttcolor)
+    elif language==2:
+        pgb.create_text("OS Statistiques",-1,10,ttcolor)
+        noptions=["OS Version: ", "MicroPy Version: ", "Espace Libre: ", "Jeux: ","Bibliotheques: ","Batterie: "]
+        pgb.create_text("Appuyez sur B pour quitter",-1,220,ttcolor)
+    elif language==3:
+        pgb.create_text("OS Statistiken",-1,10,ttcolor)
+        noptions=["OS Version: ", "MicroPy Version: ", "Freiraum: ", "Spiele: ","Bibliotheken: ","Batterie: "]
+        pgb.create_text("Drucken Sie B, um den",-1,210,ttcolor)
+        pgb.create_text("Vorgang zu beenden",-1,220,ttcolor)
+    elif language==4:
+        pgb.create_text("OS Statistiche",-1,10,ttcolor)
+        noptions=["OS Versione: ", "MicroPy Versione: ", "Spazio Libero: ", "Giochi: ","Librerie: ","Batteria: "]
+        pgb.create_text("Premi B per uscire",-1,220,ttcolor)
+    while True:
+        pgb.fill_rect(0,25,240,180,bgcolor565)
+        for i,option in enumerate(noptions):
+            pgb.rect(10,35+i*30,220,20,white)
+            pgb.rect(11,36+i*30,118,18,black)
+            if i==0:
+                option=option+str(version)
+            elif i==1:
+                mversion=str(sys.implementation.version)
+                mversion="V"+mversion.replace(")","").replace("(","").replace(", \'\'","").replace(", ",".")
+                option=option+mversion
+            elif i==2:
+                stat=os.statvfs('/')
+                amntfree=stat[0] * stat[3]
+                storage=str(ceil(int(amntfree)/1000)-5)+"kb"
+                option=option+storage
+            elif i==3:
+                amt=len(os.listdir("/games/"))
+                option=option+str(amt)
+            elif i==4:
+                amt=len(os.listdir("/libs/"))
+                option=option+str(amt)
+            elif i==5:
+                adc_reading  = vpin.read_u16()
+                adc_voltage  = (adc_reading * 3.3) / 65535
+                vsys_voltage = adc_voltage * 12
+                console=0
+                if vsys_voltage>10:
+                    vsys_voltage = adc_voltage * 3
+                    percentage=int(int(((round(vsys_voltage,3)-1.9)/2.7)*100))
+                    console=1
+                else:
+                    percentage=int(int(((round(vsys_voltage,3)-1.9)/1)*100))
+                    console=0
+                if console==0:
+                    if percentage>100 and percentage<125:
+                        percentage=100
+                    if percentage<130:
+                        pastpercentage.append(percentage)
+                        if len(pastpercentage)>200:
+                            pastpercentage.pop(0)
+                        percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+                elif console==1:
+                    if percentage>100 and percentage<110:
+                        percentage=100
+                    if percentage<110:
+                        pastpercentage.append(percentage)
+                        if len(pastpercentage)>200:
+                            pastpercentage.pop(0)
+                        percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+                if percentage>100:
+                    option=option+"USB"
+                else:
+                    option=option+str(percentage)+"%"
+            pgb.create_text(option,(120- int(len(option)/2 * 8)),42+i*30,ttcolor)
+        pgb.show()
+        if pgb.button_B():
+            sleep(0.2)
+            break
+
 
 def languages():
     global language
@@ -460,37 +545,37 @@ while True:
             ani="True"
         else:
             ani="False"
-        options=["Change Brightness", "Change Volume", "Change Background", "Data Upload Mode", "Animation: "+ani, "Language", "Exit"]
+        options=["Change Brightness", "Change Volume", "Change Background", "Data Upload Mode", "Animation: "+ani, "Language", "OS Stats", "Exit"]
     elif language==1:
         if animated:
             ani="Cierto"
         else:
             ani="Falso"
-        options=["Cambiar brillo", "Cambiar volumen", "Cambiar tema", "Modo de carga de datos", "Animacion: "+ani, "Idioma", "Salir"]
+        options=["Cambiar brillo", "Cambiar volumen", "Cambiar tema", "Modo de carga de datos", "Animacion: "+ani, "Idioma", "OS Estadistica", "Salir"]
     elif language==2:
         if animated:
             ani="Vrai"
         else:
             ani="Faux"
-        options=["Modifier la luminosite", "Modifier le volume", "Modifier l'fond", "Mode donnees", "Animation: "+ani, "Langue", "Quitter"]
+        options=["Modifier la luminosite", "Modifier le volume", "Modifier l'fond", "Mode donnees", "Animation: "+ani, "Langue", "OS Statistiques", "Quitter"]
     elif language==3:
         if animated:
             ani="Wahr"
         else:
             ani="Falsch"
-        options=["Helligkeit andern", "Lautstarke andern", "Hintergrund andern", "Daten-Upload-Modus", "Animation: "+ani, "Sprache", "Beenden"]
+        options=["Helligkeit andern", "Lautstarke andern", "Hintergrund andern", "Daten-Upload-Modus", "Animation: "+ani, "Sprache", "OS Statistiken", "Beenden"]
     elif language==4:
         if animated:
             ani="Vero"
         else:
             ani="Falso"
-        options=["Cambia luminosita", "Cambia volume", "Cambia sfondo", "Modalita dati", "Animazione: "+ani, "Lingua", "Esci"]
+        options=["Cambia luminosita", "Cambia volume", "Cambia sfondo", "Modalita dati", "Animazione: "+ani, "Lingua", "OS Statistiche", "Esci"]
     if tcolor==0:
         ottcolor=white
     else:
         ottcolor=black
     pgb.fill_rect(215,20,20, 180,selectcolor)
-    pgb.fill_rect(220,25+(scrollpos*30),10, int(max_on_screen/len(options)* 165),ttcolor)
+    pgb.fill_rect(220,25+(scrollpos*30),10, int(max_on_screen/len(options)* 145),ttcolor)
     noptions=options[0+scrollpos:max_on_screen+scrollpos]
     for i,option in enumerate(noptions):
         pgb.rect(10,25+i*30,200,20,white)
@@ -669,8 +754,11 @@ while True:
                 w.write(str(animated))
             sleep(0.1)
         if opt+scrollpos==5:
+            sleep(0.1)
             languages()
         if opt+scrollpos==6:
+            stats()
+        if opt+scrollpos==7:
             homebootstop=open("/noboot", "w")
             homebootstop.close()
             pgb.fill(PicoGameBoy.color(0,0,0))

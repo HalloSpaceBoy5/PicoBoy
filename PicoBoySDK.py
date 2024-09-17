@@ -212,8 +212,7 @@ class PicoBoySDK(ST7789):
                 print("Starting in developer mode.")
                 self.mode=False
             else:
-                print(error)
-                sys.exit()
+                raise TypeError(error)
         try:
             with open("/langauge.conf") as r:
                 self.langauge=int(r.read())
@@ -251,6 +250,29 @@ class PicoBoySDK(ST7789):
                 self.vol=int(r.read())
         except:
             self.vol=self.vol_max
+        
+    def Load_Library(self, libname, objects):
+        try:
+            rename("/libs/"+libname+"/"+libname+".py", "/"+libname+".py")
+        except:
+                try:
+                    rename("/"+libname+".py","/libs/"+libname+"/"+libname+".py")
+                except:
+                    ""
+                raise TypeError("PicoBoySDK Error: Library \""+libname+"\" nonexistent in filesystem at path \"/libs/"+libname+"/"+libname+".py\".")
+                sys.exit()
+        chdir("/")
+        try:
+            exec("from "+libname+" import "+str(", ".join(objects)))
+        except:
+            try:
+                rename("/"+libname+".py","/libs/"+libname+"/"+libname+".py")
+            except:
+                ""
+            raise TypeError("PicoBoySDK Error: Could not import \""+str(", ".join(objects))+"\" from library \""+libname+"\".")
+            sys.exit()
+        chdir("/"+self.namespace)
+        rename("/"+libname+".py","/libs/"+libname+"/"+libname+".py")
         
     def Load_Sprite(self,filename,width,height):
         with open(filename,"rb") as read:
@@ -380,7 +402,6 @@ class PicoBoySDK(ST7789):
             vsys_voltage = adc_voltage * 3
         if vsys_voltage<1.9:
             self.fill(self.color(0,0,0))
-            print(self.langauge)
             if self.langauge==0:
                 self.Create_Text("BATTERY CRITICALLY LOW!",-1,30,(255,255,255))
                 self.Create_Text("Please replace the", -1, 130, (255,255,255))
@@ -485,31 +506,31 @@ class PicoBoySDK(ST7789):
         
     def Outline_Rect(self, x, y, width, height, color):
         if not 'tuple' in str(type(color)):
-            print("Outline_Rect() color must be a tuple!")
+            raise TypeError("Outline_Rect() color must be a tuple!")
             sys.exit()
         self.rect(x,y,width,height,self.color(*color))
         
     def Fill_Rect(self, x, y, width, height, color):
         if not 'tuple' in str(type(color)):
-            print("Fill_Rect() color must be a tuple!")
+            raise TypeError("Fill_Rect() color must be a tuple!")
             sys.exit()
         self.fill_rect(x,y,width,height,self.color(*color))
         
     def Line(self,x1,y1,x2,y2,c):
         if not 'tuple' in str(type(c)):
-            print("Line() color must be a tuple!")
+            raise TypeError("Line() color must be a tuple!")
             sys.exit()
         self.line(x1,y1,x2,y2,self.color(*c))
         
     def Hline(self,x1,y1,h,c):
         if not 'tuple' in str(type(c)):
-            print("Hline() color must be a tuple!")
+            raise TypeError("Hline() color must be a tuple!")
             sys.exit()
         self.hline(x1,y1,h,self.color(*c))
 
     def Vline(self,x1,y1,w,c):
         if not 'tuple' in str(type(c)):
-            print("Vline() color must be a tuple!")
+            raise TypeError("Vline() color must be a tuple!")
             sys.exit()
         self.vline(x1,y1,w,self.color(*c))
             
@@ -629,7 +650,7 @@ class PicoBoySDK(ST7789):
             
     def Save_Score(self, score):
         if not type(score) == int:
-            print("PicoBoySDK Error: given score must be an integer.")
+            raise TypeError("PicoBoySDK Error: given score must be an integer.")
         directory=listdir()
         if not "highscores"+self.namespace+".sc" in directory:
             with open("highscores"+self.namespace+".sc", "w") as w:
@@ -674,7 +695,7 @@ class PicoBoySDK(ST7789):
 class PlayerObject:
     def __init__(self,parent,initx,inity,width,height,sprite,speed):
         if not "PicoBoySDK" in str(type(parent)):
-            print("PicoBoySDK Error: The PicoBoySDK object is missing or invalid in "+str(self))
+            raise TypeError("PicoBoySDK Error: The PicoBoySDK object is missing or invalid in "+str(self))
             sys.exit()
         self.initx=initx
         self.inity=inity
@@ -714,7 +735,7 @@ class PlayerObject:
 class MusicBoxObject:
     def __init__(self,parent,mode):
         if not "PicoBoySDK" in str(type(parent)):
-            print("PicoBoySDK Error: The PicoBoySDK object is missing or invalid in "+str(self))
+            raise TypeError("PicoBoySDK Error: The PicoBoySDK object is missing or invalid in "+str(self))
             exit()
         self.parent=parent
         self.song=[]

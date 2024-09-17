@@ -59,10 +59,23 @@ class ST7789(framebuf.FrameBuffer):
         self.DUTY_CYCLE_MAX = 65000 #Maximum Brightness
         
         ### Enable for screenshots
-        #self.sbuffer=bytearray(self.height * self.width * 2)
-        #self.buffer = memoryview(self.sbuffer)
+        self.sbuffer=bytearray(self.height * self.width * 2)
+        self.buffer = memoryview(self.sbuffer)
         ##### Otherwise:
-        self.buffer = memoryview(bytearray(self.height * self.width * 2))
+        #self.buffer = memoryview(bytearray(self.height * self.width * 2))
+        
+        """
+        screenshot func:
+        try:
+            remove("/out.bin")
+        except:
+            ""
+        with open("/out.bin", "ab") as w:
+            for i in range(240):
+                data=pgb.sbuffer[i*480:i*480+480]
+                w.write(data)
+
+        """
         
         super().__init__(self.buffer, self.width, self.height, framebuf.RGB565)
         
