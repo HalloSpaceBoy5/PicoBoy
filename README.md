@@ -17,7 +17,8 @@ https://www.printables.com/model/893871-picoboy-v2-printed-parts
 ## Software
 https://github.com/HalloSpaceBoy5/PicoBoy/releases
 ## Guides
-https://github.com/HalloSpaceBoy5/PicoBoy/tree/main/Guides
+https://github.com/HalloSpaceBoy5/PicoBoy/tree/main/Guides <br>
+https://youtu.be/rOZQTFoS0ME
 ## PicoBoy OS Updates
 [https://github.com/HalloSpaceBoy5/PicoBoy-OS/releases](https://github.com/HalloSpaceBoy5/PicoBoy-OS/releases)
 
