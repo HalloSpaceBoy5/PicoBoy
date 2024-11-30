@@ -54,6 +54,7 @@ else:
 ttcolor=PicoGameBoy.color(255,255,255)
 if tcolor==0:
     ttcolor=PicoGameBoy.color(0,0,0)
+    
 try:
     with open("animated.conf") as r:
         if r.read()=="True":
@@ -81,6 +82,19 @@ try:
         raise
 except:
     language=0
+with open("Settings Text.csv") as w:
+    data=w.read().split("\n")[language]
+    textdata=tuple(data.split(", "))
+    
+try:
+    with open("SIP.conf") as r:
+        SIP=r.read()
+        if SIP=="True":
+            SIP=True
+        else:
+            SIP=False
+except:
+    SIP=True
 
 with open("Main Text.csv") as w:
     data=w.read().split("\n")[language]
@@ -97,32 +111,17 @@ def readchunk_mask( filename,x2,y2,w,h,cmask=57351):
 
 def stats():
     pgb.fill(bgcolor565)
-    if language==0:
-        pgb.create_text("OS Stats",-1,10,ttcolor)
-        noptions=["OS Version: ", "MicroPy Version: ", "Storage Free: ", "Games: ","Libraries: ","Battery: "]
-        pgb.create_text("Press B to exit",-1,220,ttcolor)
-    elif language==1:
-        pgb.create_text("OS Estadistica",-1,10,ttcolor)
-        noptions=["OS Version: ", "MicroPy Version: ", "Espacio Libre: ", "Juegos: ","Bibliotecas: ","Bateria: "]
-        pgb.create_text("Presione B para salir",-1,220,ttcolor)
-    elif language==2:
-        pgb.create_text("OS Statistiques",-1,10,ttcolor)
-        noptions=["OS Version: ", "MicroPy Version: ", "Espace Libre: ", "Jeux: ","Bibliotheques: ","Batterie: "]
-        pgb.create_text("Appuyez sur B pour quitter",-1,220,ttcolor)
-    elif language==3:
-        pgb.create_text("OS Statistiken",-1,10,ttcolor)
-        noptions=["OS Version: ", "MicroPy Version: ", "Freiraum: ", "Spiele: ","Bibliotheken: ","Batterie: "]
-        pgb.create_text("Drucken Sie B, um den",-1,210,ttcolor)
-        pgb.create_text("Vorgang zu beenden",-1,220,ttcolor)
-    elif language==4:
-        pgb.create_text("OS Statistiche",-1,10,ttcolor)
-        noptions=["OS Versione: ", "MicroPy Versione: ", "Spazio Libero: ", "Giochi: ","Librerie: ","Batteria: "]
-        pgb.create_text("Premi B per uscire",-1,220,ttcolor)
+    pgb.create_text(textdata[0],-1,10,ttcolor)
+    noptions=[]
+    for i in textdata[1].split("\\"):
+        noptions.append(i)
+    for i,f in enumerate(textdata[2].split("\\")):
+        pgb.create_text(f,-1,210+(i*15),ttcolor)
     while True:
         pgb.fill_rect(0,25,240,180,bgcolor565)
         for i,option in enumerate(noptions):
-            pgb.rect(10,35+i*30,220,20,white)
-            pgb.rect(11,36+i*30,118,18,black)
+            pgb.rect(10,30+i*30,220,20,white)
+            pgb.rect(11,31+i*30,218,18,black)
             if i==0:
                 option=option+str(version)
             elif i==1:
@@ -172,7 +171,7 @@ def stats():
                     option=option+"USB"
                 else:
                     option=option+str(percentage)+"%"
-            pgb.create_text(option,(120- int(len(option)/2 * 8)),42+i*30,ttcolor)
+            pgb.create_text(option,(120- int(len(option)/2 * 8)),37+i*30,ttcolor)
         pgb.show()
         if pgb.button_B():
             sleep(0.2)
@@ -181,20 +180,12 @@ def stats():
 
 def languages():
     global language
+    global textdata
     opti=language
     sleep(.1)
     while True:
         pgb.fill(bgcolor565)
-        if language==0:
-            pgb.create_text("Settings",-1,10,ttcolor)
-        elif language==1:
-            pgb.create_text("Ajustes",-1,10,ttcolor)
-        elif language==2:
-            pgb.create_text("Parametres",-1,10,ttcolor)
-        elif language==3:
-            pgb.create_text("Einstellungen",-1,10,ttcolor)
-        elif language==4:
-            pgb.create_text("Impostazioni",-1,10,ttcolor) 
+        pgb.create_text(textdata[3],-1,10,ttcolor)
         pgb.create_text("PicoBoy            "+version,10,225,ttcolor)
         options=["English", "Espanol", "Francais", "Deutsch", "Italiano"]
         for i,option in enumerate(options):
@@ -215,6 +206,9 @@ def languages():
             language=opti
             with open("language.conf", "w") as w:
                 w.write(str(opti))
+            with open("Settings Text.csv") as w:
+                data=w.read().split("\n")[language]
+                textdata=tuple(data.split(", ")[:])
             with open("Main Text.csv") as w:
                 global dum
                 data=w.read().split("\n")[language]
@@ -240,27 +234,9 @@ def background():
     
     while True:
         pgb.fill(bgcolor565)
-        if language==0:
-            pgb.create_text("Settings",-1,10,ttcolor)
-        elif language==1:
-            pgb.create_text("Ajustes",-1,10,ttcolor)
-        elif language==2:
-            pgb.create_text("Parametres",-1,10,ttcolor)
-        elif language==3:
-            pgb.create_text("Einstellungen",-1,10,ttcolor)
-        elif language==4:
-            pgb.create_text("Impostazioni",-1,10,ttcolor) 
+        pgb.create_text(textdata[3],-1,10,ttcolor)
         pgb.create_text("PicoBoy            "+version,10,225,ttcolor)
-        if language==0:
-            options=["Drawing Background","Color Background", "Exit"]
-        elif language==1:
-            options=["Tema de dibujo","Tema de color","Salir"]
-        elif language==2:
-            options=["Fond de dessin", "Fond de couleur", "Quitter"]
-        elif language==3:
-            options=["Hintergrund zeichnen", "Hintergrundfarbe", "Beenden"]
-        elif language==4:
-            options=["Sfondo disegno","Colore sfondo", "Esci"]
+        options=[textdata[4], textdata[5], textdata[6]]
         
         for i,option in enumerate(options):
             pgb.rect(10,25+i*30,220,20,white)
@@ -281,32 +257,8 @@ def background():
                 sleep(0.2)
                 while True:
                     pgb.fill(bgcolor565)
-                    if language==0:
-                        pgb.create_text("Choose a background color",-1,-1,ttcolor)
-                        pgb.create_text("using the left and right",-1,125,ttcolor)
-                        pgb.create_text("buttons.",-1,140,ttcolor)
-                        pgb.create_text("Press A to exit",-1,220,ttcolor)
-                    elif language==1:
-                        pgb.create_text("Elige un color de tema",-1,-1,ttcolor)
-                        pgb.create_text("Usando la izquierda y",-1,125,ttcolor)
-                        pgb.create_text("la derecha botones.",-1,140,ttcolor)
-                        pgb.create_text("Presione A para salir",-1,220,ttcolor)
-                    elif language==2:
-                        pgb.create_text("Choisissez une couleur de",-1,-1,ttcolor)
-                        pgb.create_text("fond en utilisant la gauche ",-1,125,ttcolor)
-                        pgb.create_text("et la droite boutons.",-1,140,ttcolor)
-                        pgb.create_text("Appuyez sur A pour quitter",-1,220,ttcolor)
-                    elif language==3:
-                            pgb.create_text("Wahlen Sie eine Hintergrund",-1,-1,ttcolor)
-                            pgb.create_text("farbe umit der linken und",-1,125,ttcolor)
-                            pgb.create_text("rechten tasten.",-1,137,ttcolor)
-                            pgb.create_text("Drucken Sie A, um den",-1,210,ttcolor)
-                            pgb.create_text("Vorgang zu beenden",-1,220,ttcolor)
-                    elif language==4:
-                        pgb.create_text("Scegli un colore di sfondo",-1,-1,ttcolor)
-                        pgb.create_text("usando sinistra e destra",-1,125,ttcolor)
-                        pgb.create_text("pulsanti.",-1,140,ttcolor)
-                        pgb.create_text("Premi A per uscire",-1,220,ttcolor)
+                    for f,i in enumerate(textdata[7].split("\\")):
+                        pgb.create_text(i,-1,110+(f*15),ttcolor)
                     if runcheck:
                         runcheck=False
                     if pgb.button_A():
@@ -341,33 +293,8 @@ def background():
                         if tcolor==0:
                             selectcolor=PicoGameBoy.color(200,200,200)
                         pgb.fill(bgcolor565)
-                        if language==0:
-                            pgb.create_text("Choose a background color",-1,-1,ttcolor)
-                            pgb.create_text("using the left and right",-1,125,ttcolor)
-                            pgb.create_text("buttons.",-1,140,ttcolor)
-                            pgb.create_text("Press A to exit",-1,220,ttcolor)
-                        elif language==1:
-                            pgb.create_text("Elige un color de tema",-1,-1,ttcolor)
-                            pgb.create_text("Usando la izquierda y",-1,125,ttcolor)
-                            pgb.create_text("la derecha botones.",-1,140,ttcolor)
-                            pgb.create_text("Presione A para salir",-1,220,ttcolor)
-                        elif language==2:
-                            pgb.create_text("Choisissez une couleur de",-1,-1,ttcolor)
-                            pgb.create_text("fond en utilisant la gauche ",-1,125,ttcolor)
-                            pgb.create_text("et la droite boutons.",-1,140,ttcolor)
-                            pgb.create_text("Appuyez sur A pour quitter",-1,220,ttcolor)
-                        elif language==3:
-                            pgb.create_text("Wahlen Sie eine Hintergrund",-1,-1,ttcolor)
-                            pgb.create_text("farbe umit der linken und",-1,125,ttcolor)
-                            pgb.create_text("rechten tasten.",-1,137,ttcolor)
-                            pgb.create_text("Drucken Sie A, um den",-1,210,ttcolor)
-                            pgb.create_text("Vorgang zu beenden",-1,220,ttcolor)
-                        elif language==4:
-                            pgb.create_text("Scegli un colore di sfondo",-1,-1,ttcolor)
-                            pgb.create_text("usando sinistra e destra",-1,125,ttcolor)
-                            pgb.create_text("pulsanti.",-1,140,ttcolor)
-                            pgb.create_text("Premi A per uscire",-1,220,ttcolor)
-                            pgb.show()
+                        for f,i in enumerate(textdata[7].split("\\")):
+                            pgb.create_text(i,-1,110+(f*15),ttcolor)
                         sleep(0.2)
             if opt==0:
                 sleep(0.2)
@@ -381,21 +308,8 @@ def background():
                             options.append(bgs[x+(page*4)])
                         except:
                             "End of list"
-                    if language==0:
-                        options.append("Exit")
-                        pgb.create_text("Choose a background",-1,10,ttcolor)
-                    elif language==1:
-                        options.append("Salida")
-                        pgb.create_text("Elige un tema",-1,10,ttcolor)
-                    elif language==2:
-                        options.append("Quitter")
-                        pgb.create_text("Choisissez un fond",-1,10,ttcolor)
-                    elif language==3:
-                        options.append("Ausfahrt")
-                        pgb.create_text("Wahlen Sie einen Hintergrund",-1,10,ttcolor)
-                    elif language==4:
-                        options.append("Uscita")
-                        pgb.create_text("Scegli uno sfondo",-1,10,ttcolor)
+                    options.append(textdata[6])
+                    pgb.create_text(textdata[9],-1,10,ttcolor)
 
 
                     for i,option in enumerate(options):
@@ -404,40 +318,11 @@ def background():
                         if i==opt:
                             pgb.fill_rect(12,27+i*30,216,16,selectcolor)
                         pgb.create_text(option,-1,32+i*30,ttcolor)
-                    if language==0:
-                        pgb.create_text(f"Page {page+1}/{int((len(bgs)-1)/4)+1}",-1,172,ttcolor)
-                        pgb.create_text("Use the left/right buttons",-1,190,ttcolor)
-                        pgb.create_text("to scroll your backgrounds",-1,200,ttcolor)
-                        pgb.create_text("Drawing backgrounds won't",-1,215,ttcolor)
-                        pgb.create_text("show in the settings menu.",-1,225,ttcolor)
-                    elif language==1:
-                        pgb.create_text(f"Pagina {page+1}/{int((len(bgs)-1)/4)+1}",-1,172,ttcolor)
-                        pgb.create_text("Usa los botones izquierda y",-1,190,ttcolor)
-                        pgb.create_text("derecha navegar sus temas",-1,200,ttcolor)
-                        pgb.create_text("Dibujar temas no mostrar",-1,215,ttcolor)
-                        pgb.create_text("en el menu de configuracion.",-1,225,ttcolor)
-                    elif language==2:
-                        pgb.create_text(f"Page {page+1}/{int((len(bgs)-1)/4)+1}",-1,172,ttcolor)
-                        pgb.create_text("User les boutons gauch et",-1,187,ttcolor)
-                        pgb.create_text("droit faire defiler vos fonds",-1,197,ttcolor)
-                        pgb.create_text("Les fonds de dessin ne seront",-1,210,ttcolor)
-                        pgb.create_text("pas montrer dans le menu",-1,220,ttcolor)
-                        pgb.create_text("des parametres.",-1,230,ttcolor)
-                    elif language==3:
-                        pgb.create_text(f"Seite {page+1}/{int((len(bgs)-1)/4)+1}",-1,169,ttcolor)
-                        pgb.create_text("Nutzung Sie die Links/Rechts",-1,180,ttcolor)
-                        pgb.create_text("Tasten um Ihre Hintergrunde",-1,190,ttcolor)
-                        pgb.create_text("zu scrollen.",-1,200,ttcolor)
-                        pgb.create_text("Bildhintergrund werden im",-1,210,ttcolor)
-                        pgb.create_text("Einstellungsmenu nicht",-1,220,ttcolor)
-                        pgb.create_text("angezeigt",-1,230,ttcolor)
-                    elif language==4:
-                        pgb.create_text(f"Pagina {page+1}/{int((len(bgs)-1)/4)+1}",-1,172,ttcolor)
-                        pgb.create_text("Uso i pulsanti sinistra e",-1,185,ttcolor)
-                        pgb.create_text("destra per scorrere sfondi",-1,195,ttcolor)
-                        pgb.create_text("Disegnare gli sfondi no",-1,208,ttcolor)
-                        pgb.create_text("mostrare nel menu delle",-1,218,ttcolor)
-                        pgb.create_text("impostazioni.",-1,228,ttcolor)
+                    pgb.create_text(f"{textdata[10]}{page+1}/{int((len(bgs)-1)/4)+1}",-1,172,ttcolor)
+                    for f,i in enumerate(textdata[11].split("\\")):
+                        pgb.create_text(i,-1,190+(f*12),ttcolor)
+                    for f,i in enumerate(textdata[12].split("\\")):
+                        pgb.create_text(i,-1,214+(f*12),ttcolor)
 
 
                     if pgb.button_up() and opt>0:
@@ -492,22 +377,95 @@ def background():
             return
         pgb.show()    
 
+def SI_P():
+    global SIP
+    options=[]
+    if SIP:
+        options.append(textdata[27])
+    else:
+        options.append(textdata[26])
+    options.append(textdata[6])
+    opt=0
+    sleep(0.25)
+    while True:
+        pgb.fill(bgcolor565)
+        for i,f in enumerate(textdata[30].split("\\")):
+            pgb.create_text(f.replace("...",""),-1,10+(15*i),white)
+        pgb.create_text(textdata[23],-1,110,ttcolor)
+        if SIP:
+            pgb.create_text(textdata[24],-1,125,ttcolor)
+        else:
+            pgb.create_text(textdata[25],-1,125,ttcolor)
+        pgb.create_text("PicoBoy            "+version,10,225,ttcolor)
+        for i,option in enumerate(options):
+            pgb.rect(10,45+i*30,220,20,white)
+            pgb.rect(11,46+i*30,218,18,black)
+            if i==opt:
+                pgb.fill_rect(12,47+i*30,216,16,selectcolor)
+            pgb.create_text(option,-1,52+i*30,ttcolor)
+        if pgb.button_up() and opt>0:
+            opt-=1
+            pgb.show()
+            sleep(0.1)
+        if pgb.button_down() and opt<len(options)-1:
+            opt+=1
+            pgb.show()
+            sleep(0.1)
+        if pgb.button_A():
+            sleep(0.25)
+            if opt==0:
+                if SIP:
+                    pgb.fill(PicoGameBoy.color(200,0,0))
+                    pgb.create_text(textdata[19],-1,10,PicoGameBoy.color(255,255,255))
+                    for i,f in enumerate(textdata[20].split("\\")):
+                        pgb.create_text(f,-1,40+(15*i),PicoGameBoy.color(255,255,255))
+                    for i,f in enumerate(textdata[21].split("\\")):
+                        pgb.create_text(f,-1,110+(15*i),PicoGameBoy.color(255,255,255))
+                    for i,f in enumerate(textdata[22].split("\\")):
+                        pgb.create_text(f,-1,195+(15*i),PicoGameBoy.color(255,255,255))
+                    pgb.show()
+                    while True:
+                        if pgb.button_A():
+                            pgb.fill_rect(15, 90, 210, 50, PicoGameBoy.color(0,0,0))
+                            pgb.create_text(textdata[29]+textdata[30].split("\\")[0],-1,105, PicoGameBoy.color(255,255,255))
+                            pgb.create_text(textdata[30].split("\\")[1],-1,120, PicoGameBoy.color(255,255,255))
+                            pgb.show()
+                            SIP=False
+                            with open("SIP.conf", "w") as w:
+                                w.write(str(SIP))
+                            options=[]
+                            options.append(textdata[26])
+                            options.append(textdata[6])
+                            sleep(0.5)
+                            break
+                        if pgb.button_B():
+                            sleep(0.1)
+                            break
+                else:
+                    pgb.fill_rect(15, 90, 210, 50, PicoGameBoy.color(0,0,0))
+                    pgb.create_text(textdata[28]+textdata[30].split("\\")[0],-1,105, PicoGameBoy.color(255,255,255))
+                    pgb.create_text(textdata[30].split("\\")[1],-1,120, PicoGameBoy.color(255,255,255))
+                    pgb.show()
+                    SIP=True
+                    with open("SIP.conf", "w") as w:
+                        w.write(str(SIP))
+                    options=[]
+                    options.append(textdata[25])
+                    options.append(textdata[6])
+                    sleep(0.5)
+            if opt==1:
+                return
+        pgb.show()
+        
+
+
 scrollpos=0
 max_on_screen=6
 vpin=machine.ADC(29)
 pastpercentage=[]
 while True:
     pgb.fill(bgcolor565)
-    if language==0:
-        pgb.create_text("Settings",-1,10,ttcolor)
-    elif language==1:
-        pgb.create_text("Ajustes",-1,10,ttcolor)
-    elif language==2:
-        pgb.create_text("Parametres",-1,10,ttcolor)
-    elif language==3:
-        pgb.create_text("Einstellungen",-1,10,ttcolor)
-    elif language==4:
-        pgb.create_text("Impostazioni",-1,10,ttcolor) 
+    pgb.create_text(textdata[3],-1,10,ttcolor)
     adc_reading  = vpin.read_u16()
     adc_voltage  = (adc_reading * 3.3) / 65535
     vsys_voltage = adc_voltage * 12
@@ -540,42 +498,18 @@ while True:
         pgb.create_text("USB",100,225, ttcolor)
     else:
         pgb.create_text(str(percentage)+"%",100,225,ttcolor)
-    if language==0:
-        if animated:
-            ani="True"
-        else:
-            ani="False"
-        options=["Change Brightness", "Change Volume", "Change Background", "Data Upload Mode", "Animation: "+ani, "Language", "OS Stats", "Exit"]
-    elif language==1:
-        if animated:
-            ani="Cierto"
-        else:
-            ani="Falso"
-        options=["Cambiar brillo", "Cambiar volumen", "Cambiar tema", "Modo de carga de datos", "Animacion: "+ani, "Idioma", "OS Estadistica", "Salir"]
-    elif language==2:
-        if animated:
-            ani="Vrai"
-        else:
-            ani="Faux"
-        options=["Modifier la luminosite", "Modifier le volume", "Modifier l'fond", "Mode donnees", "Animation: "+ani, "Langue", "OS Statistiques", "Quitter"]
-    elif language==3:
-        if animated:
-            ani="Wahr"
-        else:
-            ani="Falsch"
-        options=["Helligkeit andern", "Lautstarke andern", "Hintergrund andern", "Daten-Upload-Modus", "Animation: "+ani, "Sprache", "OS Statistiken", "Beenden"]
-    elif language==4:
-        if animated:
-            ani="Vero"
-        else:
-            ani="Falso"
-        options=["Cambia luminosita", "Cambia volume", "Cambia sfondo", "Modalita dati", "Animazione: "+ani, "Lingua", "OS Statistiche", "Esci"]
+    if animated:
+        ani=textdata[13]
+    else:
+        ani=textdata[14]
+    otextdata=textdata[15].split("\\")
+    options=[otextdata[0], otextdata[1], otextdata[2], otextdata[3], otextdata[4]+ani, otextdata[5], otextdata[6], otextdata[7], otextdata[8]]
     if tcolor==0:
         ottcolor=white
     else:
         ottcolor=black
     pgb.fill_rect(215,20,20, 180,selectcolor)
-    pgb.fill_rect(220,25+(scrollpos*30),10, int(max_on_screen/len(options)* 145),ttcolor)
+    pgb.fill_rect(220,25+(scrollpos*30),10, int(max_on_screen/len(options)* 123),ttcolor)
     noptions=options[0+scrollpos:max_on_screen+scrollpos]
     for i,option in enumerate(noptions):
         pgb.rect(10,25+i*30,200,20,white)
@@ -608,32 +542,12 @@ while True:
                 percentage=int((brightness/55000)*100)
                 pgb.fill_rect(21,111,width,18,ttcolor)
                 pgb.create_text(str(percentage)+"%",-1,95,ttcolor)
-                if language==0:
-                    pgb.create_text("Use the left and right",-1,140,ttcolor)
-                    pgb.create_text("buttons to change the",-1,150,ttcolor)
-                    pgb.create_text("brightness.",-1,160,ttcolor)
-                    pgb.create_text("Press A to exit.",-1,220,ttcolor)
-                elif language==1:
-                    pgb.create_text("Usa la izquierda y la derecha",-1,140,ttcolor)
-                    pgb.create_text("botones para cambiar el",-1,150,ttcolor)
-                    pgb.create_text("brillo.",-1,160,ttcolor)
-                    pgb.create_text("Presione A para salir.",-1,220,ttcolor)
-                elif language==2:
-                    pgb.create_text("User la gauche et la droite",-1,140,ttcolor)
-                    pgb.create_text("boutons pour modifier le",-1,150,ttcolor)
-                    pgb.create_text("luminosite.",-1,160,ttcolor)
-                    pgb.create_text("Appuyez sur A pour quitter.",-1,220,ttcolor)
-                elif language==3:
-                    pgb.create_text("Benutzen Sie links und rechts",-1,140,ttcolor)
-                    pgb.create_text("Tasten zum Andern der",-1,150,ttcolor)
-                    pgb.create_text("Helligkeit.",-1,160,ttcolor)
-                    pgb.create_text("Drucken Sie A, um den",-1,210,ttcolor)
-                    pgb.create_text("Vorgang zu beenden.",-1,220,ttcolor)
-                elif language==4:
-                    pgb.create_text("Usa la sinistra e la destra",-1,140,ttcolor)
-                    pgb.create_text("pulsanti per modificare il",-1,150,ttcolor)
-                    pgb.create_text("luminosita.",-1,160,ttcolor)
-                    pgb.create_text("Premi A per uscire.",-1,220,ttcolor)
+                for f,i in enumerate(textdata[16].split("\\")):
+                    pgb.create_text(i,-1,140+(15*f),ttcolor)
+                pgb.create_text(textdata[17],-1,170,ttcolor)
+                for f,i in enumerate(textdata[8].split("\\")):
+                    pgb.create_text(i,-1,210+(15*f),ttcolor)
+            
                 if pgb.button_left():
                     pgb.decrease_brightness()
                     pgb.fill_rect(0,95,240,40,bgcolor565)
@@ -671,32 +585,11 @@ while True:
                 pgb.fill_rect(21,111,width,18,ttcolor)
                 pgb.create_text(str(percentage)+"%",-1,95,ttcolor)
                 pgb.create_text(str(percentage)+"%",-1,95,ttcolor)
-                if language==0:
-                    pgb.create_text("Use the left and right",-1,140,ttcolor)
-                    pgb.create_text("buttons to change the",-1,150,ttcolor)
-                    pgb.create_text("volume.",-1,160,ttcolor)
-                    pgb.create_text("Press A to exit.",-1,220,ttcolor)
-                elif language==1:
-                    pgb.create_text("Usa la izquierda y la derecha",-1,140,ttcolor)
-                    pgb.create_text("botones para cambiar el",-1,150,ttcolor)
-                    pgb.create_text("volumen.",-1,160,ttcolor)
-                    pgb.create_text("Presione A para salir.",-1,220,ttcolor)
-                elif language==2:
-                    pgb.create_text("User la gauche et la droite",-1,140,ttcolor)
-                    pgb.create_text("boutons pour modifier le",-1,150,ttcolor)
-                    pgb.create_text("volume.",-1,160,ttcolor)
-                    pgb.create_text("Appuyez sur A pour quitter.",-1,220,ttcolor)
-                elif language==3:
-                    pgb.create_text("Benutzen Sie links und rechts",-1,140,ttcolor)
-                    pgb.create_text("Tasten zum Andern der",-1,150,ttcolor)
-                    pgb.create_text("Volumen.",-1,160,ttcolor)
-                    pgb.create_text("Drucken Sie A, um den",-1,210,ttcolor)
-                    pgb.create_text("Vorgang zu beenden.",-1,220,ttcolor)
-                elif language==4:
-                    pgb.create_text("Usa la sinistra e la destra",-1,140,ttcolor)
-                    pgb.create_text("pulsanti per modificare il",-1,150,ttcolor)
-                    pgb.create_text("volume.",-1,160,ttcolor)
-                    pgb.create_text("Premi A per uscire.",-1,220,ttcolor)
+                for f,i in enumerate(textdata[16].split("\\")):
+                    pgb.create_text(i,-1,140+(15*f),ttcolor)
+                pgb.create_text(textdata[18],-1,170,ttcolor)
+                for f,i in enumerate(textdata[8].split("\\")):
+                    pgb.create_text(i,-1,210+(15*f),ttcolor)
                 if pgb.button_left():
                     pgb.decrease_vol()
                     pgb.fill_rect(0,95,240,40,bgcolor565)
@@ -759,6 +652,8 @@ while True:
         if opt+scrollpos==6:
             stats()
         if opt+scrollpos==7:
+            SI_P()
+        if opt+scrollpos==8:
             homebootstop=open("/noboot", "w")
             homebootstop.close()
             pgb.fill(PicoGameBoy.color(0,0,0))

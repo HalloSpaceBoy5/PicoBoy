@@ -1,0 +1,79 @@
+Puzzle Slide User Manual
+
+Game Overview:
+Puzzle Slide is a game about rearranging randomized tiles of a .pbd formatted puzzle to form an image. There are
+three difficulties, two modes, and 10 built-in puzzles. You can even use your own .pbd puzzles by having the Paint
+app on your PicoBoy with drawing files on it.
+
+Important things to know:
+- You can import puzzles from the Paint app, but only if it is installed. Simply install the app and draw an image.
+it will show up in Puzzle Slide.
+
+- You can choose between built-in puzzles, custom Paint puzzles, and color spectrum puzzles.
+
+- You can choose between easy, medium, and hard difficulties.
+
+- You can choose either freeplay (untimed) or timed (timed based off of difficulty).
+
+- If you choose to not render numbers on the puzzle, if there are two pieces that look alike, you will NOT be able
+to tell the difference between the two. The built-in puzzles do not have this problem.
+
+
+Gameplay:
+You start in a menu where you can choose the difficulty, mode, puzzle type, and whether or not to display the number.
+of pieces on the puzzle piece. Use the up and down buttons to move between settings in the menu in addition to the
+left and right buttons to change the selection in the setting. Once finished, select "Play" and the game will begin.
+Depending on the game mode and puzzle type, you can use the controls to put together a puzzle. Using A and B to 
+pick up and drop pieces, you re-arrange the pieces of the puzzle until you get all of the pieces in the right order.
+Once finished, you will be greeted with a win screen, allowing you to view your masterpiece.
+
+
+Puzzle Types:
+Color Puzzle Type:
+If you chose the color puzzle type, you will instantly be sent into the game. Your goal is to order the puzzle
+pieces in order from 1-9, 16, or 25. In the end, you will see a color spectrum made from all of the organized pieces.
+
+Paint Puzzle Type:
+If you chose the Paint puzzle type, you will be sent to a puzzle selection menu. In this menu, you can choose which
+drawing you want to put together. Scroll through the drawings with up and down, pressing A to choose the puzzle. 
+After a loading screen, you will be sent into the puzzle you chose.
+
+Built-in Puzzle Type:
+If you chose the built-in puzzle type, you will be sent to a puzzle selection menu. In this menu, you can choose which
+drawing you want to put together. Scroll through the puzzles with up and down, pressing A to choose the puzzle. 
+After a loading screen, you will be sent into the puzzle you chose.
+
+
+Game Modes:
+Timed:
+In the timed game mode, you will have a set amount of time to complete the puzzle you chose. The amount of time
+you have is dependent on the difficulty you chose. If you complete the puzzle in the allotted time, you will see
+a win screen. Otherwise, you will see a game over screen, giving you the option to try again.
+
+Free Play:
+In the free-play game mode, you have an unlimited amount of time to complete your puzzle, no matter the difficulty
+you chose. If you complete the puzzle, you will see a win screen.
+
+
+Difficulties:
+Easy: A 3x3 puzzle; in timed mode, you get 2 minutes to complete the puzzle.
+Medium: A 4x4 puzzle; in timed mode, you get 4 minutes to complete the puzzle.
+Hard: A 5x5 puzzle; in timed mode, you get 8 minutes to complete the puzzle.
+
+
+Controls:
+A - Pick up piece
+B - Drop piece
+Up - Move piece/cursor up
+Down - Move piece/cursor down
+Left - Move piece/cursor left
+Right - Move piece/cursor right
+Start - Enter pause screen
+
+
+Tips:
+- Try to find the corner pieces and organize them. This will make solving the puzzle faster
+- If you are struggling, enable numbers. This makes it easier to organize the pieces
+
+Credits:
+HalloSpaceBoy: Original game design and programming

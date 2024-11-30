@@ -59,6 +59,16 @@ try:
 except:
     animated=True
 
+try:
+    with open("SIP.conf") as r:
+        SIP=r.read()
+        if SIP=="True":
+            SIP=True
+        else:
+            SIP=False
+except:
+    SIP=True
+
 with open("Main Text.csv") as w:
     data=w.read().split("\n")[language]
     data=data.split(", ")
@@ -563,47 +573,83 @@ while True:
     pgb.show()
     draw_battery_backing()
     if (pgb.button_A() or pgb.button_start()) and not games==["No Games"]:
-        go=False
-        try:
-            x=open("./"+games[title]+"/"+games[title]+".py")
-            while True:
-                try:
-                    f10=x.readline(100)
-                    if "rename" in f10 or "PicoBoySDK" in f10:
-                        break
-                    if f10=="":
-                        raise
-                except:
-                    raise
-            x.close()
+        if SIP:
+            go=False
+        else:
             go=True
-        except:
-            sleep(0.1)
-            pgb.fill_rect(10,90,220,24+(len(gfs)*12),PicoGameBoy.color(50,50,50))
-            for i,f in enumerate(gfs):
-                pgb.create_text(f, -1,105+(i*12),PicoGameBoy.color(255,255,255))
-            pgb.show()
-            while True:
-                pgb.show()
-                if pgb.any_button():
-                    pgb.fill_rect(10,90,220,100,bgcolor565)
+        check=0
+        check1=0
+        check2=0
+        if SIP:
+            try:
+                x=open("./"+games[title]+"/"+games[title]+".py")
+                checktitle=games[title].lower().replace("/","").replace("\"","").replace("\'","").replace(" ","").lower()
+                while True:
                     try:
-                        Functions.readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60,80,120,120)
+                        f10=x.readline(100).replace("/","").replace("\"","").replace("\'","").replace(" ","").lower().split("#")
+                        if len(f10)>1 and len(f10[0])==0:
+                            f10="CHECK"
+                        else:
+                            f10=f10[0]
+                        if "rename(title.py,main.py)" in f10:
+                            check+=1
+                        if "rename(main.py,"+checktitle+checktitle+".py)" in f10:
+                            check+=1
+                        if "rename" in f10 and "fromosimport" in f10:
+                            check+=1
+                            
+                        if "os.rename(title.py,main.py)" in f10:
+                            check1+=1
+                        if "os.rename(main.py,"+checktitle+checktitle+".py)" in f10:
+                            check1+=1
+                        if "importos" in f10:
+                            check1+=1
+
+                        if ("=picoboysdk("+checktitle in f10 and ")" in f10) or ("=picoboysdk(namespace="+checktitle in f10 and ")" in f10):
+                            check2+=1
+                        if "frompicoboysdkimportpicoboysdk" in f10:
+                            check2+=1
+                        
+                        if check>2:
+                            break
+                        if check1>2:
+                            break
+                        if check2>1:
+                            break
+                        
+                        if f10=="":
+                            raise
                     except:
-                        pgb.fill_rect(60,80,120,120,ttcolor)
-                        pgb.create_text("No Image",-1,140,ottcolor)
+                        raise
+                x.close()
+                go=True
+            except:
+                sleep(0.1)
+                pgb.fill_rect(10,90,220,24+(len(gfs)*12),PicoGameBoy.color(50,50,50))
+                for i,f in enumerate(gfs):
+                    pgb.create_text(f, -1,105+(i*12),PicoGameBoy.color(255,255,255))
+                pgb.show()
+                while True:
+                    pgb.show()
+                    if pgb.any_button():
+                        pgb.fill_rect(10,90,220,100,bgcolor565)
+                        try:
+                            Functions.readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60,80,120,120)
+                        except:
+                            pgb.fill_rect(60,80,120,120,ttcolor)
+                            pgb.create_text("No Image",-1,140,ottcolor)
+                            sleep(0.1)
+                        if title==0:
+                            pgb.poly(200,130,arrowright,ttcolor,True)
+                        else:
+                            pgb.poly(200,130,arrowright,ttcolor,True)
+                            pgb.poly(40,130,arrowleft,ttcolor,True)
+                        pgb.poly(60,80,c1,bgcolor565,True)
+                        pgb.poly(60,200,c2,bgcolor565,True)
+                        pgb.poly(180,80,c3,bgcolor565,True)
+                        pgb.poly(180,200,c4,bgcolor565,True)
                         sleep(0.1)
-                    if title==0:
-                        pgb.poly(200,130,arrowright,ttcolor,True)
-                    else:
-                        pgb.poly(200,130,arrowright,ttcolor,True)
-                        pgb.poly(40,130,arrowleft,ttcolor,True)
-                    pgb.poly(60,80,c1,bgcolor565,True)
-                    pgb.poly(60,200,c2,bgcolor565,True)
-                    pgb.poly(180,80,c3,bgcolor565,True)
-                    pgb.poly(180,200,c4,bgcolor565,True)
-                    sleep(0.1)
-                    break
+                        break
                     
         if go:
             with open("gameselection.conf", "w") as w:

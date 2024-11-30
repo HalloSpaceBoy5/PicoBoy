@@ -640,7 +640,7 @@ class PicoBoySDK(ST7789):
         self.fill_rect(10,90,220,80,self.color(50,50,50))
         self.Create_Text("Game Paused", -1,-1,(255,255,255))
         self.Create_Text("Press start to resume.", -1, 135, (255,255,255))
-        self.Update(True, True)
+        self.Update(noclear=True)
         sleep(0.25)
         while True:
             self.Update(True, True)
