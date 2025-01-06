@@ -34,9 +34,12 @@ The PicoBoy SDK is avalible and easy to use! It makes developing games as easy a
 # Using the PicoBoy Communication Software
 The PicoBoy Communication Software is a handy peice of software that makes it easy to modifiy your PicoBoy. It can add games, delete games, format the console, update the console, customize the console, as well as many more features. Upon opening, Your computer may warn you saying that it is suspicious software. I promise it isin't, I wrote it myself. The reason your computer warns you is because the software is not signed with a certified software key, which I do not have the budget for. To use the software, follow the instructions for each function in the user guide.
 
+# Support
+This repository holds the code for PBOS and its games, which are officially supported only for the PicoBoy V1 and PicoBoy V2. If you experience any issues in using this software, please be aware that you will only receive support for official PicoBoy products; any issues opened for unsupported devices or modded operating systems will be closed immediately. If you are experiencing an issue with this software running on an official PicoBoy product, your issue will be addressed and resolved as quickly as possible.
+
 # Licensing
 ## You are free to modifiy and distribute this source code for strictly non-commercial or non-competitive reasons
-This is meant as a protection to the PicoBoy project, disallowing the usage of its code to prevent counterfiets. If you use or modifiy this code, you are not to utilize it in any commercial environment, including the usage of PBOS, games, and other software. If you wish to make a replication of the PicoBoy, contact me to negociate a commercial license.
+This is meant as a protection to the PicoBoy project, disallowing the usage of its code to prevent counterfiets. If you use or modifiy this code, you are not to utilize it in any commercial environment, including the usage of PBOS, games, and other software. If you wish to make a replication of the PicoBoy, **contact me to negociate a commercial license.**
 
 # Mentions
 ## Ash Hill at Tom's Hardware did a story on the PicoBoy!
