@@ -1,97 +1,50 @@
+from heapq import heappop, heappush
 
 
-class finder:
-    def __init__(self, currentposition, direction, parent=None, path=None):
-        self.listofobjs=[]
-        self.currentposition=currentposition
-        self.direction=direction
-        self.parent=parent
-        if not path==None:
-            self.path=path
-        else:
-            self.path=[]
-        
-    def update(self):
-        global positions, totalobjs, coveredpositions, goalloc, finalpath, playerloc
-        self.path.append(self.currentposition)
-        if self.currentposition==goalloc:
-            finalpath=self.path[:]
-            return -1
-        PicoBoy.Fill_Rect(self.currentposition[0]*16,self.currentposition[1]*16,16,16,(0,255,255))
-        PicoBoy.Update(noclear=True)
-        coveredpositions.append(self.currentposition)
-        if not (self.currentposition[0]-1,self.currentposition[1]) in positions and not (self.currentposition[0])-1 < 0:
-            if not self.direction == 1 and not ((self.currentposition[0])-1,self.currentposition[1]) in coveredpositions:
-                self.listofobjs.append(finder(((self.currentposition[0]-1),self.currentposition[1]),0, self, self.path[:]))
-                
-        if not (self.currentposition[0]+1,self.currentposition[1]) in positions and not (self.currentposition[0])+1 > 14:
-            if not self.direction == 0 and not (self.currentposition[0]+1,self.currentposition[1]) in coveredpositions:
-                self.listofobjs.append(finder(((self.currentposition[0]+1),self.currentposition[1]),1, self, self.path[:]))
-                
-        if not (self.currentposition[0],self.currentposition[1]-1) in positions and not (self.currentposition[1])-1 < 0:
-            if not self.direction == 3 and not (self.currentposition[0],self.currentposition[1]-1) in coveredpositions:
-                self.listofobjs.append(finder((self.currentposition[0],(self.currentposition[1]-1)), 2, self, self.path[:]))
-                
-        if not (self.currentposition[0],self.currentposition[1]+1) in positions and not (self.currentposition[1]+1) > 14:
-            if not self.direction == 2 and not (self.currentposition[0],self.currentposition[1]+1) in coveredpositions:
-                self.listofobjs.append(finder((self.currentposition[0],(self.currentposition[1]+1)),3, self, self.path[:]))
-        if self.listofobjs==[]:
-            try:
-                totalobjs.remove(self)
-            except:
-                ""
-            del self
-            return 0
-        for obj in self.listofobjs:
-            totalobjs.append(obj)
-        try:
-            totalobjs.remove(self)
-        except:
-            ""
-        del self
-        return 1
 
     
 class Pathfinder:
 
         
-    def Pathfind(locationz, startt, endd):
-        global locations, start, end, coveredpositions, totalobjs
-        locations=locationz
-        start=startt
-        end=endd
+    def Find_Path(moveablelocs, start, end):
+        def heuristic(a, b):
+            # Manhattan distance
+            return abs(a[0] - b[0]) + abs(a[1] - b[1])
+        
+        open_set = []
+        heappush(open_set, (0, start))
+        came_from = {}
+        g_score = {start: 0}
+        f_score = {start: heuristic(start, end)}
+        
+        while open_set:
+            _, current = heappop(open_set)
+            
+            if current == end:
+                return Pathfinder.reconstruct_path(came_from, current)
+            
+            neighbors = [((current[0] - 1, current[1]), 0),
+                         ((current[0] + 1, current[1]), 1),
+                         ((current[0], current[1] - 1), 2),
+                         ((current[0], current[1] + 1), 3)]
+            
+            for neighbor, direction in neighbors:
+                if neighbor in moveablelocs:
+                    tentative_g_score = g_score[current] + 1
+                    if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+                        came_from[neighbor] = current
+                        g_score[neighbor] = tentative_g_score
+                        f_score[neighbor] = tentative_g_score + heuristic(neighbor, end)
+                        heappush(open_set, (f_score[neighbor], neighbor))
+        
+        return []
 
-        totalobjs=[]
-        coveredpositions=[]
-        check1=False
-        pathfinder=finder(start,5).update()
-        while True:
-
-            for obj in totalobjs:
-                state=obj.update()
-                if state==0:
-                    try:
-                        totalobjs.remove(obj)
-                    except:
-                        ""
-                elif state==-1:
-                    for obj in totalobjs:
-                        totalobjs.remove(obj)
-                    try:
-                        del pathfinder
-                    except:
-                        ""
-                    print("Found Solution!")
-                    return finalpath
-            if len(totalobjs)==0 and not check1:
-                check1=True
-            elif len(totalobjs)==0 and check1:
-                print("No Solution!")
-                del pathfinder
-                for obj in totalobjs:
-                    totalobjs.remove(obj)
-                return
-            else:
-                check1=False
+    def reconstruct_path(came_from, current):
+        path = []
+        while current in came_from:
+            path.append(current)
+            current = came_from[current]
+        path.reverse()
+        return path
 
     

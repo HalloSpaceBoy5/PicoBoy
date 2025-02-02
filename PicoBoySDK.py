@@ -9,7 +9,8 @@ import sys
 from os import rename, chdir, listdir
 from _thread import start_new_thread
 from gc import collect
-
+from array import array
+from random import randint
 
 
 SWRESET   = b'\x01'
@@ -576,12 +577,50 @@ class PicoBoySDK(ST7789):
         if channel==4:
                 self.spk_channel4.duty_u16(0)
 
-    def Create_Text(self, s,x,y, c = (255,255,255)):
-        if x==-1:
-            x = int(self.width/2)- int(len(s)/2 * 8)
+    def Create_Text(self, s,x,y, c = (255,255,255), wid=240):
+        words=[]
+        if not s=="":
+            l=s.split(" ")
+            for f in l:
+                words.append(f)
+        longest=""
+        for w in words:
+            if len(w)>len(longest):
+                longest=w
+        if wid<(len(longest)*8)+30:
+            wid=(len(longest)*8)+30
+        if not s=="":
+            line=s.split(" ")
+            currentlines=[]
+            lengths=[]
+            for string in line:
+                lengths.append((len(string)*8)+8)
+            repeated=False
+            while len(line)>0:
+                currentline=[]
+                temp=0
+                while True:
+                    if len(line)==0:
+                        break
+                    if lengths[0]+temp>wid-20:
+                        break
+                    try:
+                        temp+=lengths.pop(0)
+                        currentline.append(line.pop(0))
+                    except:
+                        break
+                if not currentline==[]:
+                    currentlines.append(" ".join(currentline))
         if y==-1:
             y = int(self.height/2) - 8
-        self.text(s, x, y, self.color(*c))
+        
+        for line in currentlines:
+            if x==-1:
+                nx = int(self.width/2)- int(len(line)/2 * 8)
+            else:
+                nx=x+int(wid/2)-int()- int(len(line)/2 * 8)
+            self.text(line, nx, y, self.color(*c))
+            y+=12
         del x
         del y
         del c
@@ -637,7 +676,12 @@ class PicoBoySDK(ST7789):
             return x,y
 
     def Pause_Screen(self):
-        self.fill_rect(10,90,220,80,self.color(50,50,50))
+        self.fill_rect(18,90,206,81,self.color(50,50,50))
+        self.fill_rect(10,98,221,66,self.color(50,50,50))
+        self.poly(10,90,array('h',[8,0,0,8,8,8]),self.color(50,50,50),True)
+        self.poly(230,90,array('h',[0,8,-8,0,-8,8]),self.color(50,50,50),True)
+        self.poly(10,170,array('h',[8,0,0,-8,8,-8]),self.color(50,50,50),True)
+        self.poly(230,170,array('h',[0,-8,-8,0,-8,-8]),self.color(50,50,50),True)
         self.Create_Text("Game Paused", -1,-1,(255,255,255))
         self.Create_Text("Press start to resume.", -1, 135, (255,255,255))
         self.Update(noclear=True)
@@ -647,6 +691,130 @@ class PicoBoySDK(ST7789):
             if self.Button("Start"):
                 sleep(0.25)
                 return
+            
+    def Render_Popup(self, bgcolor, textcolor, x, y, width, title, description):
+        error=""
+        if type(bgcolor)==tuple:
+            if not len(bgcolor)==3:
+                error="Background color is incorrectly formatted (Use RGB888)"
+        else:
+            error="Background color is not a tuple"
+        if type(textcolor)==tuple:
+            if not len(textcolor)==3:
+                error="Text color is incorrectly formatted (Use RGB888)"
+        else:
+            error="Text color is not a tuple"
+        if not type(x) == int:
+            error="The X value must be an integer"
+        if not type(y) == int:
+            error="The Y value must be an integer"
+        if not type(width) == int:
+            error="The width value must be an integer"
+        if not type(title)==str:
+            error="The title must be a string"
+        if not type(description)==list:
+            error="The description must be a list of strings"
+        else:
+            if not all(isinstance(item, str) for item in description):
+                error="The description must be a list of strings"
+        if not error=='':
+            raise TypeError(f"PicoBoySDK Error: {error}!")
+            sys.exit()
+        height=15
+        
+        words=[]
+        if not title=="":
+            l=title.split(" ")
+            for f in l:
+                words.append(f)
+        for l in description:
+            l=l.split(" ")
+            for f in l:
+                words.append(f)
+        longest=""
+        for w in words:
+            if len(w)>len(longest):
+                longest=w
+        newwidth=(len(longest)*8)+30
+        #if newwidth>width:
+        #    width=newwidth
+        
+        lines=[]
+        if not title=="":
+            line=title.split(" ")
+            currentlines=[]
+            lengths=[]
+            for string in line:
+                lengths.append((len(string)*8)+8)
+            repeated=False
+            while len(line)>0:
+                currentline=[]
+                temp=0
+                while True:
+                    if len(line)==0:
+                        break
+                    if lengths[0]+temp>width-20 and not width<newwidth:
+                        break
+                    try:
+                        temp+=lengths.pop(0)
+                        currentline.append(line.pop(0))
+                    except:
+                        break
+                if not currentline==[]:
+                    currentlines.append(" ".join(currentline))
+            lines.append(currentlines)
+        for line in description:
+            line=line.split(" ")
+            lengths=[]
+            currentlines=[]
+            for string in line:
+                lengths.append((len(string)*8)+8)
+            repeated=False
+            while len(line)>0:
+                
+                currentline=[]
+                temp=0
+                while True:
+                    if len(line)==0 and not repeated:
+                        repeated=True
+                        break
+                    else:
+                        repeated=False
+                    if lengths[0]+temp>width-20 and not width<newwidth:
+                        break
+                    try:
+                        temp+=lengths.pop(0)
+                        currentline.append(line.pop(0))
+                    except:
+                        break
+                if not currentline==[]:
+                    currentlines.append(" ".join(currentline))
+            lines.append(currentlines)
+        for line in lines:
+            height+=8
+            height+=len(line)*12
+            
+
+        if x<0:
+            x=int(120-(width/2))
+        if y<0:
+            y=int(120-(height/2))
+        self.fill_rect(x+8,y,width-16,height,self.color(*bgcolor))
+        self.fill_rect(x,y+8,width,height-17,self.color(*bgcolor))
+        self.poly(x,y,array('h',[8,0,0,8,8,8]),self.color(*bgcolor),True)
+        self.poly(x+width-1,y,array('h',[0,8,-8,0,-8,8]),self.color(*bgcolor),True)
+        self.poly(x,y+height-1,array('h',[8,0,0,-8,8,-8]),self.color(*bgcolor),True)
+        self.poly(x+width-1,y+height-1,array('h',[0,-8,-8,0,-8,-8]),self.color(*bgcolor),True)
+        currenty=y+10
+        tcolor=self.color(*textcolor)
+        for i,l in enumerate(lines):
+            for line in l:
+                self.text(line, x+int((width/2)-((len(line)*8)/2)), currenty, tcolor)
+                currenty+=12
+            if not i==0:
+                currenty+=8
+            else:
+                currenty+=13
             
     def Save_Score(self, score):
         if not type(score) == int:

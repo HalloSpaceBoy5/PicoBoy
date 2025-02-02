@@ -560,15 +560,7 @@ while True:
         pgb.create_text(dum[7],-1,224,ttcolor)
         Functions.readchunk_mask("Data Upload Mode.pbimg", 72,90,100,100,cmask=PicoGameBoy.color(31,17,9))
         pgb.show()
-        try:
-            remove("/out.bin")
-        except:
-            ""
-        with open("/out.bin", "ab") as w:
-            for i in range(240):
-                data=pgb.sbuffer[i*480:i*480+480]
-                w.write(data)
-        break
+        exit()
     draw_battery()
     pgb.show()
     draw_battery_backing()
