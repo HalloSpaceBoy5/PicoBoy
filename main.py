@@ -6,7 +6,7 @@ from PicoGameBoy import PicoGameBoy
 from time import sleep
 from array import array
 from os import rename, listdir, remove
-from sys import exit
+from sys import exit, implementation
 from machine import reset, ADC
 from Functions import Functions
 
@@ -21,6 +21,7 @@ gamenum=len(games)-1
 title=0
 pastpercentage=[]
 pastpercent=101
+mpyversion=implementation[1]
 
 
 
@@ -35,7 +36,7 @@ try:
     remove("/noboot")
     bootlogo=False
     try:
-        with open("gameselection.conf", "r") as r:
+        with open("/gameselection.conf", "r") as r:
             title=int(r.read())
     except:
         "config nonexistent"
@@ -43,7 +44,7 @@ except:
     bootlogo=True
     
 try:
-    with open("language.conf") as r:
+    with open("/language.conf") as r:
         language=int(r.read())
     if language>4:
         raise
@@ -60,7 +61,7 @@ except:
     animated=True
 
 try:
-    with open("SIP.conf") as r:
+    with open("/SIP.conf") as r:
         SIP=r.read()
         if SIP=="True":
             SIP=True
@@ -69,7 +70,7 @@ try:
 except:
     SIP=True
 
-with open("Main Text.csv") as w:
+with open("/Main Text.csv") as w:
     data=w.read().split("\n")[language]
     data=data.split(", ")
     ng=data[0]
@@ -98,7 +99,7 @@ if gamenum==-1:
     games=["No Games"]
 
 try:
-    with open("background.conf","r") as r:
+    with open("/background.conf","r") as r:
         data=r.read()
     try:    
         bindex=int(data)
@@ -163,8 +164,8 @@ if bgimage:
 # RENDER BOOT LOGO
 if bootlogo:
     pgb.fill(BLACK)
-    Functions.readchunk("logo.pbimg",88,50,64,64,False)
-    Functions.readchunk("logo-text.pbimg",69,150,102,15,False)
+    Functions.readchunk("/logo.pbimg",88,50,64,64,False)
+    Functions.readchunk("/logo-text.pbimg",69,150,102,15,False)
     pgb.show_screen()
     pgb.sound(98)
     sleep(0.2)
@@ -194,7 +195,7 @@ if bgimage:
     pgb.poly(222,49,array('h',[0,0,0,-5,5,-5]),bgcolor565,True)
 else:
     pgb.fill(PicoGameBoy.color(*bgcolor))
-Functions.readchunk_mask("picoboy-color.pbimg",0,0,240,60)
+Functions.readchunk_mask("/picoboy-color.pbimg",0,0,240,60)
 
 
     
@@ -208,40 +209,41 @@ def draw_battery():
     adc_voltage  = (adc_reading * 3.3) / 65535
     vsys_voltage = adc_voltage * 12
     console=0
-    if vsys_voltage>10:
-        vsys_voltage = adc_voltage * 3
+    if (vsys_voltage<10 and mpyversion[1]<=23) or (vsys_voltage<13 and mpyversion[1]>=24):
+        vsys_voltage = adc_voltage * 3 if mpyversion[1]>=24 else vsys_voltage
+        
         percentage=int(int(((round(vsys_voltage,3)-1.9)/2.7)*100))
         console=1
     else:
-        percentage=int(int(((round(vsys_voltage,3)-1.9)/1)*100))
+        vsys_voltage = adc_voltage * 3 if mpyversion[1]>=24 else vsys_voltage
+        percentage=int(int(((round(vsys_voltage,3)-1.9)/3.5)*100))
         console=0
+
     if console==0:
-        if percentage>100 and percentage<125:
+        if percentage>100:
             percentage=100
-        if percentage<130:
-            pastpercentage.append(percentage)
-            if len(pastpercentage)>200:
-                pastpercentage.pop(0)
-            percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+        pastpercentage.append(percentage)
+        if len(pastpercentage)>200:
+            pastpercentage.pop(0)
+        percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
     elif console==1:
-        if percentage>100 and percentage<110:
+        if percentage>100:
             percentage=100
-        if percentage<110:
-            pastpercentage.append(percentage)
-            if len(pastpercentage)>200:
-                pastpercentage.pop(0)
-            percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+        pastpercentage.append(percentage)
+        if len(pastpercentage)>200:
+            pastpercentage.pop(0)
+        percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
     
         
     battx=9
     batty=183
     pgb.rect(battx,batty,20,40,ttcolor)
     pgb.fill_rect(battx+5,batty-4,10,5,ttcolor)
-    if percentage>100:
+    if (vsys_voltage>3.5 and console==1) or (vsys_voltage>4 and console==0):
         pgb.create_text("U",battx+6, batty+7,ttcolor)
         pgb.create_text("S",battx+6, batty+17,ttcolor)
         pgb.create_text("B",battx+6, batty+27,ttcolor)
-        pgb.create_text("USB",battx+10-int(len(str(percentage))/2 * 8), batty+44, ttcolor)
+        pgb.create_text("USB",battx+10-int(len(str("USB"))/2 * 8), batty+44, ttcolor)
     else:
         h=int(38*(percentage/100))
         pgb.fill_rect(battx+1,batty+1+(38-h),18,h,ttcolor)
@@ -318,7 +320,7 @@ def render(f=True, j=False):
             if not games==["No Games"]:
                 Functions.readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60,80,120,120)
             else:
-                Functions.readchunk(games[title]+".pbimg",60,80,120,120)
+                Functions.readchunk("/"+games[title]+".pbimg",60,80,120,120)
         except:
             pgb.fill_rect(60,80,120,120,ttcolor)
             for g,h in enumerate(ni):
@@ -446,13 +448,13 @@ while True:
                         if not games==["No Games"]:
                             Functions.readchunk(games[title]+"/"+games[title]+" (Title Image).pbimg",60-(i*incr),81,120,120)
                         else:
-                            Functions.readchunk("No Games.pbimg",60-(i*incr),81,120,120)
+                            Functions.readchunk("/No Games.pbimg",60-(i*incr),81,120,120)
                     except:
                         pgb.fill_rect(60-(i*incr),81,120,120,ttcolor)
                         for g,h in enumerate(ni):
                             pgb.create_text(h,(120-(len(h)*4))-(i*incr),int(140-((len(ni)/2)*12))+(g*12),ottcolor)
                         sleep(0.015)
-                    Functions.readchunk("settings.pbimg",300-(i*incr),80,120,120)
+                    Functions.readchunk("/settings.pbimg",300-(i*incr),80,120,120)
                     pgb.poly(60-(i*incr),80,c1,bgcolor565,True)
                     pgb.poly(60-(i*incr),200,c2,bgcolor565,True)
                     pgb.poly(180-(i*incr),80,c3,bgcolor565,True)
@@ -473,7 +475,7 @@ while True:
                 pos+="."
             pgb.create_text(pos+"0", x=-1, y=228,color=ttcolor)
             pgb.create_text(s,-1,65,ttcolor)
-            Functions.readchunk("settings.pbimg",60,80,120,120)
+            Functions.readchunk("/settings.pbimg",60,80,120,120)
             pgb.poly(43,125,arrowleftbg,bgcolor565,True)
             pgb.poly(40,130,arrowleft,ttcolor,True)
             pgb.poly(60,80,c1,bgcolor565,True)
@@ -488,7 +490,7 @@ while True:
                 pgb.show()
                 draw_battery_backing()
                 if pgb.button_A() or pgb.button_start():
-                    with open("gameselection.conf", "w") as w:
+                    with open("/gameselection.conf", "w") as w:
                         w.write(str(title+1))
                     rename("./main.py", "./title.py")
                     rename("settings.py", "./main.py")
@@ -506,7 +508,7 @@ while True:
                     pgb.create_text(dum[5],-1,200,ttcolor)
                     pgb.create_text(dum[6],-1,212,ttcolor)
                     pgb.create_text(dum[7],-1,224,ttcolor)
-                    Functions.readchunk_mask("Data Upload Mode.pbimg", 72,90,100,100,cmask=PicoGameBoy.color(31,17,9))
+                    Functions.readchunk_mask("/Data Upload Mode.pbimg", 72,90,100,100,cmask=PicoGameBoy.color(31,17,9))
                     pgb.show()
                     exit()
                 if pgb.button_left():
@@ -526,7 +528,7 @@ while True:
                                 for g,h in enumerate(ni):
                                     pgb.create_text(h,((120-(len(h)*4 ))-240)+(i*incr),int(140-((len(ni)/2)*12))+(g*12),ottcolor)
                                 sleep(0.015)
-                            Functions.readchunk("settings.pbimg",60+(i*incr),80,120,120)
+                            Functions.readchunk("/settings.pbimg",60+(i*incr),80,120,120)
                             pgb.poly(60+(i*incr),80,c1,bgcolor565,True)
                             pgb.poly(60+(i*incr),200,c2,bgcolor565,True)
                             pgb.poly(180+(i*incr),80,c3,bgcolor565,True)
@@ -558,7 +560,7 @@ while True:
         pgb.create_text(dum[5],-1,200,ttcolor)
         pgb.create_text(dum[6],-1,212,ttcolor)
         pgb.create_text(dum[7],-1,224,ttcolor)
-        Functions.readchunk_mask("Data Upload Mode.pbimg", 72,90,100,100,cmask=PicoGameBoy.color(31,17,9))
+        Functions.readchunk_mask("/Data Upload Mode.pbimg", 72,90,100,100,cmask=PicoGameBoy.color(31,17,9))
         pgb.show()
         exit()
     draw_battery()
@@ -644,7 +646,7 @@ while True:
                         break
                     
         if go:
-            with open("gameselection.conf", "w") as w:
+            with open("/gameselection.conf", "w") as w:
                 w.write(str(title))
             rename("./main.py", "./title.py")
             rename("./"+games[title]+"/"+games[title]+".py", "./main.py")

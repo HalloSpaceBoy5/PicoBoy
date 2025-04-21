@@ -21,18 +21,16 @@ class Functions:
             p=abs(p)
         else:
             p=0
-        o=0
         x=bytearray(p*2)
-        
-        size=0
+        total_line_size = buffersize + p*2
+        size = h * total_line_size
         with open(filename, "rb") as image_file:
             for y in range(h):
                 existing_line_start = ((y + y2) * 240 + x2) * 2
                 image_file.readinto(self.pgb.buffer[existing_line_start:existing_line_start + buffersize])
                 image_file.readinto(x[0:p*2])
-                size += image_file.tell()
-                o+=p
-        if not size==1742400 and q:
+
+        if not size==28800 and q:
             self.pgb.fill_rect(x2,y2,w,h,self.ttcolor)
             unit=int((len(self.ic)/2)*12)
             for i,j in enumerate(self.ic):

@@ -9,7 +9,7 @@ import sys
 from random import randint
 import machine
 from math import ceil
-
+mpyversion=sys.implementation[1]
 try:
     os.rename("/main.py", "/settings.py")
     os.rename("/title.py", "/main.py")
@@ -144,30 +144,31 @@ def stats():
                 adc_voltage  = (adc_reading * 3.3) / 65535
                 vsys_voltage = adc_voltage * 12
                 console=0
-                if vsys_voltage>10:
-                    vsys_voltage = adc_voltage * 3
+                if (vsys_voltage<10 and mpyversion[1]<=23) or (vsys_voltage<13 and mpyversion[1]>=24):
+                    vsys_voltage = adc_voltage * 3 if mpyversion[1]>=24 else vsys_voltage
+                    
                     percentage=int(int(((round(vsys_voltage,3)-1.9)/2.7)*100))
                     console=1
                 else:
-                    percentage=int(int(((round(vsys_voltage,3)-1.9)/1)*100))
+                    vsys_voltage = adc_voltage * 3 if mpyversion[1]>=24 else vsys_voltage
+                    percentage=int(int(((round(vsys_voltage,3)-1.9)/3.5)*100))
                     console=0
+
                 if console==0:
-                    if percentage>100 and percentage<125:
+                    if percentage>100:
                         percentage=100
-                    if percentage<130:
-                        pastpercentage.append(percentage)
-                        if len(pastpercentage)>200:
-                            pastpercentage.pop(0)
-                        percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+                    pastpercentage.append(percentage)
+                    if len(pastpercentage)>200:
+                        pastpercentage.pop(0)
+                    percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
                 elif console==1:
-                    if percentage>100 and percentage<110:
+                    if percentage>100:
                         percentage=100
-                    if percentage<110:
-                        pastpercentage.append(percentage)
-                        if len(pastpercentage)>200:
-                            pastpercentage.pop(0)
-                        percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
-                if percentage>100:
+                    pastpercentage.append(percentage)
+                    if len(pastpercentage)>200:
+                        pastpercentage.pop(0)
+                    percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+                if (vsys_voltage>3.5 and console==1) or (vsys_voltage>4 and console==0):
                     option=option+"USB"
                 else:
                     option=option+str(percentage)+"%"
@@ -470,31 +471,32 @@ while True:
     adc_voltage  = (adc_reading * 3.3) / 65535
     vsys_voltage = adc_voltage * 12
     console=0
-    if vsys_voltage>10:
-        vsys_voltage = adc_voltage * 3
+    if (vsys_voltage<10 and mpyversion[1]<=23) or (vsys_voltage<13 and mpyversion[1]>=24):
+        vsys_voltage = adc_voltage * 3 if mpyversion[1]>=24 else vsys_voltage
+        
         percentage=int(int(((round(vsys_voltage,3)-1.9)/2.7)*100))
         console=1
     else:
-        percentage=int(int(((round(vsys_voltage,3)-1.9)/1)*100))
+        vsys_voltage = adc_voltage * 3 if mpyversion[1]>=24 else vsys_voltage
+        percentage=int(int(((round(vsys_voltage,3)-1.9)/3.5)*100))
         console=0
+
     if console==0:
-        if percentage>100 and percentage<125:
+        if percentage>100:
             percentage=100
-        if percentage<130:
-            pastpercentage.append(percentage)
-            if len(pastpercentage)>200:
-                pastpercentage.pop(0)
-            percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+        pastpercentage.append(percentage)
+        if len(pastpercentage)>200:
+            pastpercentage.pop(0)
+        percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
     elif console==1:
-        if percentage>100 and percentage<110:
+        if percentage>100:
             percentage=100
-        if percentage<110:
-            pastpercentage.append(percentage)
-            if len(pastpercentage)>200:
-                pastpercentage.pop(0)
-            percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+        pastpercentage.append(percentage)
+        if len(pastpercentage)>200:
+            pastpercentage.pop(0)
+        percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
     pgb.create_text("PicoBoy            "+version,10,225,ttcolor)
-    if percentage>100:
+    if (vsys_voltage>3.5 and console==1) or (vsys_voltage>4 and console==0):
         pgb.create_text("USB",100,225, ttcolor)
     else:
         pgb.create_text(str(percentage)+"%",100,225,ttcolor)

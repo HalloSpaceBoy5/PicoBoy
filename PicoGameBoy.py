@@ -7,6 +7,7 @@ from time import sleep
 from random import randint
 import struct
 import sys
+mpyversion=sys.implementation[1]
 
 
 class PicoGameBoy(ST7789):
@@ -60,9 +61,7 @@ class PicoGameBoy(ST7789):
             self.decrease_vol()
         adc_reading  = self.vpin.read_u16()
         adc_voltage  = (adc_reading * 3.3) / 65535
-        vsys_voltage = adc_voltage * 12
-        if vsys_voltage>10:
-            vsys_voltage = adc_voltage * 3
+        vsys_voltage = adc_voltage * 3 if mpyversion[1]>=24 else adc_voltage * 12
         if vsys_voltage<1.9:
             try:
                 with open("langauge.conf") as r:

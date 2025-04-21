@@ -4,7 +4,7 @@
 from micropython import const
 from machine import Pin, PWM, SPI
 import framebuf
-from utime import sleep_ms
+from utime import sleep_ms, ticks_ms, ticks_diff
 from time import sleep
 
 
@@ -42,7 +42,7 @@ PWMFRSEL  = b'\xCC'
 # http://docs.micropython.org/en/latest/pyboard/library/framebuf.html
 class ST7789(framebuf.FrameBuffer):
     def __init__(self, width=240, height=240, id_=0, sck=18, mosi=19,
-                 dc=20, rst=21, cs=17, bl=22, baudrate=62500000):
+                 dc=20, rst=21, cs=17, bl=22, baudrate=68000000):
         self.width = width
         self.height = height
         self.dc = Pin(dc, Pin.OUT)
@@ -57,6 +57,7 @@ class ST7789(framebuf.FrameBuffer):
         self.DUTY_CYCLE_MIN = 10000 #Minimum Brightness
         self.DUTY_CYCLE=45000 #Brightness
         self.DUTY_CYCLE_MAX = 65000 #Maximum Brightness
+        self.last_frame_time = ticks_ms()
         
         ### Enable for screenshots
         self.sbuffer=bytearray(self.height * self.width * 2)
@@ -81,6 +82,14 @@ class ST7789(framebuf.FrameBuffer):
         
         self.init_display()
         
+    def vsync_delay(self, target_fps=60):
+        frame_time = 1000 // target_fps  # 16.67 ms per frame
+        now = ticks_ms()
+        elapsed = ticks_diff(now, self.last_frame_time)
+        if elapsed < frame_time:
+            sleep_ms(frame_time - elapsed)
+        self.last_frame_time = ticks_ms()        
+
     def write_cmd(self, cmd=None, data=None):
         self.cs(0)
         if cmd:
@@ -179,6 +188,7 @@ class ST7789(framebuf.FrameBuffer):
         pass
 
     def show_screen(self):
+        self.vsync_delay()
         self.write_cmd(RAMWR, self.buffer)
     
     def color(r, g, b):

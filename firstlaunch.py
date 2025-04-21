@@ -4,11 +4,11 @@ from Functions import Functions
 from time import sleep
 from os import remove, rename
 import math
-from sys import exit
+from sys import exit,implementation
 from array import array
 from framebuf import FrameBuffer, RGB565
 
-
+mpyversion=implementation[1]
 BLACK = PicoGameBoy.color(0,0,0)
 WHITE = PicoGameBoy.color(255,255,255)
 pgb = PicoGameBoy()
@@ -58,30 +58,34 @@ def get_batt_percentage():
     adc_voltage  = (adc_reading * 3.3) / 65535
     vsys_voltage = adc_voltage * 12
     console=0
-    if vsys_voltage>10:
-        vsys_voltage = adc_voltage * 3
+    if (vsys_voltage<10 and mpyversion[1]<=23) or (vsys_voltage<13 and mpyversion[1]>=24):
+        vsys_voltage = adc_voltage * 3 if mpyversion[1]>=24 else vsys_voltage
+        
         percentage=int(int(((round(vsys_voltage,3)-1.9)/2.7)*100))
         console=1
     else:
-        percentage=int(int(((round(vsys_voltage,3)-1.9)/1)*100))
+        vsys_voltage = adc_voltage * 3 if mpyversion[1]>=24 else vsys_voltage
+        percentage=int(int(((round(vsys_voltage,3)-1.9)/3.5)*100))
         console=0
+
     if console==0:
-        if percentage>100 and percentage<125:
+        if percentage>100:
             percentage=100
-        if percentage<130:
-            pastpercentage.append(percentage)
-            if len(pastpercentage)>200:
-                pastpercentage.pop(0)
-            percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+        pastpercentage.append(percentage)
+        if len(pastpercentage)>200:
+            pastpercentage.pop(0)
+        percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
     elif console==1:
-        if percentage>100 and percentage<110:
+        if percentage>100:
             percentage=100
-        if percentage<110:
-            pastpercentage.append(percentage)
-            if len(pastpercentage)>200:
-                pastpercentage.pop(0)
-            percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
-    return percentage
+        pastpercentage.append(percentage)
+        if len(pastpercentage)>200:
+            pastpercentage.pop(0)
+        percentage=int(int(sum(pastpercentage)/len(pastpercentage)))
+    if (vsys_voltage>3.5 and console==1) or (vsys_voltage>4 and console==0):
+        return "USB"
+    else:
+        return str(percentage)+"%"
 
 
     
@@ -123,10 +127,7 @@ while True:
     pgb.create_text(lang[index][0], -1, 27, WHITE)
     pgb.create_text(version,160,225,ttcolor)
     percentage=get_batt_percentage()
-    if percentage>100:
-        pgb.create_text("USB",10,225, ttcolor)
-    else:
-        pgb.create_text(str(percentage)+"%",10,225,ttcolor)
+    pgb.create_text(percentage,10,225, ttcolor)
     options=["English", "Espanol", "Francais", "Deutsch", "Italiano"]
     for i,option in enumerate(options):
         pgb.rect(10,50+i*30,220,20,WHITE)
@@ -180,10 +181,7 @@ for i in range(24):
     pgb.fill(PicoGameBoy.color(*bgcolors[8]))
     pgb.create_text(version,160,225,ttcolor)
     percentage=get_batt_percentage()
-    if percentage>100:
-        pgb.create_text("USB",10,225, ttcolor)
-    else:
-        pgb.create_text(str(percentage)+"%",10,225,ttcolor)
+    pgb.create_text(percentage,10,225, ttcolor)
     for g,f in enumerate(words[0]):
         pgb.create_text(f, -1, 12+g*12, WHITE)
     for g,f in enumerate(words[1]):
@@ -203,25 +201,7 @@ while True:
     pgb.fill(PicoGameBoy.color(*bgcolors[8]))
     pgb.create_text(version,160,225,ttcolor)
     percentage=get_batt_percentage()
-    if percentage>100:
-        pgb.create_text("USB",10,225, ttcolor)
-    else:
-        pgb.create_text(str(percentage)+"%",10,225,ttcolor)
-    if percentage<20:
-        pgb.create_text("BATTERY TOO LOW!",-1,30,PicoGameBoy.color(255,255,255))
-        pgb.create_text("Please replace the", -1, 130, PicoGameBoy.color(255,255,255))
-        pgb.create_text("batteries in your PicoBoy.", -1, 145, PicoGameBoy.color(255,255,255))
-        pgb.create_text("Please switch your", -1, 200, PicoGameBoy.color(255,255,255))
-        pgb.create_text("PicoBoy off.", -1, 215, PicoGameBoy.color(255,255,255))
-        pgb.rect(75,60,80,40,PicoGameBoy.color(255,0,0))
-        pgb.fill_rect(155,70,10,20,PicoGameBoy.color(255,0,0))
-        pgb.line(75,60,155,99,PicoGameBoy.color(255,0,0))
-        pgb.sound(0)
-        pgb.sound(0,2)
-        pgb.sound(0,3)
-        pgb.sound(0,4)
-        pgb.show_screen()
-        exit()
+    pgb.create_text(percentage,10,225, ttcolor)
     for g,f in enumerate(words[0]):
         pgb.create_text(f, -1, 12+g*12, WHITE)
     for g,f in enumerate(words[1]):

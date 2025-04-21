@@ -4,15 +4,15 @@ from machine import Pin, PWM, SPI, reset, ADC
 import framebuf
 from framebuf import FrameBuffer, RGB565
 from time import sleep
-from utime import sleep_ms
-import sys
+from utime import sleep_ms, ticks_ms, ticks_diff
+from sys import implementation
 from os import rename, chdir, listdir
 from _thread import start_new_thread
 from gc import collect
 from array import array
 from random import randint
 
-
+mpyversion=implementation[1]
 SWRESET   = b'\x01'
 TEOFF     = b'\x34'
 TEON      = b'\x35'
@@ -39,6 +39,17 @@ INVON     = b'\x21'
 CASET     = b'\x2A'
 RASET     = b'\x2B'
 PWMFRSEL  = b'\xCC'
+def colorc(rgb565):
+    lsb = (rgb565 & 0b0000000011111111)<<8
+    msb = (rgb565 & 0b1111111100000000)>>8
+    rgb565=(lsb | msb)
+    red5 = rgb565 >> 11
+    green6 = (rgb565 >> 5) & 0b111111
+    blue5 = rgb565 & 0b11111
+    red8 = round(red5 / 31 * 255)
+    green8 = round(green6 / 63 * 255)
+    blue8 = round(blue5 / 31 * 255)
+    return (red8, green8, blue8)
 
 
 class ST7789(framebuf.FrameBuffer):
@@ -58,6 +69,7 @@ class ST7789(framebuf.FrameBuffer):
         self.DUTY_CYCLE_MIN = 10000
         self.DUTY_CYCLE=45000
         self.DUTY_CYCLE_MAX = 65000
+        self.last_frame_time = ticks_ms()
         self.buffer = memoryview(bytearray(self.height * self.width * 2))
         super().__init__(self.buffer, self.width, self.height, framebuf.RGB565)
         self.init_display()
@@ -70,6 +82,7 @@ class ST7789(framebuf.FrameBuffer):
             self.dc(1)
             self.spi.write(data)
         self.cs(1)
+
 
     def init_display(self):
         self.rst.value(1)
@@ -135,37 +148,17 @@ class ST7789(framebuf.FrameBuffer):
                 w.write(str(self.DUTY_CYCLE))
         except:
             ""
-    
-    def power_off(self):
-        pass
 
-    def power_on(self):
-        pass
-
-    def contrast(self, contrast):
-        pass
-
-    def invert(self, invert):
-        pass
-
-    def rotate(self, rotate):
-        pass
 
     def show_screen(self):
+        frame_time = 1000 // 60  # 16.67 ms per frame
+        now = ticks_ms()
+        elapsed = ticks_diff(now, self.last_frame_time)
+        if elapsed < frame_time:
+            sleep_ms(frame_time - elapsed)
+        self.last_frame_time = ticks_ms()   
         self.write_cmd(RAMWR, self.buffer)
-        
-        
-    def colorc(self,rgb565):
-        lsb = (rgb565 & 0b0000000011111111)<<8
-        msb = (rgb565 & 0b1111111100000000)>>8
-        rgb565=(lsb | msb)
-        red5 = rgb565 >> 11
-        green6 = (rgb565 >> 5) & 0b111111
-        blue5 = rgb565 & 0b11111
-        red8 = round(red5 / 31 * 255)
-        green8 = round(green6 / 63 * 255)
-        blue8 = round(blue5 / 31 * 255)
-        return (red8, green8, blue8)
+
     
     def color(self,r, g, b):
         r5 = (r & 0b11111000) >> 3
@@ -177,6 +170,8 @@ class ST7789(framebuf.FrameBuffer):
         
         return ((lsb << 8) | msb)
     
+
+    
     def Load_Image(self,filename):
         open(filename, "rb").readinto(self.buffer)
         
@@ -185,7 +180,7 @@ class ST7789(framebuf.FrameBuffer):
         y-=1
         byte1=self.buffer[2*(y*self.width+x)];
         byte2=self.buffer[2*(y*self.width+x)+1];
-        return self.colorc(byte2*256+byte1)
+        return colorc(byte2*256+byte1)
 
 class PicoBoySDK(ST7789):
     def __init__(self,namespace=None,tick_time=0.025):
@@ -234,10 +229,14 @@ class PicoBoySDK(ST7789):
         self.home = Pin(8, Pin.IN, Pin.PULL_UP)
         self.select = Pin(9, Pin.IN, Pin.PULL_UP)
         self.start = Pin(10, Pin.IN, Pin.PULL_UP)
-        self.spk_channel1 = PWM(Pin(12))
-        self.spk_channel2 = PWM(Pin(13))
-        self.spk_channel3 = PWM(Pin(14))
-        self.spk_channel4 = PWM(Pin(15))
+        self.channels={
+            "spk_channel1" : PWM(Pin(12)),
+            "spk_channel2" : PWM(Pin(13)),
+            "spk_channel3" : PWM(Pin(14)),
+            "spk_channel4" : PWM(Pin(15))
+            }
+
+        collect()        
         super().__init__(width=240, height=240, id_=0, sck=18, mosi=19,
                          dc=20, rst=21, cs=17, bl=22, baudrate=62500000)
         self.sprites=[]
@@ -261,7 +260,7 @@ class PicoBoySDK(ST7789):
                 except:
                     ""
                 raise TypeError("PicoBoySDK Error: Library \""+libname+"\" nonexistent in filesystem at path \"/libs/"+libname+"/"+libname+".py\".")
-                sys.exit()
+                exit()
         chdir("/")
         try:
             exec("from "+libname+" import "+str(", ".join(objects)))
@@ -271,7 +270,7 @@ class PicoBoySDK(ST7789):
             except:
                 ""
             raise TypeError("PicoBoySDK Error: Could not import \""+str(", ".join(objects))+"\" from library \""+libname+"\".")
-            sys.exit()
+            exit()
         chdir("/"+self.namespace)
         rename("/"+libname+".py","/libs/"+libname+"/"+libname+".py")
         
@@ -283,92 +282,66 @@ class PicoBoySDK(ST7789):
     def Render_Sprite(self, sprite, x, y):
         self.blit(sprite, x, y, self.maskcolor)
     
-    def Load_Small_Image(self,filename, x2, y2, w, h):
-        if x2>240:
+ 
+                    
+    def Load_Small_Image(self, filename, x2, y2, w, h):
+        # Early exit if the image is out of bounds
+        if x2 > 240 or x2 + w < 0 or y2 > 240 or y2 + h < 0:
             sleep(0.005)
             return
-        if x2<-w:
-            sleep(0.005)
-            return
-        if y2>240:
-            sleep(0.005)
-            return
-        if y2<-h:
-            sleep(0.005)
-            return
-        wx=0
-        wy=0
-        if x2+w>240:
-            wx=1
-        if x2<0:
-            wx=2
-        if y2+h>240:
-            wy=1
-        if y2<0:
-            wy=2
-        buffersize=w*2
-        if wx==1:
-            p=240-w-x2
-            if p<0:
-                e=abs(240-x2)
-                buffersize=e*2
-            if p<0:
-                p=abs(p)
-            else:
-                p=0
-            o=0
-            x=bytearray(p*2)
-        elif wx==2:
-            p=w-(w-x2)
-            if p<0:
-                e=abs(w+x2)
-                buffersize=e*2
-            if p<0:
-                p=abs(p)
-            else:
-                p=0
-            o=0
-            x=memoryview(bytearray(p*2))
-        ydiff=0
-        if wy==2:
-            ydiff=h-(h+y2)
-            z=memoryview(bytearray(w*2))
-        if wy==1:
-            ydiff=((h+y2)-240)
-            z=memoryview(bytearray(w*2))
+        # Figure out if clipping, if so, then on which sides of the screen
+        wx, wy = 0, 0
+        if 240-x2-w<0:
+            wx = 1
+        elif x2 < 0:
+            wx = 2
+        else:
+            wx=0
+        if y2 + h > 240:
+            wy = 1
+        elif y2 < 0:
+            wy = 2
+        else:
+            wy=0
+        #Find X clipping overlap
+        p = 0  
+        if x2 + w > 240:  
+            p =  240-x2-w
+        elif x2 < 0:  
+            p = x2
+            x2=0
+        p=abs(p)
+        #Find x buffer size according to the width minus the overlap
+        buffersize = (w-p) * 2
+        #Create a temp buffer to store the overlap from the .readinto function
+        x = bytearray(p * 2)
+        #Calculate y clip 
+        ydiff = 0
+        if wy == 2:
+            ydiff = h - (h + y2)
+        elif wy == 1:
+            ydiff = (h + y2) - 240
         with open(filename, "rb") as image_file:
+            #If the image is clipping on the left side, create a read offset of p*2
             if wx==2:
-                for y in range(h):
-                    if not y>=ydiff and wy==2:
-                        image_file.readinto(z[0:w*2])
-                    elif wy==1 and y>h-ydiff:
-                        image_file.readinto(z[0:w*2])
-                    else:
-                        existing_line_start = ((y + y2) * 240) * 2
-                        image_file.readinto(x[0:p*2])
-                        image_file.readinto(self.buffer[existing_line_start:existing_line_start + buffersize])
-                        o+=p
-            elif wx==1:
-                for y in range(h):
-                    if not y>=ydiff and wy==2:
-                        image_file.readinto(z[0:w*2])
-                    elif wy==1 and y>h-ydiff:
-                        image_file.readinto(z[0:w*2])
-                    else:
-                        existing_line_start = ((y + y2) * 240 + x2) * 2
-                        image_file.readinto(self.buffer[existing_line_start:existing_line_start + buffersize])
-                        image_file.readinto(x[0:p*2])
-                        o+=p
-            else:
-                for y in range(h):
-                    if not y>=ydiff and wy==2:
-                        image_file.readinto(z[0:w*2])
-                    elif wy==1 and y>h-ydiff:
-                        image_file.readinto(z[0:w*2])
-                    else:
-                        existing_line_start = ((y + y2) * 240 + x2) * 2
-                        image_file.readinto(self.buffer[existing_line_start:existing_line_start + buffersize])
-                    sleep(0.0005)
+                image_file.readinto(x[0:p*2])
+            for y in range(h):
+                #Check if there is y clipping, if so then read that into the null buffer
+                if (wy == 2 and y < ydiff) or (wy == 1 and y > h - ydiff):
+                    image_file.readinto(bytearray(w * 2))
+                    continue
+                #Find the starting index
+                existing_line_start = ((y + y2) * 240 + x2) * 2
+                #Read the image file line into that index
+                image_file.readinto(self.buffer[existing_line_start:existing_line_start + buffersize])
+                #Discard any x overlap
+                image_file.readinto(x[0:p*2])
+
+                sleep(0.0005)
+
+
+
+
 
 
     def Update(self, savescore=None, noclear=False):
@@ -398,41 +371,22 @@ class PicoBoySDK(ST7789):
             self.Fill_Screen((0,0,0))
         adc_reading  = self.vpin.read_u16()
         adc_voltage  = (adc_reading * 3.3) / 65535
-        vsys_voltage = adc_voltage * 12
-        if vsys_voltage>10:
-            vsys_voltage = adc_voltage * 3
+        vsys_voltage = adc_voltage * 3 if mpyversion[1]>=24 else adc_voltage * 12
         if vsys_voltage<1.9:
             self.fill(self.color(0,0,0))
-            if self.langauge==0:
-                self.Create_Text("BATTERY CRITICALLY LOW!",-1,30,(255,255,255))
-                self.Create_Text("Please replace the", -1, 130, (255,255,255))
-                self.Create_Text("batteries in your PicoBoy.", -1, 145, (255,255,255))
-                self.Create_Text("Please switch your", -1, 200, (255,255,255))
-                self.Create_Text("PicoBoy off.", -1, 215, (255,255,255))
-            if self.langauge==1:
-                self.Create_Text("BATERIA CRITICAMENTE BAJA!",-1,30,(255,255,255))
-                self.Create_Text("Por favor reemplace el", -1, 130, (255,255,255))
-                self.Create_Text("baterias en su PicoBoy.", -1, 145, (255,255,255))
-                self.Create_Text("Por favor cambia tu", -1, 200, (255,255,255))
-                self.Create_Text("PicoBoy fuera.", -1, 215, (255,255,255))
-            if self.langauge==2:
-                self.Create_Text("BATTERIE CRITIQUEMENT FAIBLE!",-1,30,(255,255,255))
-                self.Create_Text("Veuillez remplacer le", -1, 130, (255,255,255))
-                self.Create_Text("piles dans votre PicoBoy.", -1, 145, (255,255,255))
-                self.Create_Text("Veuillez changer votre", -1, 200, (255,255,255))
-                self.Create_Text("PicoBoy s'en va.", -1, 215, (255,255,255))
-            if self.langauge==3:
-                self.Create_Text("BATTERIE KRITISCH NIEDRIG!",-1,30,(255,255,255))
-                self.Create_Text("Bitte ersetzen Sie die", -1, 130, (255,255,255))
-                self.Create_Text("Batterien in Ihrem PicoBoy.", -1, 145, (255,255,255))
-                self.Create_Text("Bitte wechseln Sie Ihr", -1, 200, (255,255,255))
-                self.Create_Text("PicoBoy aus.", -1, 215, (255,255,255))
-            if self.langauge==4:
-                self.Create_Text("BATTERIA CRITICAMENTE SCARICA!",-1,30,(255,255,255))
-                self.Create_Text("Si prega di sostituire il", -1, 130, (255,255,255))
-                self.Create_Text("batterie del tuo PicoBoy.", -1, 145, (255,255,255))
-                self.Create_Text("Per favore, cambia il tuo", -1, 200, (255,255,255))
-                self.Create_Text("PicoBoy spento.", -1, 215, (255,255,255))
+            language_texts = {
+                0: ("BATTERY CRITICALLY LOW!", "Please replace the","batteries in your PicoBoy.","Please switch your", "PicoBoy off."),
+                1: ("BATERIA CRITICAMENTE BAJA!", "Por favor reemplace las","baterias en su PicoBoy.","Por favor cambia tu","PicoBoy fuera."),
+                2: ("BATTERIE CRITIQUEMENT FAIBLE!", "Veuillez remplacer les","piles dans votre PicoBoy.","Veuillez changer votre","PicoBoy s'en va."),
+                3: ("BATTERIE KRITISCH NIEDRIG!", "Bitte ersetzen Sie die","Batterien in Ihrem PicoBoy.","Bitte wechseln Sie Ihr","PicoBoy aus."),
+                4: ("BATTERIA CRITICAMENTE SCARICA!", "Si prega di sostituire le","batterie del tuo PicoBoy.","Per favore, cambia il tuo","PicoBoy spento.")
+            }
+            message = language_texts.get(self.langauge, language_texts[0])  # Default to English
+            self.Create_Text(message[0],-1,30,(255,255,255))
+            self.Create_Text(message[1], -1, 130, (255,255,255))
+            self.Create_Text(message[2], -1, 145, (255,255,255))
+            self.Create_Text(message[3], -1, 200, (255,255,255))
+            self.Create_Text(message[4], -1, 215, (255,255,255))
             self.rect(75,60,80,40,self.color(255,0,0))
             self.fill_rect(155,70,10,20,self.color(255,0,0))
             self.line(75,60,155,99,self.color(255,0,0))
@@ -441,7 +395,7 @@ class PicoBoySDK(ST7789):
             self.Play_Sound(0,3)
             self.Play_Sound(0,4)
             self.show_screen()
-            sys.exit()
+            exit()
             
     def increase_vol(self):
         if self.vol<=self.vol_max-5500:
@@ -466,165 +420,83 @@ class PicoBoySDK(ST7789):
             ""
             
     def Button(self, button):
-        if button=="Any":
-            if self.up.value()==0:
-                return True
-            elif self.down.value()==0:
-                return True
-            elif self.left.value()==0:
-                return True
-            elif self.right.value()==0:
-                return True
-            elif self.A.value()==0:
-                return True
-            elif self.B.value()==0:
-                return True
-            elif self.select.value()==0:
-                return True
-            elif self.start.value()==0:
-                return True
-            else:
-                return False
-        else:
-            if button=="Up" and self.up.value()==0:
-                return True
-            elif button=="Down" and self.down.value()==0:
-                return True
-            elif button=="Left" and self.left.value()==0:
-                return True
-            elif button=="Right" and self.right.value()==0:
-                return True
-            elif button=="A" and self.A.value()==0:
-                return True
-            elif button=="B" and self.B.value()==0:
-                return True
-            elif button=="Select" and self.select.value()==0:
-                return True
-            elif button=="Start" and self.start.value()==0:
-                return True
-            else:
-                return False
-        
+        buttons = {
+            "Up": self.up, "Down": self.down, "Left": self.left,
+            "Right": self.right, "A": self.A, "B": self.B,
+            "Select": self.select, "Start": self.start
+        }
+        if button == "Any":
+            return any(btn.value() == 0 for btn in buttons.values())
+        elif button in buttons:
+            return buttons[button].value() == 0
+        return False
+
     def Outline_Rect(self, x, y, width, height, color):
-        if not 'tuple' in str(type(color)):
-            raise TypeError("Outline_Rect() color must be a tuple!")
-            sys.exit()
         self.rect(x,y,width,height,self.color(*color))
         
     def Fill_Rect(self, x, y, width, height, color):
-        if not 'tuple' in str(type(color)):
-            raise TypeError("Fill_Rect() color must be a tuple!")
-            sys.exit()
         self.fill_rect(x,y,width,height,self.color(*color))
         
     def Line(self,x1,y1,x2,y2,c):
-        if not 'tuple' in str(type(c)):
-            raise TypeError("Line() color must be a tuple!")
-            sys.exit()
         self.line(x1,y1,x2,y2,self.color(*c))
         
     def Hline(self,x1,y1,h,c):
-        if not 'tuple' in str(type(c)):
-            raise TypeError("Hline() color must be a tuple!")
-            sys.exit()
         self.hline(x1,y1,h,self.color(*c))
 
     def Vline(self,x1,y1,w,c):
-        if not 'tuple' in str(type(c)):
-            raise TypeError("Vline() color must be a tuple!")
-            sys.exit()
+
         self.vline(x1,y1,w,self.color(*c))
             
     def Fill_Screen(self,color):
         self.fill(self.color(*color))
 
-    def Play_Sound(self, freq, channel=1, duty_u16 = 2000):
-        pwm_divider = 133000000 / self.audio_pwm_wrap / (freq+1)
-        max_count = (freq * self.audio_pwm_wrap) / 10000
-        level = (self.vol / 100.0**self.curve) * max_count
-        if channel==1:
-            if freq>0:
-                self.spk_channel1.freq(freq)
-                self.spk_channel1.duty_u16(int(level))
-            else:
-                self.spk_channel1.duty_u16(0)
-        if channel==2:
-            if freq>0:
-                self.spk_channel2.freq(freq)
-                self.spk_channel2.duty_u16(int(level))
-            else:
-                self.spk_channel2.duty_u16(0)
-        if channel==3:
-            if freq>0:
-                self.spk_channel3.freq(freq)
-                self.spk_channel3.duty_u16(int(level))
-            else:
-                self.spk_channel3.duty_u16(0)
-        if channel==4:
-            if freq>0:
-                self.spk_channel4.freq(freq)
-                self.spk_channel4.duty_u16(int(level))
-            else:
-                self.spk_channel4.duty_u16(0)
+
+    def Play_Sound(self, freq, channel=1, duty_u16=2000):
+        if freq==0:
+            self.Stop_Sound(channel)
+            return
+        if channel in [1, 2, 3, 4]:
+            spk_channel = self.channels[f"spk_channel{channel}"]
+            max_count = (freq * self.audio_pwm_wrap) / 10000
+            level = (self.vol / 100.0**self.curve) * max_count
+            spk_channel.freq(freq if freq > 0 else 0)
+            spk_channel.duty_u16(0 if freq == 0 else int(level))
 
     def Stop_Sound(self, channel=1):
-        if channel==1:
-                self.spk_channel1.duty_u16(0)
-        if channel==2:
-                self.spk_channel2.duty_u16(0)
-        if channel==3:
-                self.spk_channel3.duty_u16(0)
-        if channel==4:
-                self.spk_channel4.duty_u16(0)
+        spk_channel = self.channels[f"spk_channel{channel}"]
+        spk_channel.duty_u16(0)
 
-    def Create_Text(self, s,x,y, c = (255,255,255), wid=240):
-        words=[]
-        if not s=="":
-            l=s.split(" ")
-            for f in l:
-                words.append(f)
-        longest=""
-        for w in words:
-            if len(w)>len(longest):
-                longest=w
-        if wid<(len(longest)*8)+30:
-            wid=(len(longest)*8)+30
-        if not s=="":
-            line=s.split(" ")
-            currentlines=[]
-            lengths=[]
-            for string in line:
-                lengths.append((len(string)*8)+8)
-            repeated=False
-            while len(line)>0:
-                currentline=[]
-                temp=0
-                while True:
-                    if len(line)==0:
-                        break
-                    if lengths[0]+temp>wid-20:
-                        break
-                    try:
-                        temp+=lengths.pop(0)
-                        currentline.append(line.pop(0))
-                    except:
-                        break
-                if not currentline==[]:
-                    currentlines.append(" ".join(currentline))
-        if y==-1:
-            y = int(self.height/2) - 8
+    def Create_Text(self, s, x, y, c=(255, 255, 255), wid=None):
+        if not s:
+            return
         
-        for line in currentlines:
-            if x==-1:
-                nx = int(self.width/2)- int(len(line)/2 * 8)
-            else:
-                nx=x+int(wid/2)-int()- int(len(line)/2 * 8)
-            self.text(line, nx, y, self.color(*c))
-            y+=12
-        del x
-        del y
-        del c
-        del s
+        words = s.split(" ")
+        if wid:
+            longest = max(words, key=len)
+            wid = max(wid, (len(longest) * 8) + 30)
+
+            currentlines, line, temp = [], [], 0
+            lengths = [(len(word) * 8) + 8 for word in words]
+
+            for word, length in zip(words, lengths):
+                if temp + length > wid - 20:
+                    currentlines.append(" ".join(line))
+                    line, temp = [], 0
+                line.append(word)
+                temp += length
+
+            if line:
+                currentlines.append(" ".join(line))
+
+            y = y if y != -1 else (self.height // 2) - 8
+            for line in currentlines:
+                nx = x if x != -1 else (self.width // 2) - (len(line) * 8 // 2)
+                self.text(line, nx, y, self.color(*c))
+                y += 12
+        else:
+            x = x if x != -1 else (self.width // 2) - (len(s) * 8 // 2)
+            y = y if y != -1 else (self.height // 2) - 8
+            self.text(s, x, y, self.color(*c))
         
     def Check_Collision(self,x,y,width,height,x2,y2,width2,height2,speed,mode):
         if x < x2 + width2 and x + width > x2 and y < y2 + height and y + height > y2:
@@ -719,7 +591,7 @@ class PicoBoySDK(ST7789):
                 error="The description must be a list of strings"
         if not error=='':
             raise TypeError(f"PicoBoySDK Error: {error}!")
-            sys.exit()
+            exit()
         height=15
         
         words=[]
@@ -864,7 +736,7 @@ class PlayerObject:
     def __init__(self,parent,initx,inity,width,height,sprite,speed):
         if not "PicoBoySDK" in str(type(parent)):
             raise TypeError("PicoBoySDK Error: The PicoBoySDK object is missing or invalid in "+str(self))
-            sys.exit()
+            exit()
         self.initx=initx
         self.inity=inity
         self.x=initx
@@ -907,10 +779,10 @@ class MusicBoxObject:
             exit()
         self.parent=parent
         self.song=[]
-        self.ch_a_0 = self.parent.spk_channel1
-        self.ch_a_1 = self.parent.spk_channel2
-        self.ch_b_0 = self.parent.spk_channel3
-        self.ch_b_1 = self.parent.spk_channel4
+        self.ch_a_0 = self.parent.channels["spk_channel1"]
+        self.ch_a_1 = self.parent.channels["spk_channel2"]
+        self.ch_b_0 = self.parent.channels["spk_channel3"]
+        self.ch_b_1 = self.parent.channels["spk_channel4"]
         self.opcode=0x00
         self.mode=mode
         self.savedindex=0
@@ -1054,5 +926,6 @@ class MusicBoxObject:
 
 
     
+
 
 
