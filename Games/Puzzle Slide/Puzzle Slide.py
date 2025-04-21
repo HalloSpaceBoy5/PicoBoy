@@ -19,7 +19,43 @@ def readchunk_mask(filename,x2,y2,w,h,cmask=57351):
 
 
 bgcolor=(69,69,69)
+bgcolors=(
+    (215, 0, 0),
+    (227, 160, 5),
+    (220, 213, 0),
+    (0, 205, 0),
+    (0, 0, 205),
+    (141, 2, 171),
+    (227, 52, 189),
+    (161, 161, 161),
+    (69, 69, 69),
+    (0,0,0),
+    (69,69,69))
 
+try:
+    with open("/background.conf","r") as r:
+        data=r.read()
+    try:    
+        bindex=int(data)
+        bgimage=False
+        bgcolor=bgcolors[bindex]
+    except:
+        bgimage=True
+        bindex=8
+        bgcolor=(69,69,69)
+        bgcolor565=PicoGameBoy.color(69,69,69)
+        bgimagefile=data[:]
+except:
+    bindex=8
+    bgimage=False
+    
+if bindex>len(bgcolors)-1:
+    bindex=8
+bgcolor=bgcolors[bindex]
+if sum(bgcolor)<765: #426
+    tcolor=1
+else:
+    tcolor=0
 
 def split_chunks(path,size,bigsize):
     data=[]

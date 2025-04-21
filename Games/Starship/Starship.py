@@ -3,9 +3,11 @@ from random import randint, choice
 from math import ceil
 from time import sleep, ticks_ms, ticks_diff
 from array import array
+from gc import mem_free
 
 
 PicoBoy=PicoBoySDK("Starship",0.01)
+print(mem_free())
 try:
     PicoBoy.Line(0,0,1,1,(0,0,0))
 except:
@@ -30,166 +32,6 @@ starcoords=[]
 for i in range(100):
     starcoords.append((randint(0,240-playerboundright),randint(playerboundtop,240-playerboundbottom)))
 
-def init():
-    global Playerx,Playery,Playerspeed,Playerdirection,level,score,time,bulletlist,enemlist,lives,frameshift,slist,musicchoice
-    Playerx,Playery=randint(playerboundtop,240-playerboundbottom-17),randint(0,240-playerboundright-17)
-    Playerspeed=5
-    Playerdirection=0 #0,1,2,3 = up,down,left,right
-    bulletlist=[]
-    enemlist=[]
-    slist=[]
-    frameshift=0
-    lives=3+int(level/10)
-    time=randint(15+int(level/2),20+int(level/2))
-    while True:
-        nmc=randint(0,2)
-        if not nmc==musicchoice:
-            break
-    MusicBox.Stop_Song()
-    MusicBox.Change_Mode(1)
-    if nmc==0:
-        MusicBox.Play_Song("game_theme.pbs")
-    elif nmc==1:
-        MusicBox.Play_Song("game_theme2.pbs")
-    else:
-        MusicBox.Play_Song("game_theme3.pbs")
-    musicchoice=nmc
-
-def check_player():
-    global Playerx,Playery,Playerdirection
-    if PicoBoy.Button("Up"):
-        if Playery>playerboundtop:
-            Playery-=Playerspeed
-        Playerdirection=0
-    elif PicoBoy.Button("Down"):
-        if Playery<240-playerboundbottom-17:
-            Playery+=Playerspeed
-        Playerdirection=1
-    elif PicoBoy.Button("Left"):
-        if Playerx>0:
-            Playerx-=Playerspeed
-        Playerdirection=2
-    elif PicoBoy.Button("Right"):
-        if Playerx<240-playerboundright-17:
-            Playerx+=Playerspeed
-        Playerdirection=3
-    if Playery<playerboundtop:
-        Playery=playerboundtop
-    if Playery>240-playerboundbottom-17:
-        Playery=240-playerboundbottom-17
-    if Playerx<0:
-        Playerx=0
-    if Playerx>240-playerboundright-17:
-        Playerx=240-playerboundright-17
-    PicoBoy.Render_Sprite(playersprites[Playerdirection],Playerx+frameshift,Playery)
-        
-def gen_enemies():
-    scale=1
-    if level>4:
-        g=False
-        if level<10 and not g:
-            c=randint(int(1*ceil(scale/1)),int(2*ceil(scale/1)))
-            g=True
-        if level<20 and not g:
-            c=randint(int(1*ceil(scale/1)),int(3*ceil(scale/1)))
-            g=True
-        if level<40 and not g:
-            c=randint(int(1*ceil(scale/1)),int(4*ceil(scale/1)))
-            g=True
-        if level>=40:
-            c=randint(int(2*ceil(scale/1)),int(4*ceil(scale/1)))
-        w=randint(15+abs(5-int(level/10)),25+abs(10-int(level/10)))
-        if w>100:
-            w=randint(100,120)
-        enemlist.append(enemy(223,100,1,0,c,w))
-        w=randint(15+abs(5-int(level/10)),25+abs(10-int(level/10)))
-        if w>100:
-            w=randint(100,120)
-        enemlist.append(enemy(100,0,1,1,c,w))
-    else:
-        w=randint(60+int(5*level),90+int(5*level))
-        if w>100:
-            w=randint(100,120)
-        enemlist.append(enemy(223,100,1,randint(0,1),randint(int(1*scale),int(2*scale)),w))
-    a=choice([True, False])
-    pastx=[]
-    pasty=[]
-    right=0
-    top=0
-    num=randint(2+int(level/6),3+int(level/6))
-    for i in range(num):
-        if a:
-            top+=1
-            a=not a
-        else:
-            right+=1
-            a=not a
-    top=int(top)
-    right=int(right)
-    for i in range(top):
-        g=False
-        if level<10 and not g:
-            c=randint(1,2)
-            g=True
-        if level<20 and not g:
-            c=randint(2,3)
-            g=True
-        if level<40 and not g:
-            c=randint(2,4)
-            g=True
-        if level>=40:
-            c=randint(2,4)
-        count=0
-        while True:
-            if count==10000:
-                break
-            count+=1
-            coo=randint(10,240-45)
-            val=True
-            for value in enemlist:
-                if PicoBoy.Check_Collision(coo-8,0,34,17,value.x,value.y,17,17,1,1):# pygame.Rect(coo-16,0,64,32).colliderect(value.rect):
-                    val=False
-            if val:
-                break
-        w=randint(10+abs(5-int(level/10)),20+abs(10-int(level/10)))
-        if w>100:
-            w=randint(100,120)
-        enemlist.append(enemy(coo,0,0,1,c,w))
-        pastx.append(coo)
-        if int((240-100)/32)-len(pastx)<0:
-            break
-    for i in range(right):
-        g=False
-        if level<10 and not g:
-            c=randint(1,2)
-            g=True
-        if level<20 and not g:
-            c=randint(2,3)
-            g=True
-        if level<40 and not g:
-            c=randint(2,4)
-            g=True
-        if level>=40:
-            c=randint(2,4)
-        count=0
-        while True:
-            if count==100000:
-                break
-            count+=1
-            coo=randint(61,240-50)
-            val=True
-            for value in enemlist:
-                if PicoBoy.Check_Collision(207,coo,17,17,value.x,value.y,17,17,1,1):# pygame.Rect(swidth-33,coo,32,32).colliderect(value.rect):
-                    val=False
-            if val:
-                break
-        w=randint(10+abs(5-int(level/10)),20+abs(10-int(level/10)))
-        if w>100:
-            w=randint(100,120)
-        enemlist.append(enemy(223,coo,0,0,c,w))
-        pasty.append(coo)
-        if int((240-111)/32)-len(pasty)<0:
-            break
 
 class enemy:
     def __init__(self,x,y,typ,direction,speed,firerate):
@@ -313,9 +155,130 @@ class timer:
         
 
 def new_level():
-    global Playerx,Playery,Playerspeed,Playerdirection,level,score,time,bulletlist,enemlist,lives,frameshift,slist
-    init()
-    gen_enemies()
+    global Playerx,Playery,Playerspeed,Playerdirection,level,score,time,bulletlist,enemlist,lives,frameshift,slist,musicchoice
+    Playerx,Playery=randint(playerboundtop,240-playerboundbottom-17),randint(0,240-playerboundright-17)
+    Playerspeed=5
+    Playerdirection=0 #0,1,2,3 = up,down,left,right
+    bulletlist=[]
+    enemlist=[]
+    slist=[]
+    frameshift=0
+    lives=3+int(level/10)
+    time=randint(15+int(level/2),20+int(level/2))
+    while True:
+        nmc=randint(0,2)
+        if not nmc==musicchoice:
+            break
+    MusicBox.Stop_Song()
+    MusicBox.Change_Mode(1)
+    if nmc==0:
+        currentsong="game_theme.pbs"
+    elif nmc==1:
+        currentsong="game_theme2.pbs"
+    else:
+        currentsong="game_theme3.pbs"
+    MusicBox.Play_Song(currentsong)
+    musicchoice=nmc
+
+
+    scale=1
+    if level>4:
+        g=False
+        if level<10 and not g:
+            c=randint(int(1*ceil(scale/1)),int(2*ceil(scale/1)))
+            g=True
+        if level<20 and not g:
+            c=randint(int(1*ceil(scale/1)),int(3*ceil(scale/1)))
+            g=True
+        if level<40 and not g:
+            c=randint(int(1*ceil(scale/1)),int(4*ceil(scale/1)))
+            g=True
+        if level>=40:
+            c=randint(int(2*ceil(scale/1)),int(4*ceil(scale/1)))
+        w=randint(15+abs(5-int(level/10)),25+abs(10-int(level/10)))
+        if w>100:
+            w=randint(100,120)
+        enemlist.append(enemy(223,100,1,0,c,w))
+        w=randint(15+abs(5-int(level/10)),25+abs(10-int(level/10)))
+        if w>100:
+            w=randint(100,120)
+        enemlist.append(enemy(100,0,1,1,c,w))
+    else:
+        w=randint(60+int(5*level),90+int(5*level))
+        if w>100:
+            w=randint(100,120)
+        enemlist.append(enemy(223,100,1,randint(0,1),randint(int(1*scale),int(2*scale)),w))
+    a=choice([True, False])
+    pastx=[]
+    pasty=[]
+    right=0
+    top=0
+    num=randint(2+int(level/6),3+int(level/6))
+    for i in range(num):
+        if a:
+            top+=1
+            a=not a
+        else:
+            right+=1
+            a=not a
+    top=int(top)
+    right=int(right)
+    if level<10:
+        cd=(1,2)
+        g=True
+    if level<20:
+        cd=(2,3)
+        g=True
+    if level<40:
+        cd=(2,4)
+        g=True
+
+    for i in range(top):
+        g=False
+        c=randint(*cd)
+        count=0
+        while True:
+            if count==10000:
+                break
+            count+=1
+            coo=randint(10,240-45)
+            val=True
+            for value in enemlist:
+                if PicoBoy.Check_Collision(coo-8,0,34,17,value.x,value.y,17,17,1,1):# pygame.Rect(coo-16,0,64,32).colliderect(value.rect):
+                    val=False
+            if val:
+                break
+        w=randint(10+abs(5-int(level/10)),20+abs(10-int(level/10)))
+        if w>100:
+            w=randint(100,120)
+        enemlist.append(enemy(coo,0,0,1,c,w))
+        pastx.append(coo)
+        if int((240-100)/32)-len(pastx)<0:
+            break
+    for i in range(right):
+        g=False
+        c=randint(*cd)
+        count=0
+        while True:
+            if count==100000:
+                break
+            count+=1
+            coo=randint(61,240-50)
+            val=True
+            for value in enemlist:
+                if PicoBoy.Check_Collision(207,coo,17,17,value.x,value.y,17,17,1,1):# pygame.Rect(swidth-33,coo,32,32).colliderect(value.rect):
+                    val=False
+            if val:
+                break
+        w=randint(10+abs(5-int(level/10)),20+abs(10-int(level/10)))
+        if w>100:
+            w=randint(100,120)
+        enemlist.append(enemy(223,coo,0,0,c,w))
+        pasty.append(coo)
+        if int((240-111)/32)-len(pasty)<0:
+            break
+
+
     Timer=timer()
     while True:
         PicoBoy.Fill_Screen((48,48,48))
@@ -335,16 +298,38 @@ def new_level():
                     if not ys in range(Playerx-10,Playerx+10):
                         break
                 go=True
-                #for p in powerups:
-                #    if PicoBoy.Check_Collision(xs-10,ys-10,20,20,Playerx,Playery,17,17,Playerspeed,1):
-                #       go=False
                 for p in slist:
                     if PicoBoy.Check_Collision(xs-10,ys-10,20,20,p.x-10,p.y-10,20,20,Playerspeed,1):
                         go=False
                 if go:
                     break
             slist.append(scoreboost(xs,ys,choice((10,10,10,10,10,10,10,10,10,10,25,25,25,25,25,25,25,50,50,50,50,50,75,75,75,75,99,99))))
-        check_player()
+        global Playerx,Playery,Playerdirection
+        if PicoBoy.Button("Up"):
+            if Playery>playerboundtop:
+                Playery-=Playerspeed
+            Playerdirection=0
+        elif PicoBoy.Button("Down"):
+            if Playery<240-playerboundbottom-17:
+                Playery+=Playerspeed
+            Playerdirection=1
+        elif PicoBoy.Button("Left"):
+            if Playerx>0:
+                Playerx-=Playerspeed
+            Playerdirection=2
+        elif PicoBoy.Button("Right"):
+            if Playerx<240-playerboundright-17:
+                Playerx+=Playerspeed
+            Playerdirection=3
+        if Playery<playerboundtop:
+            Playery=playerboundtop
+        if Playery>240-playerboundbottom-17:
+            Playery=240-playerboundbottom-17
+        if Playerx<0:
+            Playerx=0
+        if Playerx>240-playerboundright-17:
+            Playerx=240-playerboundright-17
+        PicoBoy.Render_Sprite(playersprites[Playerdirection],Playerx+frameshift,Playery)
         for s in slist:
             s.update()
         for e in enemlist:
@@ -356,7 +341,9 @@ def new_level():
         PicoBoy.Create_Text("Time: "+str(time-timeg),8+frameshift,229,(255,255,255))
         PicoBoy.Create_Text(str(lives),231-int(((len(str(lives))*8)/2))+frameshift,6,(255,255,255))
         if PicoBoy.Button("Start"):
+            MusicBox.Stop_Song()
             PicoBoy.Pause_Screen()
+            MusicBox.Play_Song(currentsong)
         PicoBoy.Update()
         if time-timeg<0:
             return True
@@ -414,7 +401,7 @@ while True:
         while ticks_diff(ticks_ms(), now) < 200:
             sleep(0.020)
         now = ticks_ms()
-    PicoBoy.Update()
+    PicoBoy.Update(noclear=True)
     if PicoBoy.Button("Start"):
         PicoBoy.Show_Scores()
     elif PicoBoy.Button("A"):
@@ -436,19 +423,9 @@ while True:
             PicoBoy.Create_Text("Press home to quit.", -1, 180, (255,255,255))
             PicoBoy.Create_Text("Level: "+str(level),-1,200,(255,255,255))
             PicoBoy.Create_Text("Score: "+str(score), -1, 217, (255,255,255))
-            PicoBoy.Update(score)
+            PicoBoy.Update(score,noclear=True)
             while True:
-                PicoBoy.fill(PicoBoy.color(48,48,48))
-                for s in starcoords:
-                    PicoBoy.vline(int(s[0]*1.2),int(s[1]*1.2-20),1,PicoBoy.color(255,255,255))
-                PicoBoy.Create_Text("Level Clear!",-1,20,(255,255,255))
-                PicoBoy.Load_Small_Image("Big Starship.pbimg",80,45,83,78)
-                PicoBoy.Create_Text("Press A to play",-1, 145, (255,255,255))
-                PicoBoy.Create_Text("the next level",-1, 160, (255,255,255))
-                PicoBoy.Create_Text("Press home to quit.", -1, 180, (255,255,255))
-                PicoBoy.Create_Text("Level: "+str(level),-1,200,(255,255,255))
-                PicoBoy.Create_Text("Score: "+str(score), -1, 217, (255,255,255))
-                PicoBoy.Update(score)
+                PicoBoy.Update(score, noclear=True)
                 if PicoBoy.Button("A"):
                     level+=1
                     break
@@ -472,24 +449,9 @@ while True:
         PicoBoy.Create_Text("to view scores.", -1, 190, (255,255,255))
         PicoBoy.Create_Text("Level: "+str(level), -1, 205, (255,255,255))
         PicoBoy.Create_Text("Score: "+str(score), -1, 217, (255,255,255))
-        PicoBoy.Update()
+        PicoBoy.Update(noclear=True)
         while True:
-            PicoBoy.fill(PicoBoy.color(48,48,48))
-            for s in starcoords:
-                PicoBoy.vline(int(s[0]*1.2),int(s[1]*1.2-20),1,PicoBoy.color(255,255,255))
-            PicoBoy.Create_Text("Game Over",-1,20,(255,255,255))
-            PicoBoy.Load_Small_Image("Big Starship.pbimg",80,45,83,78)
-            for i in range(5):
-                PicoBoy.Line(70,40-i,173,128-i,(255,0,0))
-            for i in range(5):
-                PicoBoy.Line(173,40-i,70,128-i,(255,0,0))
-            PicoBoy.Create_Text("Press A to play again.", -1, 145, (255,255,255))
-            PicoBoy.Create_Text("Press home to quit.", -1, 160, (255,255,255))
-            PicoBoy.Create_Text("Press start", -1, 175, (255,255,255))
-            PicoBoy.Create_Text("to view scores.", -1, 190, (255,255,255))
-            PicoBoy.Create_Text("Level: "+str(level), -1, 205, (255,255,255))
-            PicoBoy.Create_Text("Score: "+str(score), -1, 217, (255,255,255))
-            PicoBoy.Update()
+            PicoBoy.Update(noclear=True)
             if PicoBoy.Button("Start"):
                 PicoBoy.Show_Scores()
             elif PicoBoy.Button("A"):

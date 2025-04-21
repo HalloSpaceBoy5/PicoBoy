@@ -18,7 +18,7 @@ pgb = PicoGameBoy()
 try:
     f=RPMidi(pgb)
     del f
-except:
+except TypeError:
     while True:
         if pgb.button_Home():
             homebootstop=open("/noboot", "w")
@@ -285,7 +285,7 @@ def title_screen():
             now = time.ticks_ms()
         if pgb.button_start():
             view_scores()
-        elif pgb.button_A():
+        if pgb.button_A():
             break
             
 def game_over_screen():
